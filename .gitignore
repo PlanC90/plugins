@@ -20,3 +20,4 @@ build/
 wp-content/cache/
 wp-content/uploads/
 *.zip
+wp-content/plugins/mailin/wonderpush-php-lib/tests/WonderPushTest.php
