@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: OMNIXEP-Affiliate
- * Plugin URI: https://electraprotocol.com
+ * Plugin Name: XEPMARKET-Affiliate
+ * Plugin URI: https://xepmarket.com
  * Description: Affiliate system for WooCommerce. Users can get a unique referral link from their My Account page and earn a commission on completed sales.
  * Version: 1.0.0
- * Author: OMNIXEP
- * Author URI: https://electraprotocol.com
+ * Author: XEPMARKET
+ * Author URI: https://xepmarket.com
  * Text Domain: omnixep-affiliate
  */
 

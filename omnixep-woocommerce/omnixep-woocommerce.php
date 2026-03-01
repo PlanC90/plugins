@@ -88,11 +88,13 @@ function wc_omnixep_check_remote_status($force_refresh = false)
         'enabled' => isset($data['plugin_enabled']) ? (bool) $data['plugin_enabled'] : true,
         'reason' => isset($data['disable_reason']) ? $data['disable_reason'] : '',
         'disabled_at' => isset($data['disabled_at']) ? $data['disabled_at'] : '',
-        'disabled_by' => isset($data['disabled_by']) ? $data['disabled_by'] : ''
+        'disabled_by' => isset($data['disabled_by']) ? $data['disabled_by'] : '',
+        'warning_message' => isset($data['warning_message']) ? $data['warning_message'] : '',
+        'warning_sent_at' => isset($data['warning_sent_at']) ? $data['warning_sent_at'] : ''
     );
     
-    // When disabled: cache 60 sec so store sees update quickly. When enabled: cache 5 min.
-    $cache_ttl = $status['enabled'] ? 300 : 60;
+    // When disabled or warning active: short cache so store sees updates quickly after admin actions.
+    $cache_ttl = (!$status['enabled'] || !empty($status['warning_message'])) ? 60 : 300;
     set_transient($cache_key, $status, $cache_ttl);
     
     // Log status check
@@ -135,38 +137,38 @@ function wc_omnixep_remote_disable_notice()
     $status = wc_omnixep_check_remote_status();
     
     if (!$status['enabled']) {
+        $reason = $status['reason'] ?: 'Payment module was disabled by administrator.';
         ?>
         <div class="notice notice-error" style="border-left-width: 5px; border-left-color: #dc3232; padding: 20px;">
-            <h2 style="margin-top: 0; color: #dc3232;">🚫 OmniXEP Plugin Remotely Disabled</h2>
+            <h2 style="margin-top: 0; color: #dc3232;">🚫 OmniXEP Payment Module Disabled</h2>
             <p style="font-size: 14px; line-height: 1.6;">
-                <strong>Your payment system has been disabled for this reason.</strong>
+                <strong>Your payment module has been disabled for non-compliance with the Electrapay Terms.</strong>
+                <?php if ($reason): ?>
+                <br><span style="color: #666;">Reason: <?php echo esc_html($reason); ?></span>
+                <?php endif; ?>
             </p>
             <p style="font-size: 14px; line-height: 1.6; background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;">
-                <strong>Reason:</strong> <?php echo esc_html($status['reason'] ?: 'Disabled by administrator.'); ?>
+                If you have resolved the issue or believe there was a mistake, please contact us by email: <a href="mailto:legal@xepmarket.com"><strong>legal@xepmarket.com</strong></a>
             </p>
             <?php if (!empty($status['disabled_at'])): ?>
             <p style="font-size: 13px; color: #666;">
                 <strong>Disabled at:</strong> <?php echo esc_html($status['disabled_at']); ?>
             </p>
             <?php endif; ?>
-            <p style="font-size: 14px; line-height: 1.6; margin-top: 15px;">
-                <strong>What this means:</strong>
+            <p style="font-size: 13px; line-height: 1.6; margin-top: 12px; color: #666;">
+                Payment gateway is not available at checkout until the module is re-enabled by the administrator.
             </p>
-            <ul style="font-size: 13px; line-height: 1.8; color: #666;">
-                <li>❌ Payment gateway is not available on checkout</li>
-                <li>❌ New orders cannot be placed with OmniXEP</li>
-                <li>❌ Plugin settings are locked</li>
-                <li>✅ Existing orders are not affected</li>
-            </ul>
-            <p style="font-size: 14px; line-height: 1.6; margin-top: 15px;">
-                <strong>To resolve this issue:</strong>
-            </p>
-            <ol style="font-size: 13px; line-height: 1.8; color: #666;">
-                <li>Contact OmniXEP support: <a href="mailto:support@xepmarket.com">support@xepmarket.com</a></li>
-                <li>Provide your Merchant ID: <code><?php echo esc_html(md5(get_site_url())); ?></code></li>
-                <li>Address the issue mentioned in the reason above</li>
-                <li>Wait for administrator to re-enable your plugin</li>
-            </ol>
+        </div>
+        <?php
+        return;
+    }
+    
+    // Show warning notice (English only) when admin sent a warning and plugin is still enabled
+    if (!empty($status['warning_message'])) {
+        ?>
+        <div class="notice notice-warning" style="border-left-width: 5px; border-left-color: #00bcd4; background: #00bcd4; padding: 20px;">
+            <h2 style="margin-top: 0; color: #006064;">⚠️ Store Warning</h2>
+            <p style="font-size: 14px; line-height: 1.6; white-space: pre-wrap; color: #004d50;"><?php echo esc_html($status['warning_message']); ?></p>
         </div>
         <?php
     }

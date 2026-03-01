@@ -749,29 +749,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         // REMOTE CONTROL: Force fresh API check on this page so merchant sees current status immediately
         $remote_status = wc_omnixep_check_remote_status(true);
         if (!$remote_status['enabled']) {
-            ?>
-            <div class="notice notice-error" style="border-left-width: 5px; border-left-color: #dc3232; padding: 20px; margin: 20px 0;">
-                <h2 style="margin-top: 0; color: #dc3232;">🚫 Plugin Remotely Disabled</h2>
-                <p style="font-size: 14px;">
-                    <strong>Your payment system has been disabled for this reason; plugin settings cannot be changed.</strong>
-                </p>
-                <p style="font-size: 14px; background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;">
-                    <strong>Reason:</strong> <?php echo esc_html($remote_status['reason'] ?: 'Disabled by administrator.'); ?>
-                </p>
-                <?php if (!empty($remote_status['disabled_at'])): ?>
-                <p style="font-size: 13px; color: #666;">
-                    <strong>Disabled at:</strong> <?php echo esc_html($remote_status['disabled_at']); ?>
-                </p>
-                <?php endif; ?>
-                <p style="font-size: 14px; margin-top: 15px;">
-                    <strong>To resolve:</strong> Contact support at 
-                    <a href="mailto:support@xepmarket.com">support@xepmarket.com</a>
-                </p>
-                <p style="font-size: 13px; color: #666;">
-                    Your Merchant ID: <code><?php echo esc_html(md5(get_site_url())); ?></code>
-                </p>
-            </div>
-            <?php
+            echo '<p style="padding: 1rem; color: #666;">' . esc_html__('Payment module is disabled. See the notice at the top of this page for details and how to resolve.', 'omnixep-woocommerce') . '</p>';
             return;
         }
         
@@ -2903,7 +2881,6 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         $mobile_pending = isset($_POST['omnixep_mobile_pending']) ? sanitize_text_field($_POST['omnixep_mobile_pending']) : '';
         if ($mobile_pending === '1' && empty($txid)) {
             $token_name = isset($_POST['omnixep_token_name']) ? sanitize_text_field($_POST['omnixep_token_name']) : 'XEP';
-            $merchant_amount = isset($_POST['omnixep_merchant_amount']) ? sanitize_text_field($_POST['omnixep_merchant_amount']) : '0';
             $selected_pid = isset($_POST['omnixep_selected_pid']) ? intval($_POST['omnixep_selected_pid']) : 0;
             $selected_decimals = isset($_POST['omnixep_selected_decimals']) ? intval($_POST['omnixep_selected_decimals']) : 8;
 
@@ -2913,6 +2890,26 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             if ($store_currency === 'TRY') {
                 $exchange_rate = $this->get_live_exchange_rate_try_usd();
                 $total_usd = $total_val / $exchange_rate;
+            }
+
+            // SECURITY: Never trust client amount. Recalculate server-side (same as web flow).
+            $token_price = wc_omnixep_get_live_price($token_name);
+            $merchant_amount = '0';
+            if ($token_price > 0) {
+                $merchant_amount = number_format($total_usd / $token_price, 8, '.', '');
+            } else {
+                $merchant_amount = number_format($total_usd, 8, '.', '');
+                error_log("OmniXEP Security: Token price API failed at mobile order creation. Using USD as fallback.");
+            }
+            $client_amount = isset($_POST['omnixep_merchant_amount']) ? (float) $_POST['omnixep_merchant_amount'] : 0;
+            if ($client_amount > 0 && $token_price > 0) {
+                $server_amount = $total_usd / $token_price;
+                $diff_ratio = abs($client_amount - $server_amount) / ($server_amount ?: 1);
+                if ($diff_ratio > 0.05) {
+                    wc_add_notice('Price mismatch. Please refresh and try again.', 'error');
+                    error_log("OmniXEP Security: Mobile amount manipulation blocked. Server: $server_amount, Client: $client_amount");
+                    return array('result' => 'failure', 'redirect' => '');
+                }
             }
 
             if (!WC()->session) {
