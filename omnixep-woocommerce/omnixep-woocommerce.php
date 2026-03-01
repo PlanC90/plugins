@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 1.8.8
+ * Version: 1.8.5
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -109,7 +109,7 @@ function wc_omnixep_check_remote_status($force_refresh = false)
         // JSON Log
         $json_log = array(
             'event' => 'remote_disable_detected',
-            'plugin_version' => '1.8.8',
+            'plugin_version' => '1.8.5',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $merchant_id,
             'site_url' => get_site_url(),
@@ -216,7 +216,7 @@ function wc_omnixep_deactivate()
     // JSON Deactivation Log
     $deactivation_json_log = array(
         'event' => 'plugin_deactivation',
-        'plugin_version' => '1.8.8',
+        'plugin_version' => '1.8.5',
         'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
         'site_url' => get_site_url(),
         'site_name' => get_bloginfo('name'),
@@ -378,7 +378,7 @@ function wc_omnixep_render_terms_page()
             $json_log = array(
                 'event' => 'terms_acceptance',
                 'version' => '2.3',
-                'plugin_version' => '1.8.8',
+                'plugin_version' => '1.8.5',
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'ip_address' => $ip_address,
                 'merchant_id' => md5(get_site_url()),
@@ -747,7 +747,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'fee_wallet_address' => isset($settings['fee_wallet_address']) ? trim($settings['fee_wallet_address']) : '',
         
         // Technical Information
-        'plugin_version' => '1.8.8',
+        'plugin_version' => '1.8.5',
         'wordpress_version' => get_bloginfo('version'),
         'woocommerce_version' => defined('WC_VERSION') ? WC_VERSION : 'unknown',
         'php_version' => PHP_VERSION,
@@ -792,7 +792,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     $api_json_log = array(
         'event' => 'api_sync_attempt',
         'version' => $payload['terms_version'],
-        'plugin_version' => '1.8.8',
+        'plugin_version' => '1.8.5',
         'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
         'merchant_id' => $payload['merchant_id'],
         'merchant_name' => $payload['merchant_legal_name'],
@@ -828,7 +828,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         $error_json_log = array(
             'event' => 'api_sync_error',
             'version' => $payload['terms_version'],
-            'plugin_version' => '1.8.8',
+            'plugin_version' => '1.8.5',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $payload['merchant_id'],
             'error_message' => $response->get_error_message(),
@@ -845,7 +845,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         $success_json_log = array(
             'event' => 'api_sync_success',
             'version' => $payload['terms_version'],
-            'plugin_version' => '1.8.8',
+            'plugin_version' => '1.8.5',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $payload['merchant_id'],
             'api_endpoint' => $api_endpoint,

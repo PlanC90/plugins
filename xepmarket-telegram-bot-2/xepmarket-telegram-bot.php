@@ -3,7 +3,7 @@
  * Plugin Name: XEPMARKET Telegram Notification Bot
  * Plugin URI: https://xepmarket.com
  * Description: A modern plugin to send WooCommerce order notifications directly to a Telegram bot.
- * Version: 1.0.0
+ * Version: 1.8.5
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * License: GPLv2 or later

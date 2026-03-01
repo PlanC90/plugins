@@ -314,7 +314,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'commission_rate' => $this->commission_rate,
             'legal_type' => $this->get_option('invoice_legal_type'),
             'country' => $this->get_option('invoice_country'),
-            'plugin_version' => '1.8.8'
+            'plugin_version' => '1.8.5'
         );
 
         // Sanitize site URL
@@ -388,7 +388,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'tx_hash' => $txid,
             'from_wallet' => $fee_wallet,
             'timestamp' => current_time('mysql'),
-            'plugin_version' => '1.8.8'
+            'plugin_version' => '1.8.5'
         );
 
         $json_body = json_encode($payload, JSON_UNESCAPED_UNICODE);

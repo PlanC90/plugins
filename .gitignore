@@ -1,30 +1,17 @@
-# Node
-node_modules/
-npm-debug.log*
-yarn-error.log*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Editors/IDE
-.vscode/
-.idea/
-
-# Build/Cache
-dist/
-build/
-*.log
-
-# WordPress typical
-wp-content/cache/
-wp-content/uploads/
-*.zip
-wp-content/plugins/mailin/wonderpush-php-lib/tests/WonderPushTest.php
+# Dependencies
 node_modules/
 **/node_modules/
+
+# Composer / PHP
 vendor/
 **/vendor/
+
+# Env and secrets
 .env
 .env.*
 *.pem
+
+# IDE and OS
+.DS_Store
+Thumbs.db
+*.log
