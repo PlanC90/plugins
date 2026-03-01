@@ -1,0 +1,468 @@
+/*!
+ * # Semantic UI 2.5.0 - Message
+ * http://github.com/semantic-org/semantic-ui/
+ *
+ *
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+            Message
+*******************************/
+
+.vi-ui.message {
+  position: relative;
+  min-height: 1em;
+  margin: 1em 0em;
+  background: #F8F8F9;
+  padding: 1em 1.5em;
+  line-height: 1.4285em;
+  color: rgba(0, 0, 0, 0.87);
+  transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease, box-shadow 0.1s ease;
+  border-radius: 0.28571429rem;
+  box-shadow: 0px 0px 0px 1px rgba(34, 36, 38, 0.22) inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.message:first-child {
+  margin-top: 0em;
+}
+.vi-ui.message:last-child {
+  margin-bottom: 0em;
+}
+
+/*--------------
+     Content
+---------------*/
+
+
+/* Header */
+.vi-ui.message .header {
+  display: block;
+  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  margin: -0.14285714em 0em 0rem 0em;
+}
+
+/* Default font size */
+.vi-ui.message .header:not(.vi-ui) {
+  font-size: 1.14285714em;
+}
+
+/* Paragraph */
+.vi-ui.message p {
+  opacity: 0.85;
+  margin: 0.75em 0em;
+}
+.vi-ui.message p:first-child {
+  margin-top: 0em;
+}
+.vi-ui.message p:last-child {
+  margin-bottom: 0em;
+}
+.vi-ui.message .header + p {
+  margin-top: 0.25em;
+}
+
+/* List */
+.vi-ui.message .list:not(.vi-ui) {
+  text-align: left;
+  padding: 0em;
+  opacity: 0.85;
+  list-style-position: inside;
+  margin: 0.5em 0em 0em;
+}
+.vi-ui.message .list:not(.vi-ui):first-child {
+  margin-top: 0em;
+}
+.vi-ui.message .list:not(.vi-ui):last-child {
+  margin-bottom: 0em;
+}
+.vi-ui.message .list:not(.vi-ui) li {
+  position: relative;
+  list-style-type: none;
+  margin: 0em 0em 0.3em 1em;
+  padding: 0em;
+}
+.vi-ui.message .list:not(.vi-ui) li:before {
+  position: absolute;
+  content: '•';
+  left: -1em;
+  height: 100%;
+  vertical-align: baseline;
+}
+.vi-ui.message .list:not(.vi-ui) li:last-child {
+  margin-bottom: 0em;
+}
+
+/* Icon */
+.vi-ui.message > .icon {
+  margin-right: 0.6em;
+}
+
+/* Close Icon */
+.vi-ui.message > .close.icon {
+  cursor: pointer;
+  position: absolute;
+  margin: 0em;
+  top: 0.78575em;
+  right: 0.5em;
+  opacity: 0.7;
+  transition: opacity 0.1s ease;
+}
+.vi-ui.message > .close.icon:hover {
+  opacity: 1;
+}
+
+/* First / Last Element */
+.vi-ui.message > :first-child {
+  margin-top: 0em;
+}
+.vi-ui.message > :last-child {
+  margin-bottom: 0em;
+}
+
+
+/*******************************
+            Coupling
+*******************************/
+
+.vi-ui.dropdown .menu > .message {
+  margin: 0px -1px;
+}
+
+
+/*******************************
+            States
+*******************************/
+
+
+/*--------------
+    Visible
+---------------*/
+
+.vi-ui.visible.visible.visible.visible.message {
+  display: block;
+}
+.vi-ui.icon.visible.visible.visible.visible.message {
+  display: flex;
+}
+
+/*--------------
+     Hidden
+---------------*/
+
+.vi-ui.hidden.hidden.hidden.hidden.message {
+  display: none;
+}
+
+
+/*******************************
+            Variations
+*******************************/
+
+
+/*--------------
+    Compact
+---------------*/
+
+.vi-ui.compact.message {
+  display: inline-block;
+}
+.vi-ui.compact.icon.message {
+  display: inline-flex;
+}
+
+/*--------------
+    Attached
+---------------*/
+
+.vi-ui.attached.message {
+  margin-bottom: -1px;
+  border-radius: 0.28571429rem 0.28571429rem 0em 0em;
+  box-shadow: 0em 0em 0em 1px rgba(34, 36, 38, 0.15) inset;
+  margin-left: -1px;
+  margin-right: -1px;
+}
+.vi-ui.attached + .vi-ui.attached.message:not(.top):not(.bottom) {
+  margin-top: -1px;
+  border-radius: 0em;
+}
+.vi-ui.bottom.attached.message {
+  margin-top: -1px;
+  border-radius: 0em 0em 0.28571429rem 0.28571429rem;
+  box-shadow: 0em 0em 0em 1px rgba(34, 36, 38, 0.15) inset, 0px 1px 2px 0 rgba(34, 36, 38, 0.15);
+}
+.vi-ui.bottom.attached.message:not(:last-child) {
+  margin-bottom: 1em;
+}
+.vi-ui.attached.icon.message {
+  width: auto;
+}
+
+/*--------------
+      Icon
+---------------*/
+
+.vi-ui.icon.message {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+.vi-ui.icon.message > .icon:not(.close) {
+  display: block;
+  flex: 0 0 auto;
+  width: auto;
+  line-height: 1;
+  vertical-align: middle;
+  font-size: 3em;
+  opacity: 0.8;
+}
+.vi-ui.icon.message > .content {
+  display: block;
+  flex: 1 1 auto;
+  vertical-align: middle;
+}
+.vi-ui.icon.message .icon:not(.close) + .content {
+  padding-left: 0rem;
+}
+.vi-ui.icon.message .circular.icon {
+  width: 1em;
+}
+
+/*--------------
+    Floating
+---------------*/
+
+.vi-ui.floating.message {
+  box-shadow: 0px 0px 0px 1px rgba(34, 36, 38, 0.22) inset, 0px 2px 4px 0px rgba(34, 36, 38, 0.12), 0px 2px 10px 0px rgba(34, 36, 38, 0.15);
+}
+
+/*--------------
+     Colors
+---------------*/
+
+.vi-ui.black.message {
+  background-color: #1B1C1D;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/*--------------
+     Types
+---------------*/
+
+
+/* Positive */
+.vi-ui.positive.message {
+  background-color: #FCFFF5;
+  color: #2C662D;
+}
+.vi-ui.positive.message,
+.vi-ui.attached.positive.message {
+  box-shadow: 0px 0px 0px 1px #A3C293 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.positive.message .header {
+  color: #1A531B;
+}
+
+/* Negative */
+.vi-ui.negative.message {
+  background-color: #FFF6F6;
+  color: #9F3A38;
+}
+.vi-ui.negative.message,
+.vi-ui.attached.negative.message {
+  box-shadow: 0px 0px 0px 1px #E0B4B4 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.negative.message .header {
+  color: #912D2B;
+}
+
+/* Info */
+.vi-ui.info.message {
+  background-color: #F8FFFF;
+  color: #276F86;
+}
+.vi-ui.info.message,
+.vi-ui.attached.info.message {
+  box-shadow: 0px 0px 0px 1px #A9D5DE inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.info.message .header {
+  color: #0E566C;
+}
+
+/* Warning */
+.vi-ui.warning.message {
+  background-color: #FFFAF3;
+  color: #573A08;
+}
+.vi-ui.warning.message,
+.vi-ui.attached.warning.message {
+  box-shadow: 0px 0px 0px 1px #C9BA9B inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.warning.message .header {
+  color: #794B02;
+}
+
+/* Error */
+.vi-ui.error.message {
+  background-color: #FFF6F6;
+  color: #9F3A38;
+}
+.vi-ui.error.message,
+.vi-ui.attached.error.message {
+  box-shadow: 0px 0px 0px 1px #E0B4B4 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.error.message .header {
+  color: #912D2B;
+}
+
+/* Success */
+.vi-ui.success.message {
+  background-color: #FCFFF5;
+  color: #2C662D;
+}
+.vi-ui.success.message,
+.vi-ui.attached.success.message {
+  box-shadow: 0px 0px 0px 1px #A3C293 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.success.message .header {
+  color: #1A531B;
+}
+
+/* Colors */
+.vi-ui.inverted.message,
+.vi-ui.black.message {
+  background-color: #1B1C1D;
+  color: rgba(255, 255, 255, 0.9);
+}
+.vi-ui.red.message {
+  background-color: #FFE8E6;
+  color: #DB2828;
+  box-shadow: 0px 0px 0px 1px #DB2828 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.red.message .header {
+  color: #c82121;
+}
+.vi-ui.orange.message {
+  background-color: #FFEDDE;
+  color: #F2711C;
+  box-shadow: 0px 0px 0px 1px #F2711C inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.orange.message .header {
+  color: #e7640d;
+}
+.vi-ui.yellow.message {
+  background-color: #FFF8DB;
+  color: #B58105;
+  box-shadow: 0px 0px 0px 1px #B58105 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.yellow.message .header {
+  color: #9c6f04;
+}
+.vi-ui.olive.message {
+  background-color: #FBFDEF;
+  color: #8ABC1E;
+  box-shadow: 0px 0px 0px 1px #8ABC1E inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.olive.message .header {
+  color: #7aa61a;
+}
+.vi-ui.green.message {
+  background-color: #E5F9E7;
+  color: #1EBC30;
+  box-shadow: 0px 0px 0px 1px #1EBC30 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.green.message .header {
+  color: #1aa62a;
+}
+.vi-ui.teal.message {
+  background-color: #E1F7F7;
+  color: #10A3A3;
+  box-shadow: 0px 0px 0px 1px #10A3A3 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.teal.message .header {
+  color: #0e8c8c;
+}
+.vi-ui.blue.message {
+  background-color: #DFF0FF;
+  color: #2185D0;
+  box-shadow: 0px 0px 0px 1px #2185D0 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.blue.message .header {
+  color: #1e77ba;
+}
+.vi-ui.violet.message {
+  background-color: #EAE7FF;
+  color: #6435C9;
+  box-shadow: 0px 0px 0px 1px #6435C9 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.violet.message .header {
+  color: #5a30b5;
+}
+.vi-ui.purple.message {
+  background-color: #F6E7FF;
+  color: #A333C8;
+  box-shadow: 0px 0px 0px 1px #A333C8 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.purple.message .header {
+  color: #922eb4;
+}
+.vi-ui.pink.message {
+  background-color: #FFE3FB;
+  color: #E03997;
+  box-shadow: 0px 0px 0px 1px #E03997 inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.pink.message .header {
+  color: #dd238b;
+}
+.vi-ui.brown.message {
+  background-color: #F1E2D3;
+  color: #A5673F;
+  box-shadow: 0px 0px 0px 1px #A5673F inset, 0px 0px 0px 0px rgba(0, 0, 0, 0);
+}
+.vi-ui.brown.message .header {
+  color: #935b38;
+}
+
+/*--------------
+     Sizes
+---------------*/
+
+.vi-ui.mini.message {
+  font-size: 0.78571429em;
+}
+.vi-ui.tiny.message {
+  font-size: 0.85714286em;
+}
+.vi-ui.small.message {
+  font-size: 0.92857143em;
+}
+.vi-ui.message {
+  font-size: 1em;
+}
+.vi-ui.large.message {
+  font-size: 1.14285714em;
+}
+.vi-ui.big.message {
+  font-size: 1.28571429em;
+}
+.vi-ui.huge.message {
+  font-size: 1.42857143em;
+}
+.vi-ui.massive.message {
+  font-size: 1.71428571em;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+        Site Overrides
+*******************************/
+

@@ -1,0 +1,22 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors/IDE
+.vscode/
+.idea/
+
+# Build/Cache
+dist/
+build/
+*.log
+
+# WordPress typical
+wp-content/cache/
+wp-content/uploads/
+*.zip

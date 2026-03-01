@@ -1,0 +1,25 @@
+{
+  "name": "omnixep-wallet",
+  "version": "1.0.0",
+  "description": "Electra Protocol Browser Wallet",
+  "main": "popup.js",
+  "scripts": {
+    "build": "browserify src/wallet_core.js --standalone WalletCore -o bundle.js"
+  },
+  "browser": {
+    "fs": false,
+    "path": false,
+    "crypto": false
+  },
+  "dependencies": {
+    "bip32": "^2.0.6",
+    "bip39": "^3.1.0",
+    "bitcoinjs-lib": "^5.2.0",
+    "bitcoinjs-message": "^2.2.0",
+    "browserify": "^17.0.0",
+    "buffer": "^6.0.3",
+    "crypto-js": "^4.2.0",
+    "process": "^0.11.10",
+    "qrcode": "^1.5.4"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "OmniXEP Wallet",
+  "version": "1.0.0",
+  "description": "Electra Protocol (XEP) Secure Wallet with Omni Support",
+  "icons": {
+    "16": "img/omnixep.png",
+    "48": "img/omnixep.png",
+    "128": "img/omnixep.png"
+  },
+  "permissions": [
+    "storage",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://api.omnixep.com/*",
+    "https://api.coingecko.com/*",
+    "https://api.geckoterminal.com/*",
+    "https://*.mypinata.cloud/*",
+    "https://ipfs.io/*",
+    "https://cloudflare-ipfs.com/*",
+    "https://gateway.pinata.cloud/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "OmniXEP Wallet",
+    "default_icon": "img/omnixep.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "inpage.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: https:;"
+  }
+}
