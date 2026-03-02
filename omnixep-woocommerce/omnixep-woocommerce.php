@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 1.9.2
+ * Version: 1.9.5
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -307,7 +307,7 @@ function wc_omnixep_check_terms_acceptance()
 {
     $terms_accepted = get_option('omnixep_terms_accepted', false);
     $terms_version = get_option('omnixep_terms_version', '0.0.0');
-    $current_version = '2.3';
+    $current_version = '3.5';
     
     // If terms not accepted or version outdated, show notice
     if (!$terms_accepted || version_compare($terms_version, $current_version, '<')) {
@@ -424,12 +424,12 @@ function wc_omnixep_render_terms_page()
             error_log('IP Address: ' . $ip_address);
             error_log('User Agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown'));
             error_log('Site URL: ' . get_site_url());
-            error_log('Terms Version: 2.3');
+            error_log('Terms Version: 3.5');
             
             // JSON Structured Log
             $json_log = array(
                 'event' => 'terms_acceptance',
-                'version' => '2.3',
+                'version' => '3.5',
                 'plugin_version' => '1.9.0',
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'ip_address' => $ip_address,
@@ -447,7 +447,7 @@ function wc_omnixep_render_terms_page()
             
             // Save locally
             update_option('omnixep_terms_accepted', true);
-            update_option('omnixep_terms_version', '2.3');
+            update_option('omnixep_terms_version', '3.5');
             update_option('omnixep_terms_accepted_date', $acceptance_date);
             update_option('omnixep_terms_accepted_by', $user_id);
             update_option('omnixep_terms_accepted_ip', $ip_address);
@@ -507,8 +507,8 @@ function wc_omnixep_render_terms_page()
                     <li>✅ <strong>Security Responsibility:</strong> You are solely responsible for securing your mnemonic phrase</li>
                     <li>✅ <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
                     <li>✅ <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
-                    <li>✅ <strong>Limited Liability:</strong> Maximum liability is $100 USD or 30 days of commission</li>
-                    <li>✅ <strong>Governing Law:</strong> Republic of Türkiye - Kırklareli Courts</li>
+                    <li>✅ <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
+                    <li>✅ <strong>Governing Law:</strong> Republic of Türkiye – İstanbul Courts and Enforcement Offices</li>
                 </ul>
             </div>
             
@@ -516,11 +516,11 @@ function wc_omnixep_render_terms_page()
                 <label style="display: flex; align-items: flex-start; cursor: pointer; font-size: 15px; font-weight: 600;">
                     <input type="checkbox" name="accept_checkbox" value="1" required style="margin-right: 12px; margin-top: 4px; width: 20px; height: 20px;">
                     <span style="line-height: 1.6;">
-                        I have read, understood, and agree to be legally bound by the OmniXEP Terms of Service (v2.3). 
+                        I have read, understood, and agree to be legally bound by the OmniXEP Terms of Service (v3.5). 
                         I acknowledge that this is a software license only, the Developer does not hold or control my funds, 
                         and I accept the 0.8% software service fee. I understand that I am solely responsible for wallet security, 
-                        regulatory compliance, and that the Developer's liability is limited to $100 USD. 
-                        I agree that disputes are governed by the laws of the Republic of Türkiye and subject to Kırklareli Courts.
+                        regulatory compliance, and that the Developer's liability is limited to 100 USD or 30 days of license fees (whichever is lower). 
+                        I agree that disputes are governed by the laws of the Republic of Türkiye and subject to the Courts and Enforcement Offices of İstanbul.
                     </span>
                 </label>
             </div>
@@ -768,8 +768,8 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'terms_checksum' => md5($terms_text),
         
         // Terms Information
-        'terms_version' => '2.3',
-        'terms_effective_date' => '2026-02-26',
+        'terms_version' => '3.5',
+        'terms_effective_date' => '2026-03-01',
         
         // Acceptance Information
         'accepted_at' => $acceptance_date,
@@ -807,7 +807,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         
         // Jurisdiction Acknowledgment
         'jurisdiction_accepted' => 'Republic of Türkiye',
-        'courts_accepted' => 'Kırklareli Courts and Enforcement Offices',
+        'courts_accepted' => 'Courts and Enforcement Offices of İstanbul',
         
         // Key Acknowledgments
         'acknowledged_software_only' => true,
