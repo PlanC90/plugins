@@ -1,0 +1,32 @@
+/*1.0.8 - 2026.01.05*/
+- Updated: VillaTheme support
+
+/*1.0.7 - 2025.11.15*/
+- Updated: Swipe through gallery items of the VARGAL template on mobile
+- Updated: Option to show the image switch icon for the gallery on mobile
+- Updated: Compatible with Bricks theme v:2.0.2
+- Updated: Compatible with Blocksy theme
+- Added: The ‘vargal_get_thumbnail_width’ filter for adjusting thumbnail width
+
+/*1.0.6 - 2025.09.18*/
+- Updated: Compatible with BULKY - Bulk Edit Products for WooCommerce
+
+/*1.0.5 - 2025.09.03*/
+-Updated: Link to pro version
+
+/*1.0.4 - 2025.07.24*/
+- Updated: VillaTheme support
+
+/*1.0.3 - 2025.06.10*/
+- Fixed: Errors from customers' feedback
+- Updated: Compatible with Flatsome theme - quick view
+- Updated: Compatible with Goya theme - quick view
+
+/*1.0.2 - 2025.04.24*/
+- Updated: VillaTheme support
+
+/*1.0.1 - 2025.04.24*/
+- Updated: VillaTheme support
+
+/**1.0.0 - 2025/
+- Release version 1.0.0

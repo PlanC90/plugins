@@ -1,0 +1,20 @@
+{
+  "name": "omnixep-auto-fee-service",
+  "version": "1.0.0",
+  "description": "Stabil otomatik fee gönderim servisi",
+  "main": "auto-fee-service.js",
+  "scripts": {
+    "start": "node auto-fee-service.js",
+    "dev": "nodemon auto-fee-service.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["omnixep", "fee", "blockchain", "payment"],
+  "author": "OmniXEP",
+  "license": "MIT"
+}
