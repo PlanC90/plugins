@@ -83,16 +83,46 @@ function wc_omnixep_sign_api_body($body_string, $secret) {
 }
 
 /**
- * Get API secret from OmniXEP gateway settings.
+ * Get prioritized list of API secrets.
+ * 1. wp-config.php constant
+ * 2. Settings field
+ * 3. Standard Key 1
+ * 4. Standard Key 2 (Backup)
+ *
+ * @return array
+ */
+function wc_omnixep_get_api_secrets() {
+    $secrets = array();
+    
+    // 1. Direct Constants (Highest Priority)
+    if (defined('OMNIXEP_API_SECRET') && OMNIXEP_API_SECRET !== '') {
+        $secrets[] = trim(OMNIXEP_API_SECRET);
+    }
+    if (defined('OMNIXEP_API_SECRET2') && OMNIXEP_API_SECRET2 !== '') {
+        $secrets[] = trim(OMNIXEP_API_SECRET2);
+    }
+    
+    // 2. Dashboard Settings
+    $settings = get_option('woocommerce_omnixep_settings', array());
+    if (isset($settings['omnixep_api_secret']) && !empty(trim($settings['omnixep_api_secret']))) {
+        $secrets[] = trim($settings['omnixep_api_secret']);
+    }
+    
+    // 3. Standard Keys (Fallbacks)
+    $secrets[] = 'xepmarket-4512-9874-74132-1485';
+    $secrets[] = 'xepmarket-4512-9874-74132-149';
+    
+    return array_unique($secrets);
+}
+
+/**
+ * Get the primary API secret (first available in priority).
  *
  * @return string
  */
 function wc_omnixep_get_api_secret() {
-    if (defined('OMNIXEP_API_SECRET') && OMNIXEP_API_SECRET !== '') {
-        return trim(OMNIXEP_API_SECRET);
-    }
-    $settings = get_option('woocommerce_omnixep_settings', array());
-    return isset($settings['omnixep_api_secret']) ? trim((string) $settings['omnixep_api_secret']) : '';
+    $secrets = wc_omnixep_get_api_secrets();
+    return !empty($secrets) ? $secrets[0] : '';
 }
 
 /**
@@ -412,7 +442,7 @@ function wc_omnixep_terms_notice()
     if (!wc_omnixep_check_terms_acceptance()) {
         ?>
         <div class="notice notice-error is-dismissible" style="border-left-width: 5px; border-left-color: #d63638; padding: 20px;">
-            <h2 style="margin-top: 0;">⚠️ OmniXEP Payment Gateway - Terms of Service Required</h2>
+            <h2 style="margin-top: 0;">⚠  OmniXEP Payment Gateway - Terms of Service Required</h2>
             <p style="font-size: 14px; line-height: 1.6;">
                 <strong>IMPORTANT:</strong> You must read and accept the Terms of Service before using the OmniXEP Payment Gateway.
             </p>
@@ -426,8 +456,8 @@ function wc_omnixep_terms_notice()
                 <li>✅ Legal protections for both merchant and developer</li>
             </ul>
             <p style="margin-top: 15px;">
-                <a href="<?php echo admin_url('admin.php?page=omnixep-terms'); ?>" class="button button-primary" style="background: #d63638; border-color: #d63638; font-size: 14px; height: auto; padding: 10px 20px;">
-                    ÄŸÅ¸â€œâ€ Read & Accept Terms of Service
+                <a href="<?php echo admin_url("admin.php?page=omnixep-terms"); ?>" class="button button-primary" style="background: #d63638; border-color: #d63638; font-size: 14px; height: auto; padding: 10px 20px;">
+                    📄 Read & Accept Terms of Service
                 </a>
             </p>
         </div>
@@ -439,9 +469,9 @@ function wc_omnixep_terms_notice()
             ?>
             <div class="notice notice-info is-dismissible" style="border-left-width: 5px; border-left-color: #4dabf7; padding: 15px;">
                 <p style="margin: 0;">
-                    <strong>ℹ️Â Terms Acceptance Not Synced:</strong> 
+                    <strong>ℹ️  Terms Acceptance Not Synced:</strong> 
                     Your terms acceptance hasn't been sent to the API yet. 
-                    <a href="<?php echo admin_url('admin.php?page=omnixep-sync-terms'); ?>" style="font-weight: 600;">
+                    <a href="<?php echo admin_url("admin.php?page=omnixep-sync-terms"); ?>" style="font-weight: 600;">
                         Click here to sync now →
                     </a>
                 </p>
@@ -553,7 +583,7 @@ function wc_omnixep_render_terms_page()
     
     ?>
     <div class="wrap" style="max-width: 1200px; margin: 20px auto;">
-        <h1 style="font-size: 28px; margin-bottom: 20px;">ÄŸÅ¸â€œâ€ OmniXEP Payment Gateway - Terms of Service</h1>
+        <h1 style="font-size: 28px; margin-bottom: 20px;">📄 OmniXEP Payment Gateway - Terms of Service</h1>
         
         <?php if (isset($error)): ?>
             <div class="notice notice-error" style="padding: 15px; margin-bottom: 20px;">
@@ -605,7 +635,7 @@ function wc_omnixep_render_terms_page()
                     ✅ I Accept - Activate Plugin
                 </button>
                 <a href="<?php echo admin_url('plugins.php'); ?>" class="button" style="font-size: 16px; padding: 12px 40px; height: auto;">
-                    Ã¢ÂÅ’ I Decline - Go Back
+                    ❌ I Decline - Go Back
                 </a>
             </div>
             
@@ -644,7 +674,7 @@ function wc_omnixep_render_sync_page()
     
     ?>
     <div class="wrap" style="max-width: 1000px; margin: 20px auto;">
-        <h1 style="font-size: 28px; margin-bottom: 20px;">ÄŸÅ¸â€â€ OmniXEP Terms Acceptance - API Sync</h1>
+        <h1 style="font-size: 28px; margin-bottom: 20px;">🔄 OmniXEP Terms Acceptance - API Sync</h1>
         
         <?php if (isset($sync_message)): ?>
             <div class="notice notice-success" style="padding: 15px; margin-bottom: 20px;">
@@ -694,7 +724,7 @@ function wc_omnixep_render_sync_page()
                                 <?php if ($synced_to_api): ?>
                                     <span style="color: #2ecc71; font-weight: 600;">✅ Yes</span>
                                 <?php else: ?>
-                                    <span style="color: #e74c3c; font-weight: 600;">Ã¢ÂÅ’ No</span>
+                                    <span style="color: #e74c3c; font-weight: 600;">❌ No</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -703,12 +733,12 @@ function wc_omnixep_render_sync_page()
             </div>
             
             <div style="background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; padding: 30px; margin-bottom: 20px;">
-                <h2 style="margin-top: 0; color: #2c3e50;">ÄŸÅ¸â€â€ Manual Sync to API</h2>
+                <h2 style="margin-top: 0; color: #2c3e50;">🔄 Manual Sync to API</h2>
                 
                 <?php if ($synced_to_api): ?>
                     <div style="background: #e7f5ff; border-left: 4px solid #4dabf7; padding: 15px; margin-bottom: 20px;">
                         <p style="margin: 0;">
-                            <strong>ℹ️Â Already Synced:</strong> Your terms acceptance has already been sent to the API.
+                            <strong>ℹ️  Already Synced:</strong> Your terms acceptance has already been sent to the API.
                             You can re-sync if needed (for example, if invoice information was updated).
                         </p>
                     </div>
@@ -739,7 +769,7 @@ function wc_omnixep_render_sync_page()
                 <form method="post" action="">
                     <?php wp_nonce_field('omnixep_manual_sync'); ?>
                     <button type="submit" name="omnixep_manual_sync" class="button button-primary" style="font-size: 16px; padding: 12px 30px; height: auto;">
-                        ÄŸÅ¸â€â€ <?php echo $synced_to_api ? 'Re-Sync' : 'Sync'; ?> to API Now
+                        🔄 <?php echo $synced_to_api ? 'Re-Sync' : 'Sync'; ?> to API Now
                     </button>
                 </form>
             </div>
@@ -954,7 +984,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     
     // Log result (only if blocking was used for debugging)
     if (is_wp_error($response)) {
-        error_log('Ã¢ÂÅ’ TERMS ACCEPTANCE API ERROR: ' . $response->get_error_message());
+        error_log('❌ TERMS ACCEPTANCE API ERROR: ' . $response->get_error_message());
         error_log('Error Code: ' . $response->get_error_code());
         
         // JSON Error Log
@@ -3545,7 +3575,7 @@ function wc_omnixep_submit_feedback($data)
     if (!empty($result['success'])) {
         error_log('✅ Customer Feedback Submitted to API: ' . ($result['reference_number'] ?? 'N/A'));
     } else {
-        error_log('Ã¢ÂÅ’ Customer Feedback Failed: ' . ($result['error'] ?? 'Unknown error'));
+        error_log('❌ Customer Feedback Failed: ' . ($result['error'] ?? 'Unknown error'));
     }
     
     return $result;

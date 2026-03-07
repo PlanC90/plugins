@@ -1,13 +1,17 @@
+# Dependencies
 node_modules/
+**/node_modules/
+
+# Composer / PHP
 vendor/
+**/vendor/
+
+# Env and secrets
+.env
+.env.*
 *.pem
-*.key
-*.p12
-*.keystore
-*.env
-.env.local
+
+# IDE and OS
 .DS_Store
 Thumbs.db
-.vscode/
-dist/
-build/
+*.log

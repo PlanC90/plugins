@@ -621,9 +621,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'omnixep_api_secret' => array(
                 'title' => 'API Secret',
                 'type' => 'password',
-                'description' => 'Get this value from your API administrator. All requests to api.planc.space will be signed with this secret.',
+                'description' => defined('OMNIXEP_API_SECRET') ? '<strong>Note:</strong> Currently defined in wp-config.php. This setting is locked.' : 'Get this value from your API administrator. All requests to api.planc.space will be signed with this secret.',
                 'default' => '',
-                'placeholder' => 'Leave empty to disable signing (not recommended)',
+                'placeholder' => defined('OMNIXEP_API_SECRET') ? 'Defined in wp-config.php' : 'Enter API Secret',
+                'custom_attributes' => defined('OMNIXEP_API_SECRET') ? array('readonly' => 'readonly') : array(),
             ),
             */
             'section_invoice' => array(
