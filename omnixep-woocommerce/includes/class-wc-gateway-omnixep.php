@@ -338,7 +338,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'commission_rate' => number_format((float) $this->commission_rate, 2, '.', ''),
             'legal_type' => (string) $this->get_option('invoice_legal_type'),
             'country' => (string) $this->get_option('invoice_country'),
-            'plugin_version' => '1.9.0'
+            'plugin_version' => '2.4.0'
         );
 
         // Sanitize site URL
@@ -417,7 +417,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'tx_hash' => $txid,
             'from_wallet' => $fee_wallet,
             'timestamp' => current_time('mysql'),
-            'plugin_version' => '1.9.0'
+            'plugin_version' => '2.4.0'
         );
 
         $json_body = json_encode(wc_omnixep_canonical_json($payload), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -602,8 +602,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'token_config' => array(
                 'title' => 'Token Configuration',
                 'type' => 'token_table',
-                'description' => 'Add tokens one by one. Specify the source (MEXC/CoinGecko) and the corresponding ID or pair.',
-                'default' => "0,XEP,mexc,XEPUSDT,8",
+                'description' => 'Add tokens one by one. Specify the source (MEXC/CoinGecko/Dex-Trade) and the corresponding ID or pair.',
+                'default' => "0,XEP,mexc,XEPUSDT,8,1\n278,MMX,dextrade,MMXUSDT,0,0",
             ),
             'order_status' => array(
                 'title' => 'Order Status After Payment',
@@ -700,6 +700,15 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'title' => '',
                 'type' => 'invoice_validation_script',
                 'description' => '',
+            ),
+            'section_updates' => array(
+                'title' => 'Plugin Updates',
+                'type' => 'title',
+                'description' => 'Manage and check for plugin updates directly from GitHub.',
+            ),
+            'update_checker' => array(
+                'title' => 'Software Update',
+                'type' => 'update_checker',
             ),
             /*
              * SECURITY NOTE:
@@ -1799,6 +1808,36 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                         font-size: 12px;
                     }
 
+                    .omnixep-status-toggle {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                    }
+
+                    .omnixep-status-btn {
+                        display: inline-block;
+                        padding: 4px 10px;
+                        border-radius: 4px;
+                        font-size: 10px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        text-transform: uppercase;
+                        text-align: center;
+                        min-width: 35px;
+                        user-select: none;
+                        transition: all 0.2s ease;
+                    }
+
+                    .omnixep-status-btn.status-on {
+                        background: #2ecc71;
+                        color: #fff;
+                    }
+
+                    .omnixep-status-btn.status-off {
+                        background: #e74c3c;
+                        color: #fff;
+                    }
+
                     .omnixep-remove-token {
                         color: #d63638;
                         cursor: pointer;
@@ -1812,12 +1851,6 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                         font-size: 11px !important;
                         height: auto !important;
                         line-height: 1.2 !important;
-                    }
-
-                    .token-status {
-                        display: inline-block;
-                        margin-left: 5px;
-                        font-weight: bold;
                     }
 
                     .status-success {
@@ -1837,6 +1870,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                             <th style="width: 110px;">Source</th>
                             <th>Price ID / Pair</th>
                             <th style="width: 80px;">Decimals</th>
+                            <th style="width: 60px;">Status</th>
                             <th style="width: 90px;">Verify</th>
                             <th style="width: 30px;"></th>
                         </tr>
@@ -1860,9 +1894,17 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                         placeholder="electra-protocol"></td>
                                 <td><input type="number" class="token-decimals" value="<?php echo esc_attr($token['decimals']); ?>"
                                         placeholder="8"></td>
+                                <td class="omnixep-status-toggle">
+                                    <?php 
+                                    $is_active = isset($token['status']) ? (int)$token['status'] : 1;
+                                    ?>
+                                    <span class="omnixep-status-btn <?php echo $is_active ? 'status-on' : 'status-off'; ?>" data-status="<?php echo $is_active; ?>">
+                                        <?php echo $is_active ? 'ON' : 'OFF'; ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <button type="button" class="button omnixep-test-btn">Test</button>
-                                    <span class="token-status"></span>
+                                    <span class="token-verify-status"></span>
                                 </td>
                                 <td><span class="omnixep-remove-token" title="Remove">&times;</span></td>
                             </tr>
@@ -1889,12 +1931,13 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 var source = $(this).find('.token-source').val();
                                 var price_id = $(this).find('.token-price-id').val().trim();
                                 var decimals = $(this).find('.token-decimals').val().trim();
+                                var status = $(this).find('.omnixep-status-btn').attr('data-status');
 
                                 if (id !== '' && name !== '' && price_id !== '') {
-                                    rows.push([id, name, source, price_id, decimals].join(','));
+                                    rows.push([id, name, source, price_id, decimals, status].join(','));
                                 }
                             });
-                            $hiddenInput.val(rows.join('\n'));
+                            $hiddenInput.val(rows.join('\n')).trigger('change');
                         }
 
                         $(document).on('click', '.omnixep-test-btn', function () {
@@ -1903,12 +1946,11 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                             var rowData = {
                                 source: $row.find('.token-source').val(),
                                 price_id: $row.find('.token-price-id').val(),
-                                // Use global key if needed, or AJAX will fetch it from options
                                 nonce: '<?php echo wp_create_nonce("omnixep_test_price_nonce"); ?>'
                             };
 
                             $btn.prop('disabled', true).text('...');
-                            $row.find('.token-status').html('');
+                            $row.find('.token-verify-status').html('');
 
                             $.post(ajaxurl, {
                                 action: 'omnixep_test_price',
@@ -1918,9 +1960,9 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                             }, function (res) {
                                 $btn.prop('disabled', false).text('Test');
                                 if (res.success) {
-                                    $row.find('.token-status').html('<span class="status-success" title="Success!">✓</span>');
+                                    $row.find('.token-verify-status').html('<span class="status-success" title="Success!">✓</span>');
                                 } else {
-                                    $row.find('.token-status').html('<span class="status-error" title="' + res.data + '">✗</span>');
+                                    $row.find('.token-verify-status').html('<span class="status-error" title="' + res.data + '">✗</span>');
                                     alert('Fetch failed. Check ID/Pair and Global API Key (if using CoinGecko Pro).');
                                 }
                             });
@@ -1945,10 +1987,22 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 '<td><select class="token-source"><option value="coingecko">CoinGecko</option><option value="mexc">MEXC</option><option value="dextrade">Dex-Trade</option></select></td>' +
                                 '<td><input type="text" class="token-price-id" placeholder="e.g. electra-protocol"></td>' +
                                 '<td><input type="number" class="token-decimals" value="8"></td>' +
-                                '<td><button type="button" class="button omnixep-test-btn">Test</button><span class="token-status"></span></td>' +
+                                '<td class="omnixep-status-toggle"><span class="omnixep-status-btn status-on" data-status="1">ON</span></td>' +
+                                '<td><button type="button" class="button omnixep-test-btn">Test</button><span class="token-verify-status"></span></td>' +
                                 '<td><span class="omnixep-remove-token">&times;</span></td>' +
                                 '</tr>');
                             $table.append($newRow);
+                            updateHiddenInput();
+                        });
+
+                        $(document).on('click', '.omnixep-status-btn', function () {
+                            var $btn = $(this);
+                            var currentStatus = $btn.attr('data-status');
+                            if (currentStatus == '1') {
+                                $btn.attr('data-status', '0').removeClass('status-on').addClass('status-off').text('OFF');
+                            } else {
+                                $btn.attr('data-status', '1').removeClass('status-off').addClass('status-on').text('ON');
+                            }
                             updateHiddenInput();
                         });
 
@@ -2204,8 +2258,14 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         $total_val = (float) WC()->cart->total;
 
         // 2. TOKEN DATA & PRICES
-        $config_str = $this->token_config ? $this->token_config : "0,XEP,coingecko,electra-protocol,,8";
+        $config_str = $this->token_config ? $this->token_config : "0,XEP,mexc,XEPUSDT,8,1";
         $tokens = wc_omnixep_parse_token_config($config_str);
+        
+        // Filter inactive tokens
+        $tokens = array_filter($tokens, function($t) {
+            return !isset($t['status']) || (int)$t['status'] === 1;
+        });
+        
         $prices = wc_omnixep_get_prices('', $tokens);
 
         // TRY conversion
@@ -3484,12 +3544,19 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
 
             // Property ID check
             $expected_pid = 0;
+            $token_active = true;
             $tokens = wc_omnixep_parse_token_config($this->token_config);
             foreach ($tokens as $t) {
                 if ($t['name'] === $token_name) {
                     $expected_pid = (int) $t['id'];
+                    $token_active = isset($t['status']) ? (int)$t['status'] === 1 : true;
                     break;
                 }
+            }
+
+            if (!$token_active) {
+                error_log('OmniXEP Verification Error: Token ' . $token_name . ' is currently disabled. Order #' . $order->get_id());
+                return false;
             }
 
             if (isset($tx_data['pid']) && (int) $tx_data['pid'] !== $expected_pid) {

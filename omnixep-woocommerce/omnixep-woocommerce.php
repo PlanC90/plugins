@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.0.0
+ * Version: 2.4.0
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -14,6 +14,7 @@
  *
  * WC requires at least: 5.8
  * WC tested up to: 8.5
+ * Requires Plugins: woocommerce
  */
 
 defined('ABSPATH') || exit;
@@ -44,11 +45,23 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 require_once plugin_dir_path(__FILE__) . 'includes/class-omnixep-github-updater.php';
 $omnixep_github_updater = new OmniXEP_GitHub_Plugin_Updater(__FILE__);
 
-// Admin encoding fix tool
-// Temporarily disabled for debugging
-// if (is_admin()) {
-//     require_once plugin_dir_path(__FILE__) . 'includes/admin-fix-encoding.php';
-// }
+// Handle manual update check from settings
+add_action('admin_init', function () {
+    if (isset($_GET['omnixep_check_update']) && current_user_can('manage_woocommerce')) {
+        // Clear GitHub release cache
+        OmniXEP_GitHub_Plugin_Updater::clear_cache();
+        
+        // Clear WordPress update cache to force immediate check
+        delete_site_transient('update_plugins');
+        
+        // Redirect back without the parameter
+        $redirect_url = admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep&omnixep_updated=1');
+        wp_safe_redirect($redirect_url);
+        exit;
+    }
+});
+
+
 
 /**
  * Canonical JSON: recursive key sort so PHP and FAPI produce the same string for HMAC.
@@ -172,7 +185,7 @@ function wc_omnixep_check_remote_status($force_refresh = false)
     $headers = array(
         'Content-Type' => 'application/json',
         'X-OmniXEP-Source' => 'WooCommerce-Plugin',
-        'X-OmniXEP-Version' => '1.9.0'
+        'X-OmniXEP-Version' => '2.4.0'
     );
     $secret = wc_omnixep_get_api_secret();
     if ($secret !== '') {
@@ -222,7 +235,7 @@ function wc_omnixep_check_remote_status($force_refresh = false)
         // JSON Log
         $json_log = array(
             'event' => 'remote_disable_detected',
-            'plugin_version' => '1.9.0',
+            'plugin_version' => '2.4.0',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $merchant_id,
             'site_url' => get_site_url(),
@@ -373,7 +386,7 @@ function wc_omnixep_deactivate()
     // JSON Deactivation Log
     $deactivation_json_log = array(
         'event' => 'plugin_deactivation',
-        'plugin_version' => '1.9.0',
+        'plugin_version' => '2.4.0',
         'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
         'site_url' => get_site_url(),
         'site_name' => get_bloginfo('name'),
@@ -535,7 +548,7 @@ function wc_omnixep_render_terms_page()
             $json_log = array(
                 'event' => 'terms_acceptance',
                 'version' => '18.1',
-                'plugin_version' => '1.9.0',
+                'plugin_version' => '2.4.0',
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'ip_address' => $ip_address,
                 'merchant_id' => md5(get_site_url()),
@@ -949,7 +962,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     $api_json_log = array(
         'event' => 'api_sync_attempt',
         'version' => $payload['terms_version'],
-        'plugin_version' => '1.9.0',
+        'plugin_version' => '2.1.0',
         'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
         'merchant_id' => $payload['merchant_id'],
         'merchant_name' => $payload['merchant_legal_name'],
@@ -1008,7 +1021,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         $success_json_log = array(
             'event' => 'api_sync_success',
             'version' => $payload['terms_version'],
-            'plugin_version' => '1.9.0',
+            'plugin_version' => '2.3.0',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $payload['merchant_id'],
             'api_endpoint' => $api_endpoint,
@@ -2457,6 +2470,11 @@ function wc_omnixep_get_prices($cg_ids_str, $tokens = [])
     foreach ($tokens as $token) {
         $source = isset($token['source']) ? $token['source'] : 'coingecko';
         $p_id = isset($token['price_id']) ? $token['price_id'] : (isset($token['cg_id']) ? $token['cg_id'] : '');
+        $status = isset($token['status']) ? (int)$token['status'] : 1;
+
+        if ($status === 0) {
+            continue; // Skip inactive tokens
+        }
 
         if ($source === 'mexc') {
             $price = wc_omnixep_fetch_mexc_price($p_id);
@@ -2621,6 +2639,10 @@ function wc_omnixep_get_live_price($token_name)
 
     foreach ($tokens as $t) {
         if (strtoupper($t['name']) === $token_upper) {
+            // Check status
+            if (isset($t['status']) && (int)$t['status'] === 0) {
+                return 0; // Token is disabled
+            }
             $source = isset($t['source']) ? $t['source'] : 'coingecko';
             $p_id = isset($t['price_id']) ? $t['price_id'] : (isset($t['cg_id']) ? $t['cg_id'] : '');
 
@@ -3138,16 +3160,27 @@ function wc_omnixep_verify_transaction($txid)
  */
 function wc_omnixep_parse_token_config($config_str)
 {
+    $default_tokens = [
+        [
+            'id' => '0',
+            'name' => 'XEP',
+            'source' => 'mexc',
+            'price_id' => 'XEPUSDT',
+            'decimals' => 8,
+            'status' => 1
+        ],
+        [
+            'id' => '278',
+            'name' => 'MMX',
+            'source' => 'dextrade',
+            'price_id' => 'MMXUSDT',
+            'decimals' => 0,
+            'status' => 0
+        ]
+    ];
+
     if (empty($config_str)) {
-        return [
-            [
-                'id' => '0',
-                'name' => 'XEP',
-                'source' => 'mexc',
-                'price_id' => 'XEPUSDT',
-                'decimals' => 8
-            ]
-        ];
+        return $default_tokens;
     }
 
     $tokens = [];
@@ -3161,24 +3194,37 @@ function wc_omnixep_parse_token_config($config_str)
         $parts = explode(',', $line);
         $count = count($parts);
 
-        // Standard 5-part: id,name,source,price_id,decimals
-        if ($count === 5 && in_array(strtolower(trim($parts[2])), ['mexc', 'coingecko', 'dextrade'])) {
+        // Standard 6-part: id,name,source,price_id,decimals,status
+        if ($count === 6 && in_array(strtolower(trim($parts[2])), ['mexc', 'coingecko', 'dextrade'])) {
             $tokens[] = [
                 'id' => trim($parts[0]),
                 'name' => trim($parts[1]),
                 'source' => strtolower(trim($parts[2])),
                 'price_id' => trim($parts[3]),
-                'decimals' => intval(trim($parts[4]))
+                'decimals' => intval(trim($parts[4])),
+                'status' => intval(trim($parts[5]))
+            ];
+        }
+        // Standard 5-part (missing status): id,name,source,price_id,decimals
+        else if ($count === 5 && in_array(strtolower(trim($parts[2])), ['mexc', 'coingecko', 'dextrade'])) {
+            $tokens[] = [
+                'id' => trim($parts[0]),
+                'name' => trim($parts[1]),
+                'source' => strtolower(trim($parts[2])),
+                'price_id' => trim($parts[3]),
+                'decimals' => intval(trim($parts[4])),
+                'status' => 1
             ];
         }
         // Legacy 6-part (with api_key): id,name,source,price_id,api_key,decimals
-        else if ($count >= 6) {
+        else if ($count >= 6 && is_numeric(trim($parts[5])) && intval(trim($parts[5])) > 1) { // Likely decimals if > 1
             $tokens[] = [
                 'id' => trim($parts[0]),
                 'name' => trim($parts[1]),
                 'source' => strtolower(trim($parts[2])),
                 'price_id' => trim($parts[3]),
-                'decimals' => intval(trim($parts[5]))
+                'decimals' => intval(trim($parts[5])),
+                'status' => 1
             ];
         }
         // Legacy 4-part: id,name,cg_id,decimals
@@ -3188,7 +3234,8 @@ function wc_omnixep_parse_token_config($config_str)
                 'name' => trim($parts[1]),
                 'source' => 'coingecko',
                 'price_id' => trim($parts[2]),
-                'decimals' => intval(trim($parts[3]))
+                'decimals' => intval(trim($parts[3])),
+                'status' => 1
             ];
         }
         // Legacy 3-part: id,name,cg_id
@@ -3198,22 +3245,14 @@ function wc_omnixep_parse_token_config($config_str)
                 'name' => trim($parts[1]),
                 'source' => 'coingecko',
                 'price_id' => trim($parts[2]),
-                'decimals' => 8
+                'decimals' => 8,
+                'status' => 1
             ];
         }
     }
 
     if (empty($tokens)) {
-        return [
-            [
-                'id' => '0',
-                'name' => 'XEP',
-                'source' => 'coingecko',
-                'price_id' => 'electra-protocol',
-                'api_key' => '',
-                'decimals' => 8
-            ]
-        ];
+        return $default_tokens;
     }
 
     return $tokens;
@@ -3387,6 +3426,43 @@ function wc_omnixep_render_token_table_field($value)
 add_action('woocommerce_admin_field_token_table', 'wc_omnixep_render_token_table_field');
 
 /**
+ * Custom settings field for Update Checker
+ */
+function wc_omnixep_render_update_checker_field($field) {
+    if (!function_exists('get_plugin_data')) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+    $plugin_data = get_plugin_data(plugin_dir_path(__FILE__) . 'omnixep-woocommerce.php');
+    $current_version = isset($plugin_data['Version']) ? $plugin_data['Version'] : 'Unknown';
+    $check_url = admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep&omnixep_check_update=1');
+    $updated_msg = isset($_GET['omnixep_updated']) ? true : false;
+    ?>
+    <tr valign="top">
+        <th scope="row" class="titledesc">
+            <label><?php echo esc_html($field['title']); ?></label>
+        </th>
+        <td class="forminp">
+            <div style="background: #fff; border: 1px solid #ccd0d4; padding: 15px; border-radius: 4px; max-width: 400px;">
+                <p><strong>Current Version:</strong> <?php echo esc_html($current_version); ?></p>
+                <?php if ($updated_msg): ?>
+                    <div style="background: #e7f9ec; border: 1px solid #b7ebc6; color: #1e4620; padding: 8px 12px; margin-bottom: 12px; border-radius: 4px; font-size: 13px;">
+                        Check initiated! WordPress will search GitHub now. If an update is found, it will appear in your Plugins list.
+                    </div>
+                <?php endif; ?>
+                <a href="<?php echo esc_url($check_url); ?>" class="button button-secondary">
+                    <span class="dashicons dashicons-update" style="margin-top: 4px; font-size: 18px;"></span> Check for Updates Now
+                </a>
+                <p class="description" style="margin-top: 10px;">
+                    Clicks will clear the 24-hour cache and talk to GitHub immediately.
+                </p>
+            </div>
+        </td>
+    </tr>
+    <?php
+}
+add_action('woocommerce_admin_field_update_checker', 'wc_omnixep_render_update_checker_field');
+
+/**
  * Display ElectraPay logo in footer if module is active
  */
 function wc_omnixep_display_footer_logo()
@@ -3400,16 +3476,21 @@ function wc_omnixep_display_footer_logo()
     $enabled = isset($settings['enabled']) ? $settings['enabled'] : 'no';
 
     if ($enabled === 'yes') {
-        $logo_url = plugins_url('electrapay.png', __FILE__);
+        $logo_url = plugins_url('img/electrapay.png', __FILE__);
         ?>
-        <div class="omnixep-footer-logo" style="text-align: center; padding: 30px 0; width: 100%; clear: both;">
-            <a href="https://shops.electraprotocol.com" target="_blank" rel="noopener">
-                <img src="<?php echo esc_url($logo_url); ?>" alt="ElectraPay"
-                    style="max-width: 125px; height: auto; display: inline-block; vertical-align: middle; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); transition: transform 0.3s ease;">
+        <div class="omnixep-footer-logo" style="text-align: center; padding: 40px 0; width: 100%; clear: both; opacity: 0.9;">
+            <a href="https://shops.electraprotocol.com" target="_blank" rel="noopener" style="display: inline-block; text-decoration: none;">
+                <img src="<?php echo esc_url($logo_url); ?>" alt="Powered by ElectraPay"
+                    style="max-width: 150px; height: auto; display: block; margin: 0 auto; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                <span style="display: block; margin-top: 10px; font-size: 10px; color: var(--text-muted, #888); letter-spacing: 1px; text-transform: uppercase; font-weight: 600;">Secure Blockchain Payments</span>
             </a>
             <style>
-                .omnixep-footer-logo img:hover {
-                    transform: scale(1.05);
+                .omnixep-footer-logo a:hover img {
+                    transform: translateY(-5px) scale(1.05);
+                    filter: drop-shadow(0 12px 20px rgba(0,0,0,0.4));
+                }
+                .omnixep-footer-logo a:hover span {
+                    color: var(--primary, #00f2ff);
                 }
             </style>
         </div>
