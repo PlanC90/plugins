@@ -400,7 +400,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
     /**
      * Send commission transaction log to Central OmniXEP Ledger
      */
-    public function sync_commission_transaction($order_id, $txid = '', $fee_wallet = '', $comm_amount_token = 0, $token_name = 'XEP')
+    public function sync_commission_transaction($order_id, $txid = '', $system_wallet = '', $comm_amount_token = 0, $token_name = 'XEP')
     {
         error_log('=== COMMISSION SYNC START === Order #' . $order_id);
 
@@ -444,7 +444,9 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'token_amount' => number_format($comm_amount_token, 8, '.', ''),
             'token_price_usd_at_time' => number_format($token_price, 8, '.', ''),
             'tx_hash' => $txid,
-            'from_wallet' => $fee_wallet,
+            'from_wallet' => $this->fee_wallet_address, // Real Sender (Merchant)
+            'to_wallet' => $system_wallet,             // Real Receiver (System)
+            'fee_wallet' => $system_wallet,            // Validation Key for API
             'timestamp' => current_time('mysql'),
             'plugin_version' => '2.4.0'
         );

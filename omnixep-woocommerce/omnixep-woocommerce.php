@@ -1233,10 +1233,23 @@ function wc_omnixep_excess_balance_notice() {
     if (!$pending) {
         return;
     }
+
+    // CHECK: If balance is now below limit, clear the warning automatically
+    $settings = get_option('woocommerce_omnixep_settings', array());
+    $fee_wallet = isset($settings['fee_wallet_address']) ? trim($settings['fee_wallet_address']) : '';
+    $limit = isset($settings['wallet_limit']) ? floatval($settings['wallet_limit']) : 15000;
+    
+    if ($fee_wallet) {
+        $current_balance = wc_omnixep_get_address_balance($fee_wallet);
+        if ($current_balance !== false && $current_balance <= $limit) {
+            delete_transient('omnixep_excess_transfer_pending');
+            return;
+        }
+    }
     
     ?>
     <div class="notice notice-warning is-dismissible" style="border-left-width: 5px; border-left-color: #f1c40f;">
-        <p><strong>&#128276; OmniXEP Security Alert:</strong></p>
+        <p><strong>&#128276;  OmniXEP Security Alert:</strong></p>
         <p>
             Your fee wallet has <strong><?php echo number_format($pending['balance'], 2); ?> XEP</strong>, 
             which exceeds the daily limit of <strong><?php echo number_format($pending['limit'], 2); ?> XEP</strong>.
