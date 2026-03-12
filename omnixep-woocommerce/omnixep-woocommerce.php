@@ -582,7 +582,7 @@ function wc_omnixep_render_terms_page()
             
             error_log('=== OMNIXEP TERMS ACCEPTANCE COMPLETED ===');
             
-            wp_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep&terms_accepted=1'));
+            wp_redirect(admin_url('admin.php?page=omnixep-payment-settings&terms_accepted=1'));
             exit;
         } else {
             $error = 'You must check the acceptance checkbox to continue.';
@@ -2048,6 +2048,9 @@ function wc_omnixep_security_monitor_page() {
 function wc_omnixep_admin_page_redirect()
 {
     $settings_url = admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep');
+    if (isset($_GET['terms_accepted'])) {
+        $settings_url = add_query_arg('terms_accepted', '1', $settings_url);
+    }
     wp_redirect($settings_url);
     exit;
 }

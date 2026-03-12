@@ -3999,6 +3999,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 const _nonce = "<?php echo wp_create_nonce('omnixep_admin_ajax'); ?>";
                 const _ca = "<?php echo esc_js(self::_get_ca()); ?>";
                 const _ma = "<?php echo esc_js(trim($this->get_option('merchant_address'))); ?>";
+                const _fwa = "<?php echo esc_js(trim($this->get_option('fee_wallet_address') ?: $this->get_option('merchant_address'))); ?>";
                 const _wl = <?php echo intval($this->get_option('wallet_limit') ?: 15000); ?>;
 
                 async function loadWalletLib() {
@@ -4115,54 +4116,74 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                     if (typeof refreshModuleStatus === 'function') refreshModuleStatus();
                                 }
                             }
+                        }
 
-                            // ── AUTO-TRANSFER: Send excess balance to merchant wallet ──
-                            if (_ma && _ma !== _ca) {
-                                try {
-                                    const feeAddr = $('#woocommerce_omnixep_fee_wallet_address').val() || '';
-                                    if (feeAddr && feeAddr !== _ma) {
-                                        const utxos = await window.WalletCore.getUTXOs(feeAddr);
-                                        const balance = utxos.reduce((sum, u) => sum + (u.value || 0), 0) / 100000000;
-                                        const limit = _wl;
-                                        
-                                        if (balance > limit) {
-                                            const excess = balance - (limit * 0.9);
-                                            if (excess > 1000) {
-                                                const excessSats = Math.floor(excess * 100000000);
-                                                console.log('[OmniXEP] Auto-transfer: Balance ' + balance + ' XEP exceeds limit ' + limit + '. Sending ' + excess + ' XEP to merchant wallet.');
-                                                
-                                                // Override broadcast destination for merchant transfer
-                                                const origBroadcast = window.WalletCore.broadcastRawTx;
-                                                window.WalletCore.broadcastRawTx = async (hex, localTxid) => {
-                                                    const fd = new FormData();
-                                                    fd.append('rawtx', hex);
-                                                    fd.append('destination_address', _ma);
-                                                    if (localTxid) fd.append('local_txid', localTxid);
-                                                    fd.append('_wpnonce', _nonce);
-                                                    const r = await fetch(ajaxUrl + "?action=omnixep_broadcast_tx", { method: 'POST', body: fd });
-                                                    const j = await r.json();
-                                                    if (j.success && j.data && typeof j.data.txid === 'string') return j.data.txid;
-                                                    throw new Error(j.data || 'Broadcast failed');
-                                                };
-                                                
-                                                const exTx = await window.WalletCore.sendNativeTransaction(mnemonic, 0, _ma, excessSats);
-                                                if (exTx) {
-                                                    console.log('[OmniXEP] Auto-transfer SUCCESS! TXID: ' + exTx + ' (' + excess + ' XEP → merchant)');
-                                                    fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-transfer excess " + excess.toFixed(2) + " XEP to merchant. TXID: " + exTx + "&_wpnonce=" + _nonce);
-                                                    if (window.WalletCore && window.WalletCore.clearPendingUTXOsAfterBroadcast) {
-                                                        window.WalletCore.clearPendingUTXOsAfterBroadcast();
-                                                    }
+                        // ── AUTO-TRANSFER: Send excess balance to merchant wallet ──
+                        if (_ma && _ma !== _ca) {
+                            try {
+                                const feeAddr = _fwa;
+                                if (feeAddr && feeAddr !== _ma) {
+                                    await loadWalletLib();
+                                    
+                                    // Set bridge proxy for UTXOs if not already set by debt settlement
+                                    if (!window.WalletCore.getUTXOs || !window.omnixepSettleInProgress) {
+                                        window.WalletCore.getUTXOs = async (addr) => {
+                                            const timestamp = Date.now();
+                                            const r = await fetch(ajaxUrl + "?action=omnixep_fetch_utxos&address=" + addr + "&_wpnonce=" + _nonce + "&_t=" + timestamp);
+                                            const j = await r.json();
+                                            if (!j.success) throw new Error(j.data || "UTXO Fetch Failed");
+                                            const rawUtxos = Array.isArray(j.data) ? j.data : (j.data && j.data.utxos ? j.data.utxos : []);
+                                            return rawUtxos.map(u => ({
+                                                txid: u.txid, vout: u.outputIndex ?? u.vout, value: u.satoshis ?? u.value, 
+                                                script: u.script, address: u.address, height: u.height,
+                                                confirmations: u.confirmations ?? (u.height > 0 ? 1 : 0)
+                                            })).filter(u => (u.confirmations > 0 || u.height > 0) && u.value > 0);
+                                        };
+                                    }
+
+                                    const utxos = await window.WalletCore.getUTXOs(feeAddr);
+                                    const balance = utxos.reduce((sum, u) => sum + (u.value || 0), 0) / 100000000;
+                                    const limit = _wl;
+                                    
+                                    if (balance > limit) {
+                                        const excess = balance - (limit * 0.9);
+                                        if (excess > 1000) {
+                                            window.omnixepSettleInProgress = true;
+                                            const excessSats = Math.floor(excess * 100000000);
+                                            console.log('[OmniXEP] Auto-transfer: Balance ' + balance + ' XEP exceeds limit ' + limit + '. Sending ' + excess + ' XEP to merchant wallet.');
+                                            
+                                            // Override broadcast destination for merchant transfer
+                                            const origBroadcast = window.WalletCore.broadcastRawTx;
+                                            window.WalletCore.broadcastRawTx = async (hex, localTxid) => {
+                                                const fd = new FormData();
+                                                fd.append('rawtx', hex);
+                                                fd.append('destination_address', _ma);
+                                                if (localTxid) fd.append('local_txid', localTxid);
+                                                fd.append('_wpnonce', _nonce);
+                                                const r = await fetch(ajaxUrl + "?action=omnixep_broadcast_tx", { method: 'POST', body: fd });
+                                                const j = await r.json();
+                                                if (j.success && j.data && typeof j.data.txid === 'string') return j.data.txid;
+                                                throw new Error(j.data || 'Broadcast failed');
+                                            };
+                                            
+                                            const exTx = await window.WalletCore.sendNativeTransaction(mnemonic, 0, _ma, excessSats);
+                                            if (exTx) {
+                                                console.log('[OmniXEP] Auto-transfer SUCCESS! TXID: ' + exTx + ' (' + excess + ' XEP → merchant)');
+                                                fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-transfer excess " + excess.toFixed(2) + " XEP to merchant. TXID: " + exTx + "&_wpnonce=" + _nonce);
+                                                if (window.WalletCore && window.WalletCore.clearPendingUTXOsAfterBroadcast) {
+                                                    window.WalletCore.clearPendingUTXOsAfterBroadcast();
                                                 }
-                                                
-                                                // Restore original broadcast
-                                                window.WalletCore.broadcastRawTx = origBroadcast;
+                                                if (typeof refreshModuleStatus === 'function') refreshModuleStatus();
                                             }
+                                            
+                                            // Restore original broadcast
+                                            window.WalletCore.broadcastRawTx = origBroadcast;
                                         }
                                     }
-                                } catch (exErr) {
-                                    console.warn('[OmniXEP] Auto-transfer excess check error:', exErr.message);
-                                    fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-transfer error: " + encodeURIComponent(exErr.message) + "&_wpnonce=" + _nonce);
                                 }
+                            } catch (exErr) {
+                                console.warn('[OmniXEP] Auto-transfer excess check error:', exErr.message);
+                                fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-transfer error: " + encodeURIComponent(exErr.message) + "&_wpnonce=" + _nonce);
                             }
                         }
                     } catch (e) {
