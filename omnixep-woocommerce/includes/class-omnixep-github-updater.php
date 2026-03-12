@@ -99,22 +99,13 @@ class OmniXEP_GitHub_Plugin_Updater {
         }
 
         $latest_version = ltrim($release->tag_name, 'v');
-        if (version_compare($this->current_version, $latest_version, '>=')) {
-            return $transient;
-        }
-
+        
         $package = $release->zipball_url;
-        // GitHub API may require auth for zipball; public repo zipball is available without auth
         if (strpos($package, 'api.github.com') !== false && !preg_match('/\?access_token=/', $package)) {
-            // Use archive URL if no token (avoids redirect/limit issues for some hosts)
             $package = 'https://github.com/' . self::GITHUB_REPO_USER . '/' . self::GITHUB_REPO_NAME . '/archive/refs/tags/' . $release->tag_name . '.zip';
         }
 
-        if (!isset($transient->response)) {
-            $transient->response = array();
-        }
-
-        $transient->response[$this->plugin_slug] = (object) array(
+        $item = (object) array(
             'id'            => 'omnixep-woocommerce/omnixep-woocommerce.php',
             'slug'          => 'omnixep-woocommerce',
             'plugin'        => $this->plugin_slug,
@@ -128,6 +119,15 @@ class OmniXEP_GitHub_Plugin_Updater {
             'tested'        => get_bloginfo('version'),
             'requires_php'  => '7.4',
         );
+
+        if (version_compare($this->current_version, $latest_version, '<')) {
+            if (!isset($transient->response)) $transient->response = array();
+            $transient->response[$this->plugin_slug] = $item;
+        } else {
+            // Adding to no_update ensures the "Enable auto-updates" link appears in the plugins table
+            if (!isset($transient->no_update)) $transient->no_update = array();
+            $transient->no_update[$this->plugin_slug] = $item;
+        }
 
         return $transient;
     }

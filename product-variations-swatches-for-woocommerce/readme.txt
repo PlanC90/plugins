@@ -242,6 +242,9 @@ If you use WPML to translate attributes, you only need configure attribute image
 2. Swatches on single product page
 
 == Changelog ==
+/**1.1.16 - 2026.03.06**/
+- Updated: VillaTheme support
+
 /**1.1.15 - 2026.01.23**/
 - Updated: VillaTheme support
 

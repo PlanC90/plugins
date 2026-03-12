@@ -5,7 +5,7 @@
         $('.vi-wpvs-variation-wrap-option.vi-wpvs-variation-wrap-option-show').removeClass('vi-wpvs-variation-wrap-option-show');
         e.preventDefault();
         e.stopPropagation();
-        e.stopImmediatePropagation();
+        // e.stopImmediatePropagation();
     });
     $(document).on('click', 'body', function (e) {
         $('.vi-wpvs-variation-wrap-option-available').remove();
@@ -14,7 +14,7 @@
     $(document).on('click', '.vi-wpvs-variation-wrap-option-available .vi-wpvs-option-wrap', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        e.stopImmediatePropagation();
+        // e.stopImmediatePropagation();
         if ($(this).hasClass('vi-wpvs-option-wrap-disable')) {
             return false;
         }
@@ -184,17 +184,26 @@
                 if (!$(this).hasClass('vi-wpvs-option-wrap-selected') && !$(this).hasClass('vi-wpvs-option-wrap-disable')) {
                     $(this).removeClass('vi-wpvs-option-wrap-hover').addClass('vi-wpvs-option-wrap-default');
                 }
-            }).on('click', function (e) {
+            }).on('click touchstart', function (e) {
                 e.stopPropagation();
-                if ($(this).hasClass('vi-wpvs-option-wrap-disable')) {
+                if ($(this).closest('.woocommerce-LoopProduct-link').length){
                     e.preventDefault();
                     e.stopPropagation();
-                    return false;
+                    e.stopImmediatePropagation();
                 }
-                if (!$(this).parent().hasClass('vi-wpvs-variation-wrap-radio')) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                if ($(this).hasClass('vi-wpvs-option-wrap-disable') || $(this).hasClass('vi-wpvs-option-clicking') ) {
+                    return;
                 }
+                // if ($(this).hasClass('vi-wpvs-option-wrap-disable')) {
+                //     e.preventDefault();
+                //     e.stopPropagation();
+                //     return false;
+                // }
+                // if (!$(this).parent().hasClass('vi-wpvs-variation-wrap-radio')) {
+                //     e.preventDefault();
+                //     e.stopPropagation();
+                // }
+                $(this).addClass('vi-wpvs-option-clicking');
                 $('.vi-wpvs-variation-wrap-option').addClass('vi-wpvs-hidden');
                 form.find('.reset_variations').removeClass('vi-wpvs-hidden');
                 attr_div.find('.vi-wpvs-option-wrap').removeClass('vi-wpvs-option-wrap-selected vi-wpvs-option-wrap-hover').addClass('vi-wpvs-option-wrap-default');
@@ -226,6 +235,9 @@
                         }
                     }
                 }
+                setTimeout(function (otpion) {
+                    $(otpion).removeClass('vi-wpvs-option-clicking');
+                }, 500, $(this));
                 e.stopPropagation();
             });
         });

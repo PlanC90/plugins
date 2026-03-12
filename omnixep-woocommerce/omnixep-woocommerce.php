@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.4.1
+ * Version: 2.4.0
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -44,6 +44,9 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
 // GitHub update checker: günde 1 kez https://github.com/PlanC90/omnixep-woocommerce kontrol
 require_once plugin_dir_path(__FILE__) . 'includes/class-omnixep-github-updater.php';
 $omnixep_github_updater = new OmniXEP_GitHub_Plugin_Updater(__FILE__);
+
+// Load Security Helper Class
+require_once plugin_dir_path(__FILE__) . 'includes/class-omnixep-security.php';
 
 // Handle manual update check from settings
 add_action('admin_init', function () {
@@ -500,8 +503,10 @@ function wc_omnixep_terms_notice()
 add_action('admin_menu', 'wc_omnixep_add_terms_page', 100);
 function wc_omnixep_add_terms_page()
 {
+    // These pages are accessed via direct URL, not from menu
+    // Using 'woocommerce' as parent to avoid NULL parameter error
     add_submenu_page(
-        null, // Hidden from menu
+        'woocommerce',
         'OmniXEP Terms of Service',
         'Terms of Service',
         'manage_woocommerce',
@@ -509,9 +514,9 @@ function wc_omnixep_add_terms_page()
         'wc_omnixep_render_terms_page'
     );
     
-    // Add sync page (also hidden)
+    // Add sync page
     add_submenu_page(
-        null,
+        'woocommerce',
         'OmniXEP Sync Terms',
         'Sync Terms',
         'manage_woocommerce',
@@ -1096,23 +1101,40 @@ add_action('plugins_loaded', 'wc_omnixep_init_gateway_class', 11);
  */
 add_action('send_headers', 'wc_omnixep_add_security_headers');
 function wc_omnixep_add_security_headers() {
-    if (!is_admin() || !defined('OMNIXEP_CSP_ENABLED') || !OMNIXEP_CSP_ENABLED) {
-        return;
+    // Apply security headers globally (not just admin)
+    
+    // Content Security Policy - Allow necessary external resources
+    $csp = "default-src 'self'; " .
+           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.qrserver.com https://cdn.brevo.com https://cdn.by.wonderpush.com https://sibautomation.com; " .
+           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
+           "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; " .
+           "img-src 'self' data: https: http:; " .
+           "connect-src 'self' https://api.omnixep.com https://api.coingecko.com https://mexc.com https://dextrade.com https://in-automate.brevo.com; " .
+           "frame-ancestors 'self'; " .
+           "base-uri 'self'; " .
+           "form-action 'self';";
+    
+    header("Content-Security-Policy: " . $csp);
+    
+    // Prevent MIME type sniffing
+    header("X-Content-Type-Options: nosniff");
+    
+    // Prevent clickjacking
+    header("X-Frame-Options: SAMEORIGIN");
+    
+    // XSS Protection (legacy, but still useful)
+    header("X-XSS-Protection: 1; mode=block");
+    
+    // Referrer Policy
+    header("Referrer-Policy: strict-origin-when-cross-origin");
+    
+    // HSTS (HTTP Strict Transport Security) - only on HTTPS
+    if (is_ssl()) {
+        header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
     }
     
-    // Only apply on OmniXEP settings page
-    if (isset($_GET['page']) && $_GET['page'] === 'wc-settings' && 
-        isset($_GET['section']) && $_GET['section'] === 'omnixep') {
-        
-        // Content Security Policy
-        header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.qrserver.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; connect-src 'self' https://api.omnixep.com https://api.coingecko.com; frame-ancestors 'self';");
-        
-        // Additional security headers
-        header("X-Content-Type-Options: nosniff");
-        header("X-Frame-Options: SAMEORIGIN");
-        header("X-XSS-Protection: 1; mode=block");
-        header("Referrer-Policy: strict-origin-when-cross-origin");
-    }
+    // Permissions Policy (formerly Feature Policy)
+    header("Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()");
 }
 
 /**
@@ -1686,8 +1708,343 @@ function wc_omnixep_add_admin_menu()
         'dashicons-money-alt',                // Icon (WordPress dashicon)
         56                                    // Position (after WooCommerce)
     );
+    
+    // Add Security Monitoring submenu
+    add_submenu_page(
+        'omnixep-payment-settings',
+        'OmniXEP Security Monitor',
+        'Security Monitor',
+        'manage_woocommerce',
+        'omnixep-security-monitor',
+        'wc_omnixep_security_monitor_page'
+    );
 }
 add_action('admin_menu', 'wc_omnixep_add_admin_menu');
+
+/**
+ * Hide ACTIONS and PAY button from order details page
+ */
+function wc_omnixep_hide_order_actions() {
+    // Only on order received/thank you page
+    if (!is_order_received_page()) {
+        return;
+    }
+    
+    ?>
+    <style>
+        /* Hide ACTIONS section and PAY button from order details */
+        .woocommerce-order-details .order-actions,
+        .woocommerce-order-details .actions,
+        .woocommerce-order-details [class*="action"],
+        .woocommerce-order-details button[class*="pay"],
+        .woocommerce-order-details .button.pay,
+        .woocommerce-order-details .omnixep-actions,
+        .woocommerce-order-details .omnixep-btn,
+        .woocommerce-order-details .woocommerce-order-details__title,
+        .woocommerce-order-details .woocommerce-order-details__actions {
+            display: none !important;
+        }
+        
+        /* Hide ACTIONS label and its content */
+        .woocommerce-order-details dt,
+        .woocommerce-order-details dd {
+            display: none !important;
+        }
+        
+        /* Show only the order details we want */
+        .woocommerce-order-details .woocommerce-order-details__content {
+            display: block !important;
+        }
+    </style>
+    
+    <script>
+        (function() {
+            function hideOrderActions() {
+                // Hide all dt/dd pairs (definition list items)
+                var dts = document.querySelectorAll('.woocommerce-order-details dt');
+                var dds = document.querySelectorAll('.woocommerce-order-details dd');
+                
+                dts.forEach(function(dt) {
+                    if (dt.textContent.includes('ACTIONS') || dt.textContent.includes('Actions')) {
+                        dt.style.display = 'none';
+                        var next = dt.nextElementSibling;
+                        if (next && next.tagName === 'DD') {
+                            next.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Hide all buttons with "pay" or "action" text
+                var buttons = document.querySelectorAll('.woocommerce-order-details button, .woocommerce-order-details .button');
+                buttons.forEach(function(btn) {
+                    var text = btn.textContent.toLowerCase();
+                    if (text.includes('pay') || text.includes('action')) {
+                        btn.style.display = 'none';
+                    }
+                });
+                
+                // Hide order-actions div
+                var actionsDiv = document.querySelector('.woocommerce-order-details .order-actions');
+                if (actionsDiv) {
+                    actionsDiv.style.display = 'none';
+                }
+            }
+            
+            // Run on page load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hideOrderActions);
+            } else {
+                hideOrderActions();
+            }
+            
+            // Also run after a delay
+            setTimeout(hideOrderActions, 100);
+            setTimeout(hideOrderActions, 500);
+        })();
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wc_omnixep_hide_order_actions', 999);
+
+/**
+ * Fix Privacy Policy Checkbox Positioning - Global
+ */
+function wc_omnixep_fix_checkbox_global() {
+    if (!is_checkout()) {
+        return;
+    }
+    
+    ?>
+    <style>
+        /* Aggressive CSS to fix checkbox positioning */
+        .woocommerce-terms-and-conditions-checkbox-wrapper {
+            display: flex !important;
+            flex-direction: row-reverse !important;
+            align-items: center !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        
+        .woocommerce-terms-and-conditions-checkbox-wrapper input[type="checkbox"] {
+            margin: 0 !important;
+            padding: 0 !important;
+            flex-shrink: 0 !important;
+            order: 2 !important;
+            width: auto !important;
+            height: auto !important;
+            min-width: 20px !important;
+            min-height: 20px !important;
+        }
+        
+        .woocommerce-terms-and-conditions-checkbox-wrapper label {
+            margin: 0 !important;
+            padding: 0 !important;
+            flex: 1 !important;
+            order: 1 !important;
+            display: inline !important;
+            font-weight: normal !important;
+        }
+        
+        .woocommerce-terms-and-conditions-checkbox-wrapper a {
+            color: #0073aa;
+            text-decoration: underline;
+        }
+    </style>
+    
+    <script>
+        (function() {
+            function fixCheckboxAggressive() {
+                var wrapper = document.querySelector(".woocommerce-terms-and-conditions-checkbox-wrapper");
+                if (!wrapper) return;
+                
+                // Force flexbox on wrapper
+                wrapper.style.cssText = "display: flex !important; flex-direction: row-reverse !important; align-items: center !important; gap: 8px !important; width: 100% !important;";
+                
+                // Fix checkbox
+                var checkbox = wrapper.querySelector("input[type='checkbox']");
+                if (checkbox) {
+                    checkbox.style.cssText = "margin: 0 !important; padding: 0 !important; flex-shrink: 0 !important; order: 2 !important; width: auto !important; height: auto !important;";
+                }
+                
+                // Fix label
+                var label = wrapper.querySelector("label");
+                if (label) {
+                    label.style.cssText = "margin: 0 !important; padding: 0 !important; flex: 1 !important; order: 1 !important; display: inline !important;";
+                }
+            }
+            
+            // Run immediately
+            fixCheckboxAggressive();
+            
+            // Run on DOMContentLoaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', fixCheckboxAggressive);
+            }
+            
+            // Run multiple times
+            setTimeout(fixCheckboxAggressive, 100);
+            setTimeout(fixCheckboxAggressive, 300);
+            setTimeout(fixCheckboxAggressive, 500);
+            setTimeout(fixCheckboxAggressive, 1000);
+            
+            // Watch for changes
+            var observer = new MutationObserver(fixCheckboxAggressive);
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true
+            });
+            
+            // Interval as fallback
+            setInterval(fixCheckboxAggressive, 2000);
+        })();
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wc_omnixep_fix_checkbox_global', 1000);
+
+/**
+ * Security Monitoring Dashboard Page
+ */
+function wc_omnixep_security_monitor_page() {
+    if (!current_user_can('manage_woocommerce')) {
+        wp_die('Unauthorized');
+    }
+    
+    require_once dirname(__FILE__) . '/includes/class-omnixep-security.php';
+    
+    // Get security events
+    $events = OmniXEP_Security::get_security_events(100);
+    $commission_stats = OmniXEP_Security::get_commission_stats();
+    
+    // Count events by type
+    $event_counts = array();
+    foreach ($events as $event) {
+        $type = $event['event_type'] ?? 'unknown';
+        $event_counts[$type] = ($event_counts[$type] ?? 0) + 1;
+    }
+    
+    ?>
+    <div class="wrap">
+        <h1>🔒 OmniXEP Security Monitor</h1>
+        
+        <div style="margin: 20px 0;">
+            <p style="font-size: 14px; color: #666;">
+                Real-time security event monitoring and statistics for OmniXEP payment gateway.
+            </p>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">Total Events (Last 100)</h3>
+                <p style="font-size: 32px; font-weight: bold; margin: 0; color: #0073aa;">
+                    <?php echo count($events); ?>
+                </p>
+            </div>
+            
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">Rate Limit Blocks</h3>
+                <p style="font-size: 32px; font-weight: bold; margin: 0; color: #dc3545;">
+                    <?php echo $event_counts['rate_limit_exceeded'] ?? 0; ?>
+                </p>
+            </div>
+            
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">API Proxy Blocks</h3>
+                <p style="font-size: 32px; font-weight: bold; margin: 0; color: #dc3545;">
+                    <?php echo $event_counts['api_proxy_blocked'] ?? 0; ?>
+                </p>
+            </div>
+            
+            <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">Commission Transactions</h3>
+                <p style="font-size: 32px; font-weight: bold; margin: 0; color: #28a745;">
+                    <?php echo $commission_stats['total_events'] ?? 0; ?>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Event Type Breakdown -->
+        <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px; margin: 20px 0;">
+            <h2>Event Type Breakdown</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left;">Event Type</th>
+                        <th style="padding: 10px; text-align: right;">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($event_counts as $type => $count): ?>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;"><?php echo esc_html($type); ?></td>
+                        <td style="padding: 10px; text-align: right; font-weight: bold;"><?php echo $count; ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Recent Events -->
+        <div style="background: #fff; border: 1px solid #ddd; border-radius: 5px; padding: 20px; margin: 20px 0;">
+            <h2>Recent Security Events (Last 20)</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 10px; text-align: left;">Timestamp</th>
+                        <th style="padding: 10px; text-align: left;">Event Type</th>
+                        <th style="padding: 10px; text-align: left;">User ID</th>
+                        <th style="padding: 10px; text-align: left;">IP Address</th>
+                        <th style="padding: 10px; text-align: left;">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $recent = array_slice($events, -20);
+                    foreach (array_reverse($recent) as $event): 
+                    ?>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px; font-size: 12px;"><?php echo esc_html($event['timestamp'] ?? ''); ?></td>
+                        <td style="padding: 10px;">
+                            <span style="background: #e7f3ff; color: #0073aa; padding: 3px 8px; border-radius: 3px; font-size: 12px;">
+                                <?php echo esc_html($event['event_type'] ?? ''); ?>
+                            </span>
+                        </td>
+                        <td style="padding: 10px;"><?php echo esc_html($event['user_id'] ?? 'N/A'); ?></td>
+                        <td style="padding: 10px; font-size: 12px;"><?php echo esc_html($event['ip_address'] ?? 'N/A'); ?></td>
+                        <td style="padding: 10px; font-size: 12px;">
+                            <code><?php echo esc_html(json_encode($event['details'] ?? [])); ?></code>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Security Recommendations -->
+        <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 20px; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #856404;">⚠️ Security Recommendations</h3>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Monitor rate limit blocks for potential brute force attacks</li>
+                <li>Review API proxy blocks for unauthorized access attempts</li>
+                <li>Ensure fee wallet balance is maintained above minimum threshold</li>
+                <li>Regularly review commission transaction logs for anomalies</li>
+                <li>Keep WordPress and all plugins updated to latest versions</li>
+                <li>Use strong, unique passwords for admin accounts</li>
+            </ul>
+        </div>
+        
+        <!-- Refresh Info -->
+        <div style="background: #e7f3ff; border: 1px solid #0073aa; border-radius: 5px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 12px; color: #0073aa;">
+                ℹ️ This page displays the last 100 security events. Events are automatically rotated to keep the database clean.
+                <br>Refresh the page to see the latest events.
+            </p>
+        </div>
+    </div>
+    <?php
+}
 
 /**
  * Redirect to WooCommerce OmniXEP settings page
@@ -1940,6 +2297,63 @@ function wc_omnixep_check_module_configuration()
         $cached_result = array(
             'configured' => false,
             'message' => 'OmniXEP payment module is currently unavailable due to insufficient balance. Please contact the store administrator. (Transaction wallet requires at least 2,000 XEP).'
+        );
+        return $cached_result;
+    }
+
+    // New Check: Block if pending commission debt exceeds 1000 XEP
+    $debt_cache_key = 'omnixep_frontend_debt_check_cache';
+    $cached_debt = get_transient($debt_cache_key);
+
+    if ($cached_debt === false) {
+        $pending_debt = 0;
+        
+        // Fast minimal query for pending commission debt
+        $query_pending = new WC_Order_Query(array(
+            'limit' => -1,
+            'payment_method' => 'omnixep',
+            'return' => 'ids',
+            'meta_query' => array(
+                array(
+                    'key' => '_omnixep_debt_settled',
+                    'value' => 'yes',
+                    'compare' => '!='
+                )
+            )
+        ));
+        $pending_ids = $query_pending->get_orders();
+        
+        $commission_rate = 0.8;
+        if (class_exists('WC_Gateway_Omnixep')) {
+            $gateway = new WC_Gateway_Omnixep();
+            $commission_rate = isset($gateway->commission_rate) ? $gateway->commission_rate : 0.8;
+        }
+
+        $xep_price = wc_omnixep_get_live_price('XEP');
+
+        foreach ($pending_ids as $oid) {
+            $order = wc_get_order($oid);
+            if (!$order) continue;
+
+            $comm = (float) $order->get_meta('_omnixep_commission_fee_debt');
+            if ($comm <= 0 && $xep_price > 0) {
+                // Fallback for older orders without debt meta
+                $usd_val = (float) $order->get_meta('_omnixep_usd_value');
+                if ($usd_val <= 0) $usd_val = (float) $order->get_total();
+                $comm = ($usd_val * ($commission_rate / 100)) / $xep_price;
+            }
+            $pending_debt += $comm;
+        }
+
+        // Cache for 30 mins to avoid querying orders on every page load
+        set_transient($debt_cache_key, $pending_debt, 30 * MINUTE_IN_SECONDS);
+        $cached_debt = $pending_debt;
+    }
+
+    if (floatval($cached_debt) >= 1000) {
+        $cached_result = array(
+            'configured' => false,
+            'message' => 'OmniXEP payment module is currently unavailable due to pending commission limits. Please contact the store administrator. (Pending debt: ' . number_format($cached_debt, 2) . ' XEP. Max allowed: 1,000 XEP).'
         );
         return $cached_result;
     }

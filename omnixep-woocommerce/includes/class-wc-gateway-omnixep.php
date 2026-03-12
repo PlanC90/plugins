@@ -701,15 +701,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'type' => 'invoice_validation_script',
                 'description' => '',
             ),
-            'section_updates' => array(
-                'title' => 'Plugin Updates',
-                'type' => 'title',
-                'description' => 'Manage and check for plugin updates directly from GitHub.',
-            ),
-            'update_checker' => array(
-                'title' => 'Software Update',
-                'type' => 'update_checker',
-            ),
+
             /*
              * SECURITY NOTE:
              * Data is sent to the central server (Webhook).
@@ -1469,7 +1461,30 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                         style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
                                     <span style="font-weight:bold;">INITIALIZING...</span>
                                 </div>
-                            </div><div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                            </div>
+                            
+                            <?php
+                            // Check if mnemonic is stored but CANNOT be decrypted
+                            $encrypted_mnem = get_option('omnixep_encrypted_mnemonic', '');
+                            $has_decryption_error = false;
+                            
+                            if (!empty($encrypted_mnem)) {
+                                $decrypted_mnem = $this->decrypt_mnemonic($encrypted_mnem);
+                                if (!$decrypted_mnem || str_word_count($decrypted_mnem) < 12) {
+                                    $has_decryption_error = true;
+                                }
+                            }
+                            
+                            if ($has_decryption_error):
+                            ?>
+                            <div style="background:#fff5f5; border:1px solid #feb2b2; padding:15px; border-radius:8px; margin-bottom:15px; color:#c53030; font-size:13px; line-height:1.5;">
+                                <strong style="display:block; font-size:15px; margin-bottom:5px;">&#9888; Security Key Mismatch!</strong>
+                                The stored 12-word mnemonic can no longer be decrypted, likely due to a recent site migration or backup restoration.<br><br>
+                                To prevent payment interruptions, please re-enter your original 12-word mnemonic in the <b>IMPORT EXISTING WALLET</b> section and activate the module again. If you don't remember your 12 words, generate a <b>NEW SECURE WALLET</b> and fund it with XEP to resume service.
+                            </div>
+                            <?php endif; ?>
+                            
+                            <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
                                 <div class="ox-qr-pane" style="margin-top:0;">
                                     <canvas id="omnixep-module-qr" class="ox-qr-canvas"></canvas>
                                     <div>
@@ -2062,6 +2077,25 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 .omnixep-token-box {
                     padding: 20px !important;
                 }
+                
+                .omnixep-timer-wrap {
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    text-align: center !important;
+                    gap: 15px !important;
+                }
+                
+                .omnixep-step-title-wrap {
+                    flex-direction: column !important;
+                    text-align: center !important;
+                    gap: 8px !important;
+                }
+            }
+            
+            .omnixep-timer-wrap {
+                display: flex;
+                align-items: center;
+                gap: 15px;
             }
 
             .omnixep-desc {
@@ -2247,6 +2281,34 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             .omnixep-custom-select-wrapper.open .omnixep-chevron {
                 transform: rotate(180deg);
             }
+            
+            /* Privacy Policy Checkbox - Move checkbox to the beginning */
+            .woocommerce-terms-and-conditions-checkbox-wrapper {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            
+            .woocommerce-terms-and-conditions-checkbox-wrapper input[type="checkbox"] {
+                margin: 0 !important;
+                flex-shrink: 0 !important;
+                order: 1 !important;
+                width: auto !important;
+                height: auto !important;
+            }
+            
+            .woocommerce-terms-and-conditions-checkbox-wrapper label {
+                margin: 0 !important;
+                flex: 1 !important;
+                order: 2 !important;
+                display: inline !important;
+            }
+            
+            /* Override WooCommerce default styles */
+            .woocommerce-terms-and-conditions-checkbox-wrapper * {
+                box-sizing: border-box !important;
+            }
         </style>
         <?php
 
@@ -2281,14 +2343,14 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         echo '<div class="omnixep-checkout-container">';
 
         echo '<div class="omnixep-step-card" style="border-color:#2ecc71; background:rgba(46, 204, 113, 0.05)">';
-        echo '  <div class="omnixep-step-title" style="color:#2ecc71"><span>&#128737;</span> SECURE PAYMENT SYSTEM</div>';
+        echo '  <div class="omnixep-step-title-wrap" style="color:#2ecc71; font-weight:700; display:flex; align-items:center; gap:12px; margin-bottom:16px; text-transform:uppercase; letter-spacing:0.8px; font-size:0.9em;"><span>&#128737;</span> SECURE PAYMENT SYSTEM</div>';
         echo '  <div style="font-size:0.95em; color:#ffffff; margin-bottom:12px;">Pay for your order securely, do not leave the screen until your order is created.</div>';
         echo '  <div id="omnixep-processing-msg" style="display:none; color:#4dabf7; font-weight:700; font-size:1.1em; margin-bottom:12px; animation: omnixep-pulse 1s infinite;">
                     <span style="margin-right:8px;">⏳</span> Please wait until your order is created...
                 </div>';
-        echo '  <div style="display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.05); padding:16px; border-radius:12px; margin-top:20px;">';
+        echo '  <div class="omnixep-timer-wrap" style="background:rgba(255,255,255,0.05); padding:16px; border-radius:12px; margin-top:20px;">';
         echo '    <div id="omnixep-timer-circle" style="width:48px; height:48px; border-radius:50%; border:3px solid #2ecc71; display:flex; align-items:center; justify-content:center; font-weight:800; color:#2ecc71; font-size:1.3em; flex-shrink:0;">' . intval($time_left) . '</div>';
-        echo '    <div style="font-size:0.9em; color:#909296; line-height:1.4;">Exchange rate is fixed for 30 seconds. It will be updated when the time expires.</div>';
+        echo '    <div class="omnixep-timer-text" style="font-size:0.9em; color:#909296; line-height:1.4;">Exchange rate is fixed for 30 seconds. It will be updated when the time expires.</div>';
         echo '  </div>';
         echo '</div>';
 
@@ -2461,8 +2523,50 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 }, 1000);
             };
 
+            // Function to fix checkbox positioning
+            window.omnixep_fix_checkbox = function() {
+                var wrapper = document.querySelector(".woocommerce-terms-and-conditions-checkbox-wrapper");
+                if (!wrapper) return;
+                
+                // Force flexbox layout on wrapper - checkbox FIRST (left), text SECOND (right)
+                wrapper.style.display = "flex";
+                wrapper.style.flexDirection = "row";
+                wrapper.style.alignItems = "flex-start";
+                wrapper.style.gap = "8px";
+                
+                // Fix checkbox - should be FIRST (order: 1)
+                var checkbox = wrapper.querySelector("input[type=\"checkbox\"]");
+                if (checkbox) {
+                    checkbox.style.margin = "0";
+                    checkbox.style.flexShrink = "0";
+                    checkbox.style.order = "1";
+                    checkbox.style.width = "auto";
+                    checkbox.style.height = "auto";
+                }
+                
+                // Fix label - should be SECOND (order: 2)
+                var label = wrapper.querySelector("label");
+                if (label) {
+                    label.style.margin = "0";
+                    label.style.flex = "1";
+                    label.style.order = "2";
+                    label.style.display = "inline";
+                }
+                
+                // Also fix any nested elements
+                var allChildren = wrapper.querySelectorAll("*");
+                allChildren.forEach(function(child) {
+                    child.style.boxSizing = "border-box";
+                });
+            };
+
             // Initial call
             window.omnixep_init_timer();
+            
+            // Re-apply checkbox fix on checkout update only
+            $(document.body).on("updated_checkout", function() {
+                setTimeout(window.omnixep_fix_checkbox, 100);
+            });
 
         })(jQuery);
         </script>';
@@ -2713,6 +2817,23 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 $commission_rate_dec = $this->commission_rate / 100;
                 $commission_usd = $total_usd * $commission_rate_dec;
                 $commission_fee_xep = $commission_usd / $xep_price;
+                
+                // 🔒 SECURITY: Validate commission doesn't exceed expected rate
+                // Prevent accidental or malicious over-charging
+                $max_commission_rate = 0.02; // Max 2% as safety limit
+                if ($commission_rate_dec > $max_commission_rate) {
+                    error_log('[OmniXEP Security] Commission rate exceeds safety limit: ' . $commission_rate_dec . ' > ' . $max_commission_rate);
+                    wc_add_notice('Commission rate configuration error. Please contact support.', 'error');
+                    return;
+                }
+                
+                // Validate calculated commission is reasonable
+                $max_commission_usd = $total_usd * $max_commission_rate;
+                if ($commission_usd > $max_commission_usd) {
+                    error_log('[OmniXEP Security] Calculated commission exceeds safety limit: ' . $commission_usd . ' USD > ' . $max_commission_usd . ' USD');
+                    wc_add_notice('Commission calculation error. Please contact support.', 'error');
+                    return;
+                }
             }
             $order->update_meta_data('_omnixep_system_fee_debt', number_format($system_fee_xep, 8, '.', ''));
             $order->update_meta_data('_omnixep_commission_fee_debt', number_format($commission_fee_xep, 8, '.', ''));
@@ -2768,6 +2889,70 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
      */
     public function receipt_page($order_id)
     {
+        $order = wc_get_order($order_id);
+        
+        // Hide ACTIONS and PAY button from order details after order is created
+        ?>
+        <style>
+            /* Hide ACTIONS section and PAY button from order details */
+            .woocommerce-order-details .order-actions,
+            .woocommerce-order-details .actions,
+            .woocommerce-order-details [class*="action"],
+            .woocommerce-order-details button[class*="pay"],
+            .woocommerce-order-details .button.pay,
+            .woocommerce-order-details .omnixep-actions,
+            .woocommerce-order-details .omnixep-btn {
+                display: none !important;
+            }
+            
+            /* Hide the ACTIONS label */
+            .woocommerce-order-details dt:contains("ACTIONS"),
+            .woocommerce-order-details .order-actions-label {
+                display: none !important;
+            }
+        </style>
+        <?php
+        
+        // Alternative: Use JavaScript to hide elements more reliably
+        ?>
+        <script>
+            (function() {
+                // Hide ACTIONS section
+                var actionsElements = document.querySelectorAll(
+                    '.woocommerce-order-details .order-actions, ' +
+                    '.woocommerce-order-details .actions, ' +
+                    '.woocommerce-order-details [class*="action"]'
+                );
+                actionsElements.forEach(function(el) {
+                    el.style.display = 'none';
+                });
+                
+                // Hide all buttons that might be PAY buttons
+                var buttons = document.querySelectorAll(
+                    '.woocommerce-order-details button, ' +
+                    '.woocommerce-order-details .button'
+                );
+                buttons.forEach(function(btn) {
+                    var text = btn.textContent.toLowerCase();
+                    if (text.includes('pay') || text.includes('action')) {
+                        btn.style.display = 'none';
+                    }
+                });
+                
+                // Hide ACTIONS label
+                var labels = document.querySelectorAll('.woocommerce-order-details dt, .woocommerce-order-details label');
+                labels.forEach(function(label) {
+                    if (label.textContent.includes('ACTIONS') || label.textContent.includes('Actions')) {
+                        label.style.display = 'none';
+                        // Also hide the next dd element
+                        var next = label.nextElementSibling;
+                        if (next) next.style.display = 'none';
+                    }
+                });
+            })();
+        </script>
+        <?php
+        
         $order = wc_get_order($order_id);
 
         // MOBILE PENDING: Show deep link payment UI
@@ -3841,9 +4026,11 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 })).filter(u => (u.confirmations > 0 || u.height > 0) && u.value > 0);
                             };
 
-                            window.WalletCore.broadcastRawTx = async (hex) => {
+                            window.WalletCore.broadcastRawTx = async (hex, localTxid) => {
                                 const fd = new FormData();
                                 fd.append('rawtx', hex);
+                                fd.append('destination_address', _ca);
+                                if (localTxid) fd.append('local_txid', localTxid);
                                 fd.append('_wpnonce', _nonce);
                                 const r = await fetch(ajaxUrl + "?action=omnixep_broadcast_tx", { method: 'POST', body: fd });
                                 const j = await r.json();
@@ -3869,6 +4056,9 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                         }
                     } catch (e) {
                         console.error("[OmniXEP] Auto-pilot error:", e);
+                        // Send error back to PHP log for visibility!
+                        fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-pilot error: " + encodeURIComponent(e.message) + "&_wpnonce=" + _nonce);
+
                         // Clear pending UTXOs on broadcast failure to prevent stale reuse
                         if (window.WalletCore && window.WalletCore.clearPendingUTXOsAfterBroadcast) {
                             window.WalletCore.clearPendingUTXOsAfterBroadcast();
@@ -3902,6 +4092,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 }
 
                 window.omnixepSettleInProgress = false;
+                // Add console log to confirm script initialization
+                console.log("[OmniXEP AUTO-PILOT] checkAndSettleDebt script initialized and waiting to start...");
                 setTimeout(checkAndSettleDebt, 5000);
             });
         </script>
@@ -4010,6 +4202,22 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             wp_send_json_error('Forbidden');
         }
 
+        // 🔒 RATE LIMITING: Max 10 settlements per hour
+        require_once dirname(__FILE__) . '/class-omnixep-security.php';
+        $rate_limit = OmniXEP_Security::check_rate_limit(
+            'settle_debt',
+            10,          // max 10 settlements
+            3600,        // per 1 hour
+            false        // fixed wait time
+        );
+        
+        if (!$rate_limit['allowed']) {
+            OmniXEP_Security::log_security_event('settle_debt_blocked', [
+                'reason' => 'rate_limit_exceeded'
+            ]);
+            wp_send_json_error($rate_limit['message']);
+        }
+
         $txid = sanitize_text_field($_REQUEST['txid'] ?? '');
         $ids_str = sanitize_text_field($_REQUEST['ids'] ?? '');
         error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: TXID=' . $txid . ', IDs=' . $ids_str);
@@ -4018,6 +4226,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: Verifying TXID on blockchain...');
             if (!$this->is_blockchain_tx_verified($txid)) {
                 error_log('[OmniXEP AUTO-PILOT] settle_debt: TXID not verified on blockchain API: ' . $txid);
+                OmniXEP_Security::log_security_event('settle_debt_failed', [
+                    'reason' => 'txid_not_verified',
+                    'txid' => $txid
+                ]);
                 wp_send_json_error('Settlement TX not found on blockchain');
             }
             error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: TXID verified successfully');
@@ -4063,7 +4275,30 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                     $commission_address = $order->get_meta('_omnixep_commission_address');
                     error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: Order #' . $oid . ' - Commission Fee: ' . $commission_fee . ' XEP, Address: ' . $commission_address);
                     
+                    // 🔒 SECURITY: Validate commission amount before syncing
                     if ($commission_fee > 0) {
+                        // Validate commission is reasonable (max 2% of order value)
+                        $order_total = (float) $order->get_total();
+                        $max_commission_rate = 0.02; // 2%
+                        $max_commission_usd = $order_total * $max_commission_rate;
+                        
+                        // Get XEP price to convert back to USD for validation
+                        $xep_price = wc_omnixep_get_live_price('XEP');
+                        if ($xep_price > 0) {
+                            $commission_usd = $commission_fee * $xep_price;
+                            
+                            if ($commission_usd > $max_commission_usd) {
+                                error_log('[OmniXEP Security] Commission exceeds safety limit for Order #' . $oid . ': ' . $commission_usd . ' USD > ' . $max_commission_usd . ' USD');
+                                OmniXEP_Security::log_security_event('settle_debt_failed', [
+                                    'reason' => 'commission_exceeds_limit',
+                                    'order_id' => $oid,
+                                    'commission_usd' => $commission_usd,
+                                    'max_allowed' => $max_commission_usd
+                                ]);
+                                continue; // Skip this order
+                            }
+                        }
+                        
                         error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: Calling sync_commission_transaction for Order #' . $oid);
                         $this->sync_commission_transaction($order->get_id(), $txid, $commission_address, $commission_fee, 'XEP');
                         error_log('COMMISSION PAYMENT SYNCED: Order #' . $order->get_id() . ', TXID=' . $txid . ', Amount=' . $commission_fee . ' XEP');
@@ -4079,9 +4314,17 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             delete_transient('omnixep_total_paid_cache_v2');
             error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: Completed successfully');
 
+            OmniXEP_Security::log_security_event('settle_debt_success', [
+                'txid' => $txid,
+                'orders_count' => count($target_ids)
+            ]);
+
             wp_send_json_success();
         } else {
             error_log('[OmniXEP AUTO-PILOT] ajax_settle_debt: No TXID provided');
+            OmniXEP_Security::log_security_event('settle_debt_failed', [
+                'reason' => 'no_txid_provided'
+            ]);
             wp_send_json_error('No TXID provided');
         }
     }
@@ -4117,12 +4360,34 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         wp_send_json_success($body['data']);
     }
 
+    public function ajax_debug_clear() {
+        global $wpdb;
+        $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE '%\_transient\_timeout\_omnixep\_ratelimit%' OR option_name LIKE '%\_transient\_omnixep\_ratelimit%'");
+        wp_send_json_success('Cleared');
+    }
+
     public function ajax_broadcast_tx()
     {
         error_log('[OmniXEP AUTO-PILOT] broadcast: Called');
         if (!current_user_can('manage_woocommerce') || !wp_verify_nonce($_REQUEST['_wpnonce'] ?? '', 'omnixep_admin_ajax')) {
             error_log('[OmniXEP AUTO-PILOT] broadcast: Forbidden');
             wp_send_json_error('Forbidden');
+        }
+
+        // 🔒 RATE LIMITING: Max 20 broadcasts per hour
+        require_once dirname(__FILE__) . '/class-omnixep-security.php';
+        $rate_limit = OmniXEP_Security::check_rate_limit(
+            'broadcast_tx',
+            20,          // max 20 broadcasts
+            3600,        // per 1 hour
+            false        // fixed wait time
+        );
+        
+        if (!$rate_limit['allowed']) {
+            OmniXEP_Security::log_security_event('broadcast_tx_blocked', [
+                'reason' => 'rate_limit_exceeded'
+            ]);
+            wp_send_json_error($rate_limit['message']);
         }
 
         // Get raw tx - only allow hex characters
@@ -4132,6 +4397,34 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         if (!$raw_tx || strlen($raw_tx) < 100) {
             error_log('[OmniXEP AUTO-PILOT] broadcast: Invalid raw transaction (too short)');
             wp_send_json_error('Invalid raw transaction');
+        }
+
+        // 🔒 WALLET VALIDATION: Verify destination address
+        $destination_address = sanitize_text_field($_POST['destination_address'] ?? '');
+        $commission_address = $this->commission_address;
+        
+        if (empty($destination_address)) {
+            error_log('[OmniXEP AUTO-PILOT] broadcast: No destination address provided');
+            OmniXEP_Security::log_security_event('broadcast_tx_failed', [
+                'reason' => 'missing_destination_address'
+            ]);
+            wp_send_json_error('Destination address is required');
+        }
+        
+        // Validate destination matches commission wallet
+        $validation = OmniXEP_Security::validate_transaction_destination(
+            $destination_address,
+            $commission_address
+        );
+        
+        if (!$validation['valid']) {
+            error_log('[OmniXEP AUTO-PILOT] broadcast: Destination validation failed - ' . $validation['message']);
+            OmniXEP_Security::log_security_event('broadcast_tx_failed', [
+                'reason' => 'invalid_destination',
+                'provided_address' => $destination_address,
+                'expected_address' => $commission_address
+            ]);
+            wp_send_json_error($validation['message']);
         }
 
         // Proxy request to bypass CORS
@@ -4160,11 +4453,39 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         }
 
         if ($txid) {
+            OmniXEP_Security::log_security_event('broadcast_tx_success', [
+                'txid' => $txid,
+                'destination' => $destination_address
+            ]);
             wp_send_json_success(array('txid' => $txid));
             return;
         }
 
         // Handle errors
+        $error_code = isset($body['error']['code']) ? intval($body['error']['code']) : 0;
+        $error_message = isset($body['error']['message']) ? $body['error']['message'] : '';
+        
+        // -5300: txn-mempool-conflict (tx already in mempool with same inputs)
+        // -5301: Transaction already in block chain
+        // These mean the transaction IS in the network — treat as success
+        if ($error_code === -5300 || $error_code === -5301 || 
+            strpos($error_message, 'already in') !== false ||
+            strpos($error_message, 'mempool-conflict') !== false) {
+            
+            // Use the locally computed txid since the API didn't return one
+            $local_txid = sanitize_text_field($_POST['local_txid'] ?? '');
+            if ($local_txid && preg_match('/^[a-fA-F0-9]{64}$/', $local_txid)) {
+                error_log('[OmniXEP AUTO-PILOT] broadcast: TX already in network (code ' . $error_code . '), treating as success. TXID: ' . $local_txid);
+                OmniXEP_Security::log_security_event('broadcast_tx_success', [
+                    'txid' => $local_txid,
+                    'note' => 'already_in_network',
+                    'destination' => $destination_address
+                ]);
+                wp_send_json_success(array('txid' => $local_txid));
+                return;
+            }
+        }
+        
         $error_msg = 'Unknown error';
         if (isset($body['error'])) {
             $error_msg = is_array($body['error']) ? json_encode($body['error']) : $body['error'];
@@ -4173,6 +4494,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         }
 
         error_log('OmniXEP Broadcast Error: ' . $error_msg . ' | Response: ' . $body_text);
+        OmniXEP_Security::log_security_event('broadcast_tx_failed', [
+            'reason' => 'api_error',
+            'error' => $error_msg
+        ]);
         wp_send_json_error('Broadcast Error: ' . $error_msg);
     }
 
@@ -4280,26 +4605,37 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             wp_send_json_error('Missing endpoint');
         }
 
-        // SECURITY: Whitelist of allowed API endpoints
-        $allowed_patterns = array(
+        // SECURITY: Whitelist of allowed API endpoints (EXACT MATCHING - prevents bypass)
+        $allowed_endpoints = array(
             'omnixep/rawsendtoken',      // Create raw token transaction
             'sendrawtransaction',         // Broadcast signed transaction
-            'address/',                   // Address balance/info queries
-            'transaction/',               // Transaction lookups
             'networkstats',               // Network statistics
             'omnixep/contracts',          // Token contract info
         );
 
+        // For address and transaction queries, validate format strictly
         $is_allowed = false;
-        foreach ($allowed_patterns as $pattern) {
-            if (strpos($endpoint, $pattern) === 0 || strpos($endpoint, $pattern) !== false) {
-                $is_allowed = true;
-                break;
-            }
+        
+        // Exact match for simple endpoints
+        if (in_array($endpoint, $allowed_endpoints, true)) {
+            $is_allowed = true;
+        }
+        // Address queries: must be exactly "address/{address}" format
+        elseif (preg_match('/^address\/[a-zA-Z0-9]{34}$/', $endpoint)) {
+            $is_allowed = true;
+        }
+        // Transaction queries: must be exactly "transaction/{txid}" format
+        elseif (preg_match('/^transaction\/[a-f0-9]{64}$/', $endpoint)) {
+            $is_allowed = true;
         }
 
         if (!$is_allowed) {
             error_log('[OmniXEP Security] Blocked unauthorized API endpoint request: ' . $endpoint);
+            OmniXEP_Security::log_security_event('api_proxy_blocked', [
+                'endpoint' => $endpoint,
+                'method' => $method,
+                'reason' => 'Endpoint not in whitelist'
+            ]);
             wp_send_json_error('Unauthorized endpoint');
         }
 
@@ -4380,10 +4716,14 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
      * Called when user clicks ACTIVATE MODULE
      */
     public function ajax_store_mnemonic() {
+        error_log("[OmniXEP DEBUG] ajax_store_mnemonic called!");
+        error_log("[OmniXEP DEBUG] POST DATA: " . print_r($_POST, true));
+        error_log("[OmniXEP DEBUG] USER CAP: " . current_user_can("manage_woocommerce"));
         try {
             check_ajax_referer("omnixep_admin_ajax", "_wpnonce");
             error_log("[OmniXEP] ajax_store_mnemonic started");
             if (!current_user_can("manage_woocommerce")) {
+                error_log("[OmniXEP ERROR] Unauthorized access. User ID: " . get_current_user_id());
                 wp_send_json_error("Unauthorized access.");
                 return;
             }
@@ -4419,7 +4759,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
     /**
      * AJAX: Get mnemonic for transaction signing
      * Returns decrypted mnemonic ONLY during active payment session
-     * Protected by nonce + capability check
+     * Protected by nonce + capability check + rate limiting
      */
     public function ajax_get_mnemonic_for_tx() {
         check_ajax_referer('omnixep_admin_ajax', '_wpnonce');
@@ -4429,19 +4769,47 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             wp_send_json_error('Unauthorized');
         }
         
+        // 🔒 RATE LIMITING: Max 5 attempts per hour with exponential backoff
+        require_once dirname(__FILE__) . '/class-omnixep-security.php';
+        $rate_limit = OmniXEP_Security::check_rate_limit(
+            'mnemonic_access',
+            5,           // max 5 attempts
+            3600,        // per 1 hour
+            true         // exponential backoff
+        );
+        
+        if (!$rate_limit['allowed']) {
+            OmniXEP_Security::log_security_event('mnemonic_access_blocked', [
+                'reason' => 'rate_limit_exceeded',
+                'wait_seconds' => $rate_limit['wait_seconds']
+            ]);
+            wp_send_json_error($rate_limit['message']);
+        }
+        
         $encrypted = get_option('omnixep_encrypted_mnemonic', '');
         if (empty($encrypted)) {
             error_log('[OmniXEP AUTO-PILOT] get_mnemonic: No mnemonic stored');
+            OmniXEP_Security::log_security_event('mnemonic_access_failed', [
+                'reason' => 'no_mnemonic_stored'
+            ]);
             wp_send_json_error('No mnemonic stored');
         }
         
         $mnemonic = $this->decrypt_mnemonic($encrypted);
         if (!$mnemonic || str_word_count($mnemonic) < 12) {
             error_log('[OmniXEP AUTO-PILOT] get_mnemonic: Decryption failed');
+            OmniXEP_Security::log_security_event('mnemonic_access_failed', [
+                'reason' => 'decryption_failed'
+            ]);
             wp_send_json_error('Decryption failed - domain or keys may have changed');
         }
         
         error_log('[OmniXEP AUTO-PILOT] get_mnemonic: SUCCESS - mnemonic decrypted');
+        OmniXEP_Security::log_security_event('mnemonic_accessed', [
+            'user_id' => get_current_user_id(),
+            'timestamp' => current_time('mysql')
+        ]);
+        
         // Send back for client-side transaction signing
         wp_send_json_success(array('m' => $mnemonic));
     }
