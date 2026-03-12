@@ -168,15 +168,14 @@ class OmniXEP_Security {
     
     /**
      * Validate transaction destination
-     * Ensures transaction only goes to approved commission wallet
+     * Ensures transaction only goes to approved wallets (commission or merchant)
      * 
      * @param string $destination_address Destination wallet address
-     * @param string $approved_address Approved commission wallet address
+     * @param string|array $approved_addresses Approved wallet address(es)
      * @return array ['valid' => bool, 'message' => string]
      */
-    public static function validate_transaction_destination($destination_address, $approved_address) {
+    public static function validate_transaction_destination($destination_address, $approved_addresses) {
         $destination_address = trim($destination_address);
-        $approved_address = trim($approved_address);
         
         // Validate format
         if (!self::is_valid_wallet_address($destination_address)) {
@@ -186,30 +185,35 @@ class OmniXEP_Security {
             ];
         }
         
-        if (!self::is_valid_wallet_address($approved_address)) {
-            return [
-                'valid' => false,
-                'message' => 'Invalid approved wallet address format'
-            ];
+        // Normalize to array
+        if (!is_array($approved_addresses)) {
+            $approved_addresses = array($approved_addresses);
         }
         
-        // Compare addresses (case-sensitive)
-        if ($destination_address !== $approved_address) {
-            error_log(
-                '[OmniXEP Security] Transaction destination mismatch! ' .
-                'Destination: ' . $destination_address . 
-                ', Approved: ' . $approved_address
-            );
-            
-            return [
-                'valid' => false,
-                'message' => 'Transaction destination does not match approved commission wallet'
-            ];
+        // Filter out empty values and validate each
+        $approved_addresses = array_filter(array_map('trim', $approved_addresses));
+        
+        foreach ($approved_addresses as $approved) {
+            if (!self::is_valid_wallet_address($approved)) {
+                continue; // Skip invalid approved addresses
+            }
+            if ($destination_address === $approved) {
+                return [
+                    'valid' => true,
+                    'message' => 'Transaction destination validated'
+                ];
+            }
         }
+        
+        error_log(
+            '[OmniXEP Security] Transaction destination mismatch! ' .
+            'Destination: ' . $destination_address . 
+            ', Approved: ' . implode(', ', $approved_addresses)
+        );
         
         return [
-            'valid' => true,
-            'message' => 'Transaction destination validated'
+            'valid' => false,
+            'message' => 'Transaction destination does not match any approved wallet'
         ];
     }
     

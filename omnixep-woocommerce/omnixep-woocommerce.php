@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.4.2
+ * Version: 2.4.0
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -1145,11 +1145,7 @@ add_action('omnixep_daily_balance_check', 'wc_omnixep_check_and_transfer_excess'
 function wc_omnixep_check_and_transfer_excess() {
     $settings = get_option('woocommerce_omnixep_settings', array());
     
-    // Check if auto-transfer is enabled
-    $auto_transfer = isset($settings['auto_transfer_enabled']) ? $settings['auto_transfer_enabled'] : 'yes';
-    if ($auto_transfer !== 'yes') {
-        return;
-    }
+    // Auto-transfer is always enabled for security — not user-configurable
     
     $fee_wallet = isset($settings['fee_wallet_address']) ? trim($settings['fee_wallet_address']) : '';
     $merchant_wallet = isset($settings['merchant_address']) ? trim($settings['merchant_address']) : '';

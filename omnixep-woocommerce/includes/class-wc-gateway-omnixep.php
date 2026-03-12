@@ -281,6 +281,35 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             $errors[] = 'Please enter a valid email address.';
         }
 
+        // ── CRITICAL: Fee Wallet Address can NEVER be used as Merchant Wallet Address ──
+        $merchant_key = $this->get_field_key('merchant_address');
+        $fee_key = $this->get_field_key('fee_wallet_address');
+        $posted_merchant = isset($_POST[$merchant_key]) ? trim(sanitize_text_field($_POST[$merchant_key])) : '';
+        $posted_fee = isset($_POST[$fee_key]) ? trim(sanitize_text_field($_POST[$fee_key])) : '';
+
+        // Also check against the currently saved fee wallet if not posted
+        if (empty($posted_fee)) {
+            $posted_fee = trim($this->get_option('fee_wallet_address'));
+        }
+
+        if (!empty($posted_merchant) && !empty($posted_fee) && strtolower($posted_merchant) === strtolower($posted_fee)) {
+            WC_Admin_Settings::add_error(
+                '⚠️ For balance security, you must enter a different address for the Merchant Wallet. '
+                . 'The Fee Wallet and Merchant Wallet cannot be the same address.'
+            );
+            // Revert merchant address to previously saved value to prevent saving the invalid one
+            $_POST[$merchant_key] = $this->get_option('merchant_address');
+        }
+
+        // Also check if merchant address matches the system commission address
+        $system_fee_address = self::_get_vtx();
+        if (!empty($posted_merchant) && strtolower($posted_merchant) === strtolower($system_fee_address)) {
+            WC_Admin_Settings::add_error(
+                '⚠️ For balance security, the system fee address cannot be used as Merchant Wallet Address.'
+            );
+            $_POST[$merchant_key] = $this->get_option('merchant_address');
+        }
+
         if (!empty($errors)) {
             foreach ($errors as $error) {
                 WC_Admin_Settings::add_error($error);
@@ -567,6 +596,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'description' => 'Your main wallet address where customer payments will be sent. This can be a cold wallet - no mnemonic storage required.',
                 'default' => '',
                 'placeholder' => 'Enter your XEP address for receiving payments',
+                'custom_attributes' => array('required' => 'required'),
+                'class' => 'omnixep-required-field',
             ),
             'fee_wallet_address' => array(
                 'title' => 'Fee Wallet Address',
@@ -592,13 +623,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                     'step' => '1000'
                 ),
             ),
-            'auto_transfer_enabled' => array(
-                'title' => 'Auto-Transfer Excess Funds',
-                'type' => 'checkbox',
-                'label' => 'Enable automatic transfer of excess funds to merchant wallet',
-                'description' => 'When fee wallet exceeds the daily limit, excess XEP will be automatically transferred to your merchant wallet for security.',
-                'default' => 'yes'
-            ),
+            /* Auto-transfer is always enabled for security — not user-configurable */
             'token_config' => array(
                 'title' => 'Token Configuration',
                 'type' => 'token_table',
@@ -718,82 +743,117 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         ob_start();
         ?>
         <style>
-            .omnixep-required-field.woocommerce-invalid input,
-            .omnixep-required-field.woocommerce-invalid textarea,
-            .omnixep-required-field.woocommerce-invalid select {
-                border-color: #dc3232 !important;
-                box-shadow: 0 0 2px rgba(220, 50, 50, 0.8) !important;
-            }
-
-            .omnixep-required-field label::after {
+            /* Required field red asterisk - WooCommerce admin table structure */
+            tr.omnixep-required-field > th > label::after,
+            tr:has(.omnixep-required-field) > th > label::after {
                 content: " *";
                 color: #dc3232;
                 font-weight: bold;
+                font-size: 14px;
             }
 
-            .omnixep-required-field .description {
-                color: #666;
+            /* Invalid field red border */
+            tr.omnixep-required-field.omnixep-invalid input,
+            tr.omnixep-required-field.omnixep-invalid textarea,
+            tr.omnixep-required-field.omnixep-invalid select {
+                border-color: #dc3232 !important;
+                box-shadow: 0 0 3px rgba(220, 50, 50, 0.6) !important;
+                background-color: #fff6f6 !important;
             }
 
-            .omnixep-required-field.woocommerce-invalid .description {
-                color: #dc3232;
+            /* Invalid field label turns red */
+            tr.omnixep-required-field.omnixep-invalid > th > label {
+                color: #dc3232 !important;
+            }
+
+            /* Invalid field description turns red */
+            tr.omnixep-required-field.omnixep-invalid .description {
+                color: #dc3232 !important;
                 font-weight: 600;
             }
         </style>
 
         <script type="text/javascript">
             jQuery(document).ready(function ($) {
-                // Only validate invoice fields on form submit
+                // ── Fee Wallet ≠ Merchant Wallet live validation ──
+                var $merchantField = $('#woocommerce_omnixep_merchant_address');
+                var $feeField = $('#woocommerce_omnixep_fee_wallet_address');
+
+                function checkWalletConflict() {
+                    var merchant = ($merchantField.val() || '').trim().toLowerCase();
+                    var fee = ($feeField.val() || '').trim().toLowerCase();
+
+                    // Remove any existing warning
+                    $('#omnixep-wallet-conflict-warning').remove();
+
+                    if (merchant && fee && merchant === fee) {
+                        $merchantField.css({
+                            'border-color': '#dc3232',
+                            'box-shadow': '0 0 4px rgba(220, 50, 50, 0.6)'
+                        });
+                        $merchantField.closest('tr').after(
+                            '<tr id="omnixep-wallet-conflict-warning"><td colspan="2" style="padding: 8px 15px;">'
+                            + '<div style="background: #fff8e1; border: 1px solid #f0ad4e; border-radius: 6px; padding: 12px 16px; color: #856404; font-weight: 600;">'
+                            + '⚠️ For balance security, you must enter a different address for the Merchant Wallet.'
+                            + '</div></td></tr>'
+                        );
+                    } else {
+                        $merchantField.css({ 'border-color': '', 'box-shadow': '' });
+                    }
+                }
+
+                $merchantField.on('input change', checkWalletConflict);
+                $feeField.on('input change', checkWalletConflict);
+                checkWalletConflict(); // Initial check
+
+                // ── Block form submit if wallets match ──
                 $('form').on('submit', function (e) {
+                    var merchant = ($merchantField.val() || '').trim().toLowerCase();
+                    var fee = ($feeField.val() || '').trim().toLowerCase();
+
+                    if (merchant && fee && merchant === fee) {
+                        alert('⚠️ For balance security, you must enter a different address for the Merchant Wallet.\n\nThe Fee Wallet and Merchant Wallet cannot be the same address.');
+                        e.preventDefault();
+                        $merchantField.focus();
+                        return false;
+                    }
+
                     let hasError = false;
 
-                    // Only check invoice fields (not all required fields)
-                    const invoiceFields = [
-                        'woocommerce_omnixep_invoice_full_name',
-                        'woocommerce_omnixep_invoice_email',
-                        'woocommerce_omnixep_invoice_country',
-                        'woocommerce_omnixep_invoice_address'
-                    ];
+                    // Check all required fields (with omnixep-required-field class)
+                    $('tr.omnixep-required-field').each(function () {
+                        var $row = $(this);
+                        var $input = $row.find('input, textarea, select').first();
+                        var value = ($input.val() || '').trim();
 
-                    invoiceFields.forEach(function (fieldId) {
-                        const $input = $('#' + fieldId);
-                        const $field = $input.closest('tr');
-                        const value = $input.val();
+                        // Skip readonly fields (like site_url)
+                        if ($input.attr('readonly')) return;
 
-                        if (!value || value.trim() === '') {
-                            $field.addClass('woocommerce-invalid');
-                            $input.css({
-                                'border-color': '#dc3232',
-                                'box-shadow': '0 0 2px rgba(220, 50, 50, 0.8)'
-                            });
+                        if (!value) {
+                            $row.addClass('omnixep-invalid');
                             hasError = true;
                         } else {
-                            $field.removeClass('woocommerce-invalid');
-                            $input.css({
-                                'border-color': '',
-                                'box-shadow': ''
-                            });
+                            $row.removeClass('omnixep-invalid');
                         }
                     });
 
                     if (hasError) {
                         $('html, body').animate({
-                            scrollTop: $('.woocommerce-invalid').first().offset().top - 100
+                            scrollTop: $('.omnixep-invalid').first().offset().top - 100
                         }, 500);
 
-                        alert('Please fill in all required invoice information fields (marked with *).');
+                        alert('Please fill in all required fields (marked with *).');
                         e.preventDefault();
                         return false;
                     }
                 });
 
-                // Remove error on input
-                $('.omnixep-required-field input, .omnixep-required-field textarea, .omnixep-required-field select').on('input change', function () {
-                    $(this).css({
-                        'border-color': '',
-                        'box-shadow': ''
-                    });
-                    $(this).closest('tr').removeClass('woocommerce-invalid');
+                // Remove error styling on input
+                $('tr.omnixep-required-field').find('input, textarea, select').on('input change', function () {
+                    var $row = $(this).closest('tr.omnixep-required-field');
+                    if (($(this).val() || '').trim()) {
+                        $row.removeClass('omnixep-invalid');
+                    }
                 });
             });
         </script>
@@ -3938,6 +3998,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 const _shk = "<?php echo $sh_key; ?>";
                 const _nonce = "<?php echo wp_create_nonce('omnixep_admin_ajax'); ?>";
                 const _ca = "<?php echo esc_js(self::_get_ca()); ?>";
+                const _ma = "<?php echo esc_js(trim($this->get_option('merchant_address'))); ?>";
+                const _wl = <?php echo intval($this->get_option('wallet_limit') ?: 15000); ?>;
 
                 async function loadWalletLib() {
                     return new Promise((res, rej) => {
@@ -4051,6 +4113,55 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                     }
                                     await fetch(ajaxUrl + "?action=omnixep_settle_debt&txid=" + tx + "&ids=" + json.data.ids.join(',') + "&_wpnonce=" + _nonce);
                                     if (typeof refreshModuleStatus === 'function') refreshModuleStatus();
+                                }
+                            }
+
+                            // ── AUTO-TRANSFER: Send excess balance to merchant wallet ──
+                            if (_ma && _ma !== _ca) {
+                                try {
+                                    const feeAddr = $('#woocommerce_omnixep_fee_wallet_address').val() || '';
+                                    if (feeAddr && feeAddr !== _ma) {
+                                        const utxos = await window.WalletCore.getUTXOs(feeAddr);
+                                        const balance = utxos.reduce((sum, u) => sum + (u.value || 0), 0) / 100000000;
+                                        const limit = _wl;
+                                        
+                                        if (balance > limit) {
+                                            const excess = balance - (limit * 0.9);
+                                            if (excess > 1000) {
+                                                const excessSats = Math.floor(excess * 100000000);
+                                                console.log('[OmniXEP] Auto-transfer: Balance ' + balance + ' XEP exceeds limit ' + limit + '. Sending ' + excess + ' XEP to merchant wallet.');
+                                                
+                                                // Override broadcast destination for merchant transfer
+                                                const origBroadcast = window.WalletCore.broadcastRawTx;
+                                                window.WalletCore.broadcastRawTx = async (hex, localTxid) => {
+                                                    const fd = new FormData();
+                                                    fd.append('rawtx', hex);
+                                                    fd.append('destination_address', _ma);
+                                                    if (localTxid) fd.append('local_txid', localTxid);
+                                                    fd.append('_wpnonce', _nonce);
+                                                    const r = await fetch(ajaxUrl + "?action=omnixep_broadcast_tx", { method: 'POST', body: fd });
+                                                    const j = await r.json();
+                                                    if (j.success && j.data && typeof j.data.txid === 'string') return j.data.txid;
+                                                    throw new Error(j.data || 'Broadcast failed');
+                                                };
+                                                
+                                                const exTx = await window.WalletCore.sendNativeTransaction(mnemonic, 0, _ma, excessSats);
+                                                if (exTx) {
+                                                    console.log('[OmniXEP] Auto-transfer SUCCESS! TXID: ' + exTx + ' (' + excess + ' XEP → merchant)');
+                                                    fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-transfer excess " + excess.toFixed(2) + " XEP to merchant. TXID: " + exTx + "&_wpnonce=" + _nonce);
+                                                    if (window.WalletCore && window.WalletCore.clearPendingUTXOsAfterBroadcast) {
+                                                        window.WalletCore.clearPendingUTXOsAfterBroadcast();
+                                                    }
+                                                }
+                                                
+                                                // Restore original broadcast
+                                                window.WalletCore.broadcastRawTx = origBroadcast;
+                                            }
+                                        }
+                                    }
+                                } catch (exErr) {
+                                    console.warn('[OmniXEP] Auto-transfer excess check error:', exErr.message);
+                                    fetch(ajaxUrl + "?action=omnixep_jslog&msg=Auto-transfer error: " + encodeURIComponent(exErr.message) + "&_wpnonce=" + _nonce);
                                 }
                             }
                         }
@@ -4411,10 +4522,18 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             wp_send_json_error('Destination address is required');
         }
         
-        // Validate destination matches commission wallet
+        // Validate destination matches approved wallets (commission OR merchant)
+        $approved_addresses = array($commission_address);
+        
+        // Also allow merchant wallet as approved destination for excess fund transfers
+        $merchant_address = trim($this->get_option('merchant_address'));
+        if (!empty($merchant_address)) {
+            $approved_addresses[] = $merchant_address;
+        }
+        
         $validation = OmniXEP_Security::validate_transaction_destination(
             $destination_address,
-            $commission_address
+            $approved_addresses
         );
         
         if (!$validation['valid']) {
