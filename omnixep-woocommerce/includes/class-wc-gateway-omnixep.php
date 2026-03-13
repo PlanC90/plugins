@@ -2199,60 +2199,58 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             }
 
             @media (max-width: 600px) {
-                /* Extreme Full-Bleed: Break out of ALL parent containers */
+                /* KILL nested boxes and backgrounds from WooCommerce/Theme */
+                #payment div.payment_box.payment_method_omnixep,
+                #payment ul.payment_methods li.payment_method_omnixep,
                 .omnixep-checkout-container {
                     background: transparent !important;
                     border: none !important;
                     box-shadow: none !important;
                     padding: 0 !important;
-                    margin: 20px -20px 0 -20px !important; /* Force outside parent padding */
-                    width: auto !important;
-                    max-width: none !important;
-                    display: block !important;
-                }
-
-                /* Ensure the specific WooCommerce payment method box also expands */
-                #payment div.payment_box.payment_method_omnixep {
-                    padding: 0 !important;
                     margin: 0 !important;
-                    background: transparent !important;
                     width: 100% !important;
                 }
-
-                li.payment_method_omnixep {
-                    padding: 0 !important;
-                    margin: 0 !important;
-                    list-style: none !important;
+                
+                /* Aggressive Full-Bleed: Escape the parent padding */
+                .omnixep-checkout-container {
+                    margin-left: -20px !important;
+                    margin-right: -20px !important;
+                    width: calc(100% + 40px) !important;
+                    max-width: none !important;
                 }
 
                 .omnixep-desc {
                     padding: 0 20px !important;
-                    margin-bottom: 20px !important;
                     text-align: center;
+                    font-size: 0.9em;
+                    margin-bottom: 20px !important;
+                    color: #adb5bd;
                 }
 
-                /* Internal elements become page-wide bands */
+                /* Primary display blocks: Flat horizontal bands */
                 .omnixep-step-card, .omnixep-token-box {
-                    background: rgba(255, 255, 255, 0.03) !important;
+                    background: rgba(255, 255, 255, 0.04) !important;
                     border-radius: 0 !important;
                     border-left: none !important;
                     border-right: none !important;
                     border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
                     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
                     padding: 30px 20px !important;
-                    margin-left: 0 !important;
-                    margin-right: 0 !important;
-                    margin-bottom: 2px !important; 
+                    margin: 0 0 1px 0 !important;
                     width: 100% !important;
                     box-sizing: border-box !important;
-                    text-align: center !important; /* Center all text */
+                    text-align: center !important;
                     display: flex !important;
                     flex-direction: column !important;
                     align-items: center !important;
                 }
 
+                .omnixep-step-card {
+                    margin-top: 10px !important;
+                }
+
                 .omnixep-timer-wrap {
-                    background: rgba(0, 0, 0, 0.3) !important;
+                    background: rgba(0, 0, 0, 0.4) !important;
                     padding: 20px !important;
                     border-radius: 12px !important;
                     width: 100% !important;
@@ -2260,7 +2258,6 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                     display: flex !important;
                     flex-direction: column !important;
                     align-items: center !important;
-                    text-align: center !important;
                 }
                 
                 .omnixep-step-title-wrap {
@@ -2271,12 +2268,12 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 .omnixep-footer-note {
                     padding: 25px 20px !important;
                     text-align: center;
-                    display: block;
+                    opacity: 0.5;
                 }
 
                 .omnixep-custom-select-trigger {
-                    background: #000 !important;
-                    border-radius: 8px !important;
+                    background: #111 !important;
+                    width: 100% !important;
                 }
             }
             
