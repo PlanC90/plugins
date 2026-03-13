@@ -505,9 +505,8 @@ function wc_omnixep_add_terms_page()
 {
     // These pages are accessed via direct URL, not from menu
     // We keep them registered but hidden by using null as parent or just commenting out menu entries
-    /*
     add_submenu_page(
-        'woocommerce',
+        null,                                 // No parent = hidden from menu
         'OmniXEP Terms of Service',
         'Terms of Service',
         'manage_woocommerce',
@@ -516,14 +515,13 @@ function wc_omnixep_add_terms_page()
     );
     
     add_submenu_page(
-        'woocommerce',
+        null,                                 // No parent = hidden from menu
         'OmniXEP Sync Terms',
         'Sync Terms',
         'manage_woocommerce',
         'omnixep-sync-terms',
         'wc_omnixep_render_sync_page'
     );
-    */
 }
 
 /**
