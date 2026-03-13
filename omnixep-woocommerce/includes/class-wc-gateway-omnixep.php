@@ -2199,58 +2199,84 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             }
 
             @media (max-width: 600px) {
-                /* Aggressive Full-Bleed Design */
+                /* Extreme Full-Bleed: Break out of ALL parent containers */
                 .omnixep-checkout-container {
                     background: transparent !important;
                     border: none !important;
                     box-shadow: none !important;
                     padding: 0 !important;
+                    margin: 20px -20px 0 -20px !important; /* Force outside parent padding */
+                    width: auto !important;
+                    max-width: none !important;
+                    display: block !important;
+                }
+
+                /* Ensure the specific WooCommerce payment method box also expands */
+                #payment div.payment_box.payment_method_omnixep {
+                    padding: 0 !important;
                     margin: 0 !important;
+                    background: transparent !important;
                     width: 100% !important;
                 }
 
-                /* Break out of WooCommerce's nested padding */
-                .woocommerce-checkout #payment div.payment_box.payment_method_omnixep {
-                    margin: 0 -15px !important;
+                li.payment_method_omnixep {
                     padding: 0 !important;
-                    background: transparent !important;
+                    margin: 0 !important;
+                    list-style: none !important;
                 }
 
                 .omnixep-desc {
-                    padding: 0 15px !important;
-                    margin-bottom: 15px !important;
+                    padding: 0 20px !important;
+                    margin-bottom: 20px !important;
+                    text-align: center;
                 }
 
-                /* Flatten internal cards to be simple full-width bands */
+                /* Internal elements become page-wide bands */
                 .omnixep-step-card, .omnixep-token-box {
                     background: rgba(255, 255, 255, 0.03) !important;
                     border-radius: 0 !important;
                     border-left: none !important;
                     border-right: none !important;
-                    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-                    padding: 25px 15px !important;
-                    margin-bottom: 1px !important; /* Stack them tightly */
-                    box-shadow: none !important;
-                }
-
-                .omnixep-step-card {
-                    margin-top: 10px !important;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+                    padding: 30px 20px !important;
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                    margin-bottom: 2px !important; 
+                    width: 100% !important;
+                    box-sizing: border-box !important;
+                    text-align: center !important; /* Center all text */
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
                 }
 
                 .omnixep-timer-wrap {
-                    background: rgba(0, 0, 0, 0.2) !important;
-                    padding: 15px !important;
+                    background: rgba(0, 0, 0, 0.3) !important;
+                    padding: 20px !important;
                     border-radius: 12px !important;
+                    width: 100% !important;
+                    box-sizing: border-box !important;
+                    display: flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    text-align: center !important;
                 }
                 
+                .omnixep-step-title-wrap {
+                    justify-content: center !important;
+                    margin-bottom: 15px !important;
+                }
+
                 .omnixep-footer-note {
-                    padding: 20px 15px !important;
-                    opacity: 0.6;
+                    padding: 25px 20px !important;
+                    text-align: center;
+                    display: block;
                 }
 
                 .omnixep-custom-select-trigger {
                     background: #000 !important;
+                    border-radius: 8px !important;
                 }
             }
             
