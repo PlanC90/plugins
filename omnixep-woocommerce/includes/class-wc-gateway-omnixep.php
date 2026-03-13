@@ -2199,30 +2199,67 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             }
 
             @media (max-width: 600px) {
+                /* Aggressive full-screen expansion */
+                .woocommerce-checkout #payment div.payment_box.payment_method_omnixep {
+                    padding: 0 !important;
+                    margin: 0 -20px !important; /* Break out of parent padding */
+                    width: calc(100% + 40px) !important;
+                    background: transparent !important;
+                }
+                
                 .omnixep-checkout-container {
-                    padding: 24px !important;
-                    margin-top: 10px;
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    background: transparent !important;
+                    border: none !important;
+                    box-shadow: none !important;
+                    width: 100% !important;
+                }
+                
+                li.payment_method_omnixep {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                }
+
+                .omnixep-desc {
+                    padding: 0 20px !important;
+                    text-align: center;
+                    font-size: 0.9em;
+                }
+
+                /* Inner cards hit the edges */
+                .omnixep-step-card, .omnixep-token-box {
+                    padding: 24px 20px !important;
+                    border-radius: 0 !important; /* Square edges for full-bleed feel */
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                    margin-bottom: 5px !important;
+                    border-left: none !important;
+                    border-right: none !important;
                 }
 
                 .omnixep-step-card {
-                    padding: 20px !important;
+                    border-top: 1px solid rgba(46, 204, 113, 0.2) !important;
+                    border-bottom: 1px solid rgba(46, 204, 113, 0.2) !important;
                 }
 
                 .omnixep-token-box {
-                    padding: 20px !important;
+                    border-top: 1px solid #373a40 !important;
+                    border-bottom: 1px solid #373a40 !important;
                 }
                 
                 .omnixep-timer-wrap {
                     flex-direction: column !important;
-                    align-items: center !important;
-                    text-align: center !important;
-                    gap: 15px !important;
+                    padding: 10px !important;
                 }
                 
                 .omnixep-step-title-wrap {
-                    flex-direction: column !important;
-                    text-align: center !important;
-                    gap: 8px !important;
+                    margin-bottom: 10px !important;
+                }
+
+                .omnixep-footer-note {
+                    padding: 20px !important;
+                    text-align: center;
                 }
             }
             
