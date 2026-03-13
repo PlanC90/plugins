@@ -1,4 +1,4 @@
-﻿jQuery(function ($) {
+jQuery(function ($) {
     var omnixep_params = window.wc_omnixep_params || {};
 
     // Helper to set hidden inputs correctly
@@ -237,9 +237,17 @@
             return;
         }
 
-        // ---- FLOW 2: Mobile Deep Link ----
+        // ---- FLOW 2: Mobile Environment Check ----
         if (omnixep_params.is_mobile) {
-            console.log('OmniXEP: Mobile detected, using deep link flow.');
+            // If we're on mobile but window.omnixep is NOT found, it means they are in a standard mobile browser (Safari/Chrome)
+            // The user requested a mandatory warning to use the OmniXEP wallet app.
+            if (!window.omnixep && !window.omniXep) {
+                alert("To shop on this site, please access this site through the OmniXEP wallet.");
+                $('#omnixep-processing-msg').fadeOut();
+                return;
+            }
+
+            console.log('OmniXEP: Mobile wallet detected, using deep link flow.');
             setHiddenInput($form, 'omnixep_mobile_pending', 'omnixep_mobile_pending', '1');
             setHiddenInput($form, 'omnixep_token_name', 'omnixep_token_name', token_name);
             setHiddenInput($form, 'omnixep_merchant_amount', 'omnixep_merchant_amount', total_amount.toString());
@@ -413,5 +421,14 @@
             $('#omnixep-processing-msg').fadeOut();
             alert('No transaction ID returned from wallet. Payment may have been cancelled.');
         }
+    }
+
+    // Proactive mobile environment check
+    if (omnixep_params.is_mobile && !window.omnixep && !window.omniXep) {
+        setTimeout(function() {
+             if ($('input[name="payment_method"]:checked').val() === 'omnixep') {
+                 alert("To shop on this site, please access this site through the OmniXEP wallet.");
+             }
+        }, 1500); 
     }
 });
