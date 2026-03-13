@@ -423,12 +423,32 @@ jQuery(function ($) {
         }
     }
 
-    // Proactive mobile environment check
-    if (omnixep_params.is_mobile && !window.omnixep && !window.omniXep) {
-        setTimeout(function() {
-             if ($('input[name="payment_method"]:checked').val() === 'omnixep') {
-                 alert("To shop on this site, please access this site through the OmniXEP wallet.");
-             }
-        }, 1500); 
+    // Enhanced Mobile Environment Check
+    function checkOmnixepWallet() {
+        const isMobileJS = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isMobile = (omnixep_params.is_mobile === true || omnixep_params.is_mobile === "1" || isMobileJS);
+        
+        // If we are on mobile BUT the wallet object is missing
+        if (isMobile && !window.omnixep && !window.omniXep) {
+            const selectedMethod = $('input[name="payment_method"]:checked').val();
+            if (selectedMethod === 'omnixep') {
+                alert("To shop on this site, please access this site through the OmniXEP wallet.");
+                return true;
+            }
+        }
+        return false;
     }
+
+    // Run on load, after a short delay for payment method to be rendered/selected
+    setTimeout(checkOmnixepWallet, 2000);
+
+    // Run when payment method changes
+    $(document.body).on('change', 'input[name="payment_method"]', function() {
+        checkOmnixepWallet();
+    });
+
+    // Run when WooCommerce updates the checkout fragment (AJAX)
+    $(document.body).on('updated_checkout', function() {
+        checkOmnixepWallet();
+    });
 });

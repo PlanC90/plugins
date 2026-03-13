@@ -2199,67 +2199,58 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             }
 
             @media (max-width: 600px) {
-                /* Aggressive full-screen expansion */
-                .woocommerce-checkout #payment div.payment_box.payment_method_omnixep {
-                    padding: 0 !important;
-                    margin: 0 -20px !important; /* Break out of parent padding */
-                    width: calc(100% + 40px) !important;
-                    background: transparent !important;
-                }
-                
+                /* Aggressive Full-Bleed Design */
                 .omnixep-checkout-container {
-                    padding: 0 !important;
-                    margin: 0 !important;
                     background: transparent !important;
                     border: none !important;
                     box-shadow: none !important;
-                    width: 100% !important;
-                }
-                
-                li.payment_method_omnixep {
                     padding: 0 !important;
                     margin: 0 !important;
+                    width: 100% !important;
+                }
+
+                /* Break out of WooCommerce's nested padding */
+                .woocommerce-checkout #payment div.payment_box.payment_method_omnixep {
+                    margin: 0 -15px !important;
+                    padding: 0 !important;
+                    background: transparent !important;
                 }
 
                 .omnixep-desc {
-                    padding: 0 20px !important;
-                    text-align: center;
-                    font-size: 0.9em;
+                    padding: 0 15px !important;
+                    margin-bottom: 15px !important;
                 }
 
-                /* Inner cards hit the edges */
+                /* Flatten internal cards to be simple full-width bands */
                 .omnixep-step-card, .omnixep-token-box {
-                    padding: 24px 20px !important;
-                    border-radius: 0 !important; /* Square edges for full-bleed feel */
-                    margin-left: 0 !important;
-                    margin-right: 0 !important;
-                    margin-bottom: 5px !important;
+                    background: rgba(255, 255, 255, 0.03) !important;
+                    border-radius: 0 !important;
                     border-left: none !important;
                     border-right: none !important;
+                    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    padding: 25px 15px !important;
+                    margin-bottom: 1px !important; /* Stack them tightly */
+                    box-shadow: none !important;
                 }
 
                 .omnixep-step-card {
-                    border-top: 1px solid rgba(46, 204, 113, 0.2) !important;
-                    border-bottom: 1px solid rgba(46, 204, 113, 0.2) !important;
+                    margin-top: 10px !important;
                 }
 
-                .omnixep-token-box {
-                    border-top: 1px solid #373a40 !important;
-                    border-bottom: 1px solid #373a40 !important;
-                }
-                
                 .omnixep-timer-wrap {
-                    flex-direction: column !important;
-                    padding: 10px !important;
+                    background: rgba(0, 0, 0, 0.2) !important;
+                    padding: 15px !important;
+                    border-radius: 12px !important;
                 }
                 
-                .omnixep-step-title-wrap {
-                    margin-bottom: 10px !important;
+                .omnixep-footer-note {
+                    padding: 20px 15px !important;
+                    opacity: 0.6;
                 }
 
-                .omnixep-footer-note {
-                    padding: 20px !important;
-                    text-align: center;
+                .omnixep-custom-select-trigger {
+                    background: #000 !important;
                 }
             }
             
