@@ -504,7 +504,8 @@ add_action('admin_menu', 'wc_omnixep_add_terms_page', 100);
 function wc_omnixep_add_terms_page()
 {
     // These pages are accessed via direct URL, not from menu
-    // Using 'woocommerce' as parent to avoid NULL parameter error
+    // We keep them registered but hidden by using null as parent or just commenting out menu entries
+    /*
     add_submenu_page(
         'woocommerce',
         'OmniXEP Terms of Service',
@@ -514,7 +515,6 @@ function wc_omnixep_add_terms_page()
         'wc_omnixep_render_terms_page'
     );
     
-    // Add sync page
     add_submenu_page(
         'woocommerce',
         'OmniXEP Sync Terms',
@@ -523,6 +523,7 @@ function wc_omnixep_add_terms_page()
         'omnixep-sync-terms',
         'wc_omnixep_render_sync_page'
     );
+    */
 }
 
 /**
@@ -530,6 +531,10 @@ function wc_omnixep_add_terms_page()
  */
 function wc_omnixep_render_terms_page()
 {
+    // Read terms file
+    $terms_file = plugin_dir_path(__FILE__) . 'TERMS_OF_SERVICE.md';
+    $terms_content = file_exists($terms_file) ? file_get_contents($terms_file) : 'Terms file not found.';
+
     // Handle form submission
     if (isset($_POST['omnixep_accept_terms']) && check_admin_referer('omnixep_accept_terms')) {
         if (isset($_POST['accept_checkbox']) && $_POST['accept_checkbox'] === '1') {
@@ -574,15 +579,16 @@ function wc_omnixep_render_terms_page()
             update_option('omnixep_terms_accepted_date', $acceptance_date);
             update_option('omnixep_terms_accepted_by', $user_id);
             update_option('omnixep_terms_accepted_ip', $ip_address);
+            update_option('omnixep_terms_text_snapshot', $terms_content);
             
-            error_log('✅ Terms acceptance saved to WordPress options');
+            error_log('✅ Terms acceptance saved to WordPress options (including text snapshot)');
             
             // Send to API
             wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip_address);
             
             error_log('=== OMNIXEP TERMS ACCEPTANCE COMPLETED ===');
             
-            wp_redirect(admin_url('admin.php?page=omnixep-payment-settings&terms_accepted=1'));
+            wp_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep&terms_accepted=1'));
             exit;
         } else {
             $error = 'You must check the acceptance checkbox to continue.';
@@ -591,10 +597,6 @@ function wc_omnixep_render_terms_page()
             error_log('IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
         }
     }
-    
-    // Read terms file
-    $terms_file = plugin_dir_path(__FILE__) . 'TERMS_OF_SERVICE.md';
-    $terms_content = file_exists($terms_file) ? file_get_contents($terms_file) : 'Terms file not found.';
     
     // Convert markdown to HTML (basic conversion)
     $terms_html = wc_omnixep_markdown_to_html($terms_content);
@@ -2143,9 +2145,13 @@ function wc_omnixep_get_address_balance($address)
     }
 
     if ($found) {
-        set_transient($cache_key, $balance, 30 * MINUTE_IN_SECONDS);
+        // Critical: If balance is low (< 2000), use a very short cache (2 mins) so it clears quickly after top-up
+        // Otherwise use standard 30 min cache for performance
+        $cache_duration = ($balance < 2000) ? 2 * MINUTE_IN_SECONDS : 30 * MINUTE_IN_SECONDS;
+        
+        set_transient($cache_key, $balance, $cache_duration);
         // Also update the fee wallet balance for other checks (compatibility)
-        set_transient('omnixep_fee_wallet_balance_' . md5($address), $balance, 30 * MINUTE_IN_SECONDS);
+        set_transient('omnixep_fee_wallet_balance_' . md5($address), $balance, $cache_duration);
         return $balance;
     } else {
         error_log('[OmniXEP] Failed to find balance for address: ' . $address);
@@ -3494,7 +3500,6 @@ add_action('woocommerce_admin_order_data_after_billing_address', 'wc_omnixep_dis
 
 /**
  * Filter payment method title to include clickable TXID link
- * This makes the hash in "Pay with OmniXEP (hash)" clickable
  */
 function wc_omnixep_format_payment_method_title($title, $order)
 {

@@ -444,7 +444,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'token_amount' => number_format($comm_amount_token, 8, '.', ''),
             'token_price_usd_at_time' => number_format($token_price, 8, '.', ''),
             'tx_hash' => $txid,
-            'from_wallet' => $this->fee_wallet_address, // Real Sender (Merchant)
+            'from_wallet' => !empty($this->fee_wallet_address) ? $this->fee_wallet_address : $this->merchant_address, // Real Sender (Merchant)
             'to_wallet' => $system_wallet,             // Real Receiver (System)
             'fee_wallet' => $system_wallet,            // Validation Key for API
             'timestamp' => current_time('mysql'),
@@ -578,6 +578,11 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'type' => 'checkbox',
                 'label' => 'Enable OmniXEP Payment',
                 'default' => 'yes'
+            ),
+            'terms_status' => array(
+                'title' => 'Terms Acceptance Status',
+                'type' => 'terms_status',
+                'description' => 'Current terms of service acceptance information.',
             ),
             'title' => array(
                 'title' => 'Title',
@@ -1824,6 +1829,73 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
     /**
      * Custom renderer for token_table in Gateway Settings
      */
+    /**
+     * Generate terms status HTML
+     */
+    public function generate_terms_status_html($key, $data)
+    {
+        $accepted = get_option('omnixep_terms_accepted', false);
+        $date = get_option('omnixep_terms_accepted_date', 'N/A');
+        $ip = get_option('omnixep_terms_accepted_ip', 'N/A');
+        $version = get_option('omnixep_terms_version', 'N/A');
+        $snapshot = get_option('omnixep_terms_text_snapshot', '');
+
+        ob_start();
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc">
+                <label><?php echo esc_html($data['title']); ?></label>
+            </th>
+            <td class="forminp">
+                <?php if ($accepted): ?>
+                    <div style="background: #e7f9ed; border: 1px solid #2ecc71; border-radius: 6px; padding: 15px; display: inline-block; min-width: 300px;">
+                        <div style="color: #27ae60; font-weight: bold; font-size: 14px; margin-bottom: 8px;">
+                            ✅ Terms Accepted
+                        </div>
+                        <div style="font-size: 13px; color: #2c3e50; line-height: 1.6;">
+                            <strong>Version:</strong> v<?php echo esc_html($version); ?><br>
+                            <strong>IP Address:</strong> <code><?php echo esc_html($ip); ?></code><br>
+                            <strong>Accepted Date:</strong> <?php echo esc_html($date); ?>
+                        </div>
+                        <?php if (!empty($snapshot)): ?>
+                            <div style="margin-top: 10px;">
+                                <button type="button" class="button button-secondary button-small" onclick="jQuery('#omnixep-terms-snapshot-modal').show();">
+                                    📄 View Accepted Terms
+                                </button>
+                            </div>
+                            
+                            <div id="omnixep-terms-snapshot-modal" style="display:none; position:fixed; z-index:99999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7);">
+                                <div style="background:#fff; margin:5% auto; padding:30px; border-radius:8px; width:70%; max-height:80%; overflow-y:auto; position:relative;">
+                                    <span onclick="jQuery('#omnixep-terms-snapshot-modal').hide();" style="position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold;">&times;</span>
+                                    <h2 style="margin-top:0;">Accepted Terms Copy (v<?php echo esc_html($version); ?>)</h2>
+                                    <hr>
+                                    <div style="font-family:monospace; white-space:pre-wrap; background:#f8f9fa; padding:20px; border:1px solid #ddd; border-radius:4px; font-size:13px; line-height:1.6;">
+                                        <?php echo esc_html($snapshot); ?>
+                                    </div>
+                                    <div style="margin-top:20px; text-align:right;">
+                                        <button type="button" class="button button-primary" onclick="jQuery('#omnixep-terms-snapshot-modal').hide();">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <div style="background: #fff5f5; border: 1px solid #e74c3c; border-radius: 6px; padding: 15px; display: inline-block;">
+                        <div style="color: #c0392b; font-weight: bold;">
+                            ❌ Terms Not Accepted Yet
+                        </div>
+                        <a href="<?php echo admin_url('admin.php?page=omnixep-terms'); ?>" class="button button-primary" style="margin-top:10px;">
+                            Review and Accept Terms
+                        </a>
+                    </div>
+                <?php endif; ?>
+                <p class="description"><?php echo esc_html($data['description']); ?></p>
+            </td>
+        </tr>
+        <?php
+        return ob_get_clean();
+    }
+
     public function generate_token_table_html($key, $data)
     {
         $field_key = $this->get_field_key($key);
