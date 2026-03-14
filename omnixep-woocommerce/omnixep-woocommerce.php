@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.4.4
+ * Version: 2.4.5
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -1110,6 +1110,7 @@ function wc_omnixep_add_security_headers() {
            "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; " .
            "img-src 'self' data: https: http:; " .
            "connect-src 'self' https://api.omnixep.com https://api.coingecko.com https://mexc.com https://dextrade.com https://in-automate.brevo.com; " .
+           "frame-src 'self' https://stealthex.io; " .
            "frame-ancestors 'self'; " .
            "base-uri 'self'; " .
            "form-action 'self';";
@@ -1134,7 +1135,7 @@ function wc_omnixep_add_security_headers() {
     }
     
     // Permissions Policy (formerly Feature Policy)
-    header("Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()");
+    header("Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(self \"https://stealthex.io\")");
 }
 
 /**
@@ -4158,6 +4159,238 @@ function wc_omnixep_ajax_submit_feedback_nopriv()
     wp_send_json($result);
 }
 add_action('wp_ajax_nopriv_omnixep_submit_feedback', 'wc_omnixep_ajax_submit_feedback_nopriv');
+
+/**
+ * Render the customer feedback form in the footer
+ */
+function wc_omnixep_render_feedback_form()
+{
+    // Only load on frontend
+    if (is_admin()) {
+        return;
+    }
+    
+    // Check if FontAwesome is needed - we can use a simpler SVG or assume theme has it
+    // For now, we'll keep the theme's icons but add standard CSS fallbacks
+    ?>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- Customer Feedback Form (Injected by OmniXEP)                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="xep-feedback-section" style="background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); padding: 30px 0; clear: both;">
+        <div class="container" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 0 20px;">
+            <button type="button" class="xep-feedback-toggle" onclick="xepToggleFeedback()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #868e96; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; font-family: inherit;">
+                <i class="fa-solid fa-comment-dots"></i>
+                Report an Issue to ElectraPay
+            </button>
+            
+            <div id="xep-feedback-form-wrap" class="xep-feedback-form-wrap" style="display: none; margin-top: 30px; background: #121212; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+                <form id="xep-feedback-form" class="xep-feedback-form">
+                    <h4 style="margin: 0 0 10px 0; font-size: 20px; color: #ffffff; font-family: inherit;">Report an Issue to ElectraPay</h4>
+                    <p class="xep-feedback-desc" style="margin: 0 0 25px 0; color: #868e96; font-size: 14px; line-height: 1.6;">
+                        This report will be sent to <strong style="color: #00f2ff;">ElectraPay Payment Gateway</strong>. 
+                        Help us improve by reporting any issues with your order or payment experience.
+                    </p>
+                    
+                    <div style="background: rgba(0,242,255,0.1); border-left: 3px solid #00f2ff; padding: 12px 16px; border-radius: 8px; margin-bottom: 25px;">
+                        <p style="margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6;">
+                            <strong style="color: #00f2ff;">ℹ️ Important:</strong> 
+                            This form is for reporting issues with the <strong>ElectraPay payment gateway</strong> only. 
+                            For merchant/store-related issues, please contact the store directly.
+                        </p>
+                    </div>
+                    
+                    <!-- Honeypot field (hidden from users, bots will fill it) -->
+                    <input type="text" name="website" value="" style="position: absolute; left: -9999px; width: 1px; height: 1px;" tabindex="-1" autocomplete="off">
+                    
+                    <!-- Bot check timestamp -->
+                    <input type="hidden" name="form_loaded_at" id="xep-form-loaded-at" value="">
+                    
+                    <div class="xep-form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Order ID (Optional)</label>
+                        <input type="text" name="order_id" placeholder="e.g., 12345" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; transition: all 0.3s ease; box-sizing: border-box;">
+                    </div>
+                    
+                    <div class="xep-form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Issue Category <span style="color: #ff6b6b;">*</span></label>
+                        <select name="category" required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; cursor: pointer; transition: all 0.3s ease; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px;">
+                            <option value="" style="background: #1a1a1a; color: #999;">Select a category</option>
+                            <option value="product_not_shipped" style="background: #1a1a1a; color: #ffffff;">Product Not Shipped</option>
+                            <option value="refund_not_processed" style="background: #1a1a1a; color: #ffffff;">Refund Not Processed</option>
+                            <option value="illegal_product" style="background: #1a1a1a; color: #ffffff;">Illegal Product Sale</option>
+                            <option value="ip_violation" style="background: #1a1a1a; color: #ffffff;">Intellectual Property Violation</option>
+                            <option value="counterfeit" style="background: #1a1a1a; color: #ffffff;">Counterfeit Product</option>
+                            <option value="false_advertising" style="background: #1a1a1a; color: #ffffff;">False Advertising</option>
+                            <option value="poor_quality" style="background: #1a1a1a; color: #ffffff;">Poor Quality</option>
+                            <option value="damaged_product" style="background: #1a1a1a; color: #ffffff;">Damaged Product</option>
+                            <option value="wrong_item" style="background: #1a1a1a; color: #ffffff;">Wrong Item Received</option>
+                            <option value="other" style="background: #1a1a1a; color: #ffffff;">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="xep-form-group" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Description <span style="color: #ff6b6b;">*</span></label>
+                        <textarea name="description" rows="4" placeholder="Please describe the issue in detail..." required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; resize: vertical; transition: all 0.3s ease; font-family: inherit; box-sizing: border-box;"></textarea>
+                    </div>
+                    
+                    <div class="xep-form-group" style="margin-bottom: 25px;">
+                        <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Email (Optional, for follow-up)</label>
+                        <input type="email" name="email" placeholder="your@email.com" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; transition: all 0.3s ease; box-sizing: border-box;">
+                    </div>
+                    
+                    <div class="xep-form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" class="xep-btn-cancel" onclick="xepToggleFeedback()" style="padding: 12px 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #868e96; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; font-family: inherit;">Cancel</button>
+                        <button type="submit" class="xep-btn-submit" style="padding: 12px 24px; background: #00f2ff; border: none; color: #000; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,242,255,0.3); font-family: inherit;">
+                            <span class="xep-submit-text">Submit Report</span>
+                            <span class="xep-submit-loading" style="display: none;">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Sending...
+                            </span>
+                        </button>
+                    </div>
+                    
+                    <div id="xep-feedback-message" class="xep-feedback-message" style="margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-size: 14px; font-family: inherit;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .xep-feedback-toggle:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+        
+        .xep-form-group input:focus,
+        .xep-form-group select:focus,
+        .xep-form-group textarea:focus {
+            border-color: #00f2ff;
+            background: rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 3px rgba(0,242,255,0.1);
+        }
+        
+        .xep-btn-cancel:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
+            color: #ffffff;
+        }
+        
+        .xep-btn-submit:hover {
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        
+        .xep-btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .xep-feedback-message.success {
+            background: rgba(63,185,80,0.15);
+            border: 1px solid rgba(63,185,80,0.3);
+            color: #3fb950;
+        }
+        
+        .xep-feedback-message.error {
+            background: rgba(248,81,73,0.15);
+            border: 1px solid rgba(248,81,73,0.3);
+            color: #f85149;
+        }
+    </style>
+
+    <script>
+        function xepToggleFeedback() {
+            var wrap = document.getElementById('xep-feedback-form-wrap');
+            if (!wrap) return;
+            if (wrap.style.display === 'none') {
+                wrap.style.display = 'block';
+                document.getElementById('xep-form-loaded-at').value = Date.now();
+                setTimeout(function() {
+                    wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            } else {
+                wrap.style.display = 'none';
+                document.getElementById('xep-feedback-form').reset();
+                document.getElementById('xep-feedback-message').style.display = 'none';
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('xep-feedback-form');
+            if (!form) return;
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var submitBtn = form.querySelector('.xep-btn-submit');
+                var submitText = submitBtn.querySelector('.xep-submit-text');
+                var submitLoading = submitBtn.querySelector('.xep-submit-loading');
+                var messageDiv = document.getElementById('xep-feedback-message');
+                
+                var honeypot = form.querySelector('input[name="website"]');
+                if (honeypot && honeypot.value !== '') return false;
+                
+                var formLoadedAt = parseInt(form.querySelector('input[name="form_loaded_at"]').value || 0);
+                var timeDiff = Date.now() - formLoadedAt;
+                if (timeDiff < 3000) {
+                    messageDiv.style.display = 'block';
+                    messageDiv.className = 'xep-feedback-message error';
+                    messageDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Please take a moment to review your submission.';
+                    return false;
+                }
+                
+                submitBtn.disabled = true;
+                submitText.style.display = 'none';
+                submitLoading.style.display = 'inline';
+                messageDiv.style.display = 'none';
+                
+                var formData = new FormData(form);
+                formData.append('action', 'omnixep_submit_feedback');
+                formData.append('nonce', omnixep_feedback.nonce);
+                
+                fetch(omnixep_feedback.ajax_url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    submitBtn.disabled = false;
+                    submitText.style.display = 'inline';
+                    submitLoading.style.display = 'none';
+                    messageDiv.style.display = 'block';
+                    
+                    if (data.success) {
+                        messageDiv.className = 'xep-feedback-message success';
+                        messageDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' + 
+                            '<strong>Thank you!</strong> Your report has been submitted to ElectraPay successfully. ' +
+                            'Reference: <strong>' + (data.reference_number || 'N/A') + '</strong>';
+                        
+                        setTimeout(function() {
+                            form.reset();
+                            messageDiv.style.display = 'none';
+                            xepToggleFeedback();
+                        }, 5000);
+                    } else {
+                        messageDiv.className = 'xep-feedback-message error';
+                        messageDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> ' + (data.message || 'An error occurred.');
+                    }
+                })
+                .catch(function(error) {
+                    submitBtn.disabled = false;
+                    submitText.style.display = 'inline';
+                    submitLoading.style.display = 'none';
+                    messageDiv.style.display = 'block';
+                    messageDiv.className = 'xep-feedback-message error';
+                    messageDiv.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i> Connection error.';
+                });
+            });
+        });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'wc_omnixep_render_feedback_form', 5);
 
 /**
  * Enqueue feedback form scripts and styles
