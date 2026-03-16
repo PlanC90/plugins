@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.4.5
+ * Version: 2.4.6
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -41,7 +41,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
     return;
 }
 
-// GitHub update checker: günde 1 kez https://github.com/PlanC90/omnixep-woocommerce kontrol
+// GitHub update checker: günde 1 kez https://github.com/PlanC90/plugins kontrol
 require_once plugin_dir_path(__FILE__) . 'includes/class-omnixep-github-updater.php';
 $omnixep_github_updater = new OmniXEP_GitHub_Plugin_Updater(__FILE__);
 

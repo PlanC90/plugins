@@ -9,7 +9,7 @@ defined('ABSPATH') || exit;
 class OmniXEP_GitHub_Plugin_Updater {
 
     const GITHUB_REPO_USER = 'PlanC90';
-    const GITHUB_REPO_NAME = 'omnixep-woocommerce';
+    const GITHUB_REPO_NAME = 'plugins';
     const CACHE_TRANSIENT = 'omnixep_github_plugin_release';
     const CACHE_DURATION = DAY_IN_SECONDS; // 24 hours
 
@@ -144,31 +144,40 @@ class OmniXEP_GitHub_Plugin_Updater {
 
         $expected_slug = 'omnixep-woocommerce';
         $source_base = trailingslashit($remote_source);
-        $correct_source = $source_base . $expected_slug . '/';
 
+        // Scenario 1: The correct folder is already at the root of unzipped source
+        $correct_source = $source_base . $expected_slug . '/';
         if ($wp_filesystem->exists($correct_source)) {
             return $correct_source;
         }
 
-        $dir = dir($source_base);
-        if (!$dir) {
-            return $source;
+        // Scenario 2: GitHub repo zip structure (repo-name-tag/plugin-slug/)
+        // We look inside the first directory found for our plugin slug
+        $dir_list = $wp_filesystem->dirlist($source_base);
+        if ($dir_list) {
+            foreach ($dir_list as $file) {
+                if ($file['type'] === 'd') {
+                    $potential = trailingslashit($source_base . $file['name']) . $expected_slug . '/';
+                    if ($wp_filesystem->exists($potential)) {
+                        return $potential;
+                    }
+                }
+            }
         }
 
-        while (false !== ($entry = $dir->read())) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-            $path = $source_base . $entry;
-            if ($wp_filesystem->is_dir($path)) {
-                if ($entry !== $expected_slug && $wp_filesystem->move($path, $correct_source, true)) {
-                    $dir->close();
-                    return $correct_source;
+        // Fallback: If no subfolder matches, rename the first folder found to our slug (legacy behavior)
+        if ($dir_list) {
+            foreach ($dir_list as $file) {
+                if ($file['type'] === 'd') {
+                    $path = $source_base . $file['name'];
+                    if ($file['name'] !== $expected_slug && $wp_filesystem->move($path, $correct_source, true)) {
+                        return $correct_source;
+                    }
+                    break;
                 }
-                break;
             }
         }
-        $dir->close();
+
         return $source;
     }
 
