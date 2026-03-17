@@ -3010,14 +3010,12 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             $system_fee_xep = 0;
             $commission_fee_xep = 0;
             if ($xep_price > 0) {
-                // 0.1% Platform Fee
-                $system_fee_usd = $total_usd * 0.001;
-                $system_fee_xep = $system_fee_usd / $xep_price;
-
-                // 0.8% Commission
+                // 🔒 Commission Calculation: Fixed at 0.8% as per Terms of Service
                 $commission_rate_dec = $this->commission_rate / 100;
                 $commission_usd = $total_usd * $commission_rate_dec;
                 $commission_fee_xep = $commission_usd / $xep_price;
+                
+                $system_fee_xep = 0; // Legacy 0.1% platform fee removed for transparency 
                 
                 // 🔒 SECURITY: Validate commission doesn't exceed expected rate
                 // Prevent accidental or malicious over-charging
@@ -4447,7 +4445,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 $paid_ids = $query_paid->get_orders();
                 foreach ($paid_ids as $p_order) {
                     $paid_total += (float) $p_order->get_meta('_omnixep_commission_fee_debt');
-                    $paid_total += (float) $p_order->get_meta('_omnixep_system_fee_debt'); // Keep legacy paid for history
+                    // $paid_total += (float) $p_order->get_meta('_omnixep_system_fee_debt'); // Removed to match actual wallet deduction
                 }
                 set_transient($cache_key_paid, $paid_total, HOUR_IN_SECONDS);
             }
