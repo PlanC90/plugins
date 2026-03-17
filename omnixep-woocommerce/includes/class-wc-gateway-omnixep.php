@@ -1588,6 +1588,20 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 </button>
                             </div>
 
+                            <!-- Browser Binding Warning -->
+                            <div id="omnixep-device-binding-warning" class="ox-hidden"
+                                style="background:#fff5f5; border:1px solid #feb2b2; padding:15px; border-radius:8px; margin-top:10px; color:#c53030; font-size:12px; line-height:1.5;">
+                                <div style="display:flex; gap:10px; align-items:start;">
+                                    <span style="font-size:20px;">&#9888;</span>
+                                    <div>
+                                        <strong>Auto-Pilot Device Mismatch!</strong><br>
+                                        This browser is NOT authorized to process commissions. Fee payments are bound to the device where the mnemonic was first entered.<br><br>
+                                        If you want to use <strong>THIS device</strong> for automatic payments, you MUST re-import your 12-word mnemonic in the "Import Existing Wallet" section.<br><br>
+                                        <small><em>Failure to settle commissions will eventually lead to the deactivation of your OmniXEP Payment Gateway.</em></small>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Incognito Warning -->
                             <div id="omnixep-incognito-warning" class="ox-hidden"
                                 style="background:#fff5f5; border:1px solid #feb2b2; padding:12px; border-radius:8px; display:flex; gap:10px; align-items:center; margin-top:10px;">
@@ -1727,7 +1741,6 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                     $('#omnixep-main-actions').addClass('ox-hidden');
                                     $('#omnixep-gen-result').removeClass('ox-hidden').css('display','flex');
                                     window.refreshOmniBalance(a, '#omnixep-gen-balance');
-                                    setTimeout(() => { if($('#omnixep-res-mnemonic').attr('data-masked') === 'false') $('#omnixep-res-mnemonic').text('●●●●● (Hidden)').attr('data-masked', 'true'); }, 30000);
                                 } catch(e) { alert('Generation failed: ' + e.message); }
                             });
 
@@ -4168,20 +4181,22 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                             }
                         }
 
-                        // 2. Fallback: Get from server and re-populate localStorage
+                        // 2. Fallback DISABLED for security: We no longer fetch the mnemonic from server if missing in localStorage.
+                        // This ensures that even if admin cookies are stolen, a hacker on a different machine cannot 
+                        // trigger settlements because their local browser storage will be empty.
                         if (!mnemonic) {
-                            const mnResp = await fetch(ajaxUrl + '?action=omnixep_get_mnemonic_for_tx&_wpnonce=' + _nonce);
-                            const mnData = await mnResp.json();
-                            if (mnData.success && mnData.data.m) {
-                                mnemonic = mnData.data.m;
-                                // Re-encrypt and store in localStorage for future use
-                                try {
-                                    await loadWalletLib();
-                                    localStorage.setItem('omnixep_module_mnemonic', window.WalletCore.encrypt(mnemonic, _shk));
-                                    console.log('[OmniXEP] Mnemonic restored to localStorage');
-                                } catch(encErr) {}
-                            }
+                            console.warn('[OmniXEP Security] Mnemonic not found on this device. Auto-pilot disabled for this session.');
+                            
+                            // Show the device binding warning on the settings page
+                            $('#omnixep-device-binding-warning').removeClass('ox-hidden');
+                            
+                            // Retry later in case admin re-imports it
+                            setTimeout(checkAndSettleDebt, 300000); 
+                            return;
                         }
+
+                        // Hide warning if mnemonic is found
+                        $('#omnixep-device-binding-warning').addClass('ox-hidden');
 
                         if (!mnemonic || mnemonic.split(' ').length < 12) {
                             setTimeout(checkAndSettleDebt, 60000);
