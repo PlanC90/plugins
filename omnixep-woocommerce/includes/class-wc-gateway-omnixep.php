@@ -367,7 +367,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'commission_rate' => number_format((float) $this->commission_rate, 2, '.', ''),
             'legal_type' => (string) $this->get_option('invoice_legal_type'),
             'country' => (string) $this->get_option('invoice_country'),
-            'plugin_version' => '2.4.0'
+            'plugin_version' => '2.5.6'
         );
 
         // Sanitize site URL
@@ -448,7 +448,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'to_wallet' => $system_wallet,             // Real Receiver (System)
             'fee_wallet' => $system_wallet,            // Validation Key for API
             'timestamp' => current_time('mysql'),
-            'plugin_version' => '2.4.0',
+            'plugin_version' => '2.5.6',
             // Added for data redundancy - ensures contract info is synced even if initial terms acceptance fails
             'contract_approved_at' => get_option('omnixep_terms_accepted_date'),
             'contract_signed_ip' => get_option('omnixep_terms_accepted_ip')
