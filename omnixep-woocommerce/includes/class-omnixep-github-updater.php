@@ -71,11 +71,36 @@ class OmniXEP_GitHub_Plugin_Updater {
         }
 
         $tags = json_decode($body);
-        if (!is_array($tags) || empty($tags) || !isset($tags[0]->name)) {
+        if (!is_array($tags) || empty($tags)) {
             return null;
         }
 
-        $latest = $tags[0];
+        // GitHub tags endpoint returns "most recently created tags" first, but in a monorepo
+        // the newest tag might not be a plugin release tag. We pick the highest semver tag.
+        $best_tag = null;
+        $best_version = null;
+        foreach ($tags as $t) {
+            if (!is_object($t) || empty($t->name)) continue;
+            $name = trim((string) $t->name);
+            if (!preg_match('/^v?\d+\.\d+\.\d+$/', $name)) {
+                continue;
+            }
+            $ver = ltrim($name, 'v');
+            if ($best_version === null || version_compare($ver, $best_version, '>')) {
+                $best_version = $ver;
+                $best_tag = $t;
+            }
+        }
+
+        // Fallback: if no semver tags exist, use the first tag (legacy behavior)
+        if ($best_tag === null) {
+            if (!isset($tags[0]->name)) {
+                return null;
+            }
+            $best_tag = $tags[0];
+        }
+
+        $latest = $best_tag;
         $release = (object) array(
             'tag_name'    => $latest->name,
             'zipball_url' => isset($latest->zipball_url) ? $latest->zipball_url : 'https://api.github.com/repos/' . self::GITHUB_REPO_USER . '/' . self::GITHUB_REPO_NAME . '/zipball/' . $latest->name,
