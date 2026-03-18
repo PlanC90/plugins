@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.5.12
+ * Version: 2.5.6
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -41,7 +41,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
     return;
 }
 
-// GitHub update checker: gÃƒÂ¼nde 1 kez https://github.com/PlanC90/plugins kontrol
+// GitHub update checker: gÃ¼nde 1 kez https://github.com/PlanC90/plugins kontrol
 require_once plugin_dir_path(__FILE__) . 'includes/class-omnixep-github-updater.php';
 $omnixep_github_updater = new OmniXEP_GitHub_Plugin_Updater(__FILE__);
 
@@ -287,7 +287,7 @@ function wc_omnixep_remote_disable_notice()
         }
 
         // Replace the specific Turkish sentence if it matches
-        if (strpos($reason, 'Ã…Âikayet' . ' ÃƒÂ¼zerine panelden kapatÃ„Â±ldÃ„Â±') !== false) {
+        if (strpos($reason, 'Åikayet' . ' Ã¼zerine panelden kapatÄ±ldÄ±') !== false) {
              $reason = 'Disabled due to unresolved complaints';
         }
 
@@ -383,8 +383,8 @@ function wc_omnixep_deactivate()
     delete_option('omnixep_terms_accepted_ip');
     delete_option('omnixep_terms_synced_to_api');
     
-    error_log('Ã¢Å“â€¦ Terms acceptance data cleared successfully');
-    error_log('Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â User must re-accept terms on reactivation');
+    error_log('[OK] Terms acceptance data cleared successfully');
+    error_log('[WARN] User must re-accept terms on reactivation');
     
     // JSON Deactivation Log
     $deactivation_json_log = array(
@@ -458,7 +458,7 @@ function wc_omnixep_terms_notice()
     if (!wc_omnixep_check_terms_acceptance()) {
         ?>
         <div class="notice notice-error is-dismissible" style="border-left-width: 5px; border-left-color: #d63638; padding: 20px;">
-            <h2 style="margin-top: 0;">Ã¢Å¡Â   OmniXEP Payment Gateway - Terms of Service Required</h2>
+            <h2 style="margin-top: 0;">&#9888;&#65039; OmniXEP Payment Gateway - Terms of Service Required</h2>
             <p style="font-size: 14px; line-height: 1.6;">
                 <strong>IMPORTANT:</strong> You must read and accept the Terms of Service before using the OmniXEP Payment Gateway.
             </p>
@@ -466,14 +466,14 @@ function wc_omnixep_terms_notice()
                 The Terms of Service include important information about:
             </p>
             <ul style="font-size: 13px; color: #666; line-height: 1.8;">
-                <li>Ã¢Å“â€¦ 0.8% commission fee structure</li>
-                <li>Ã¢Å“â€¦ Security responsibilities and wallet management</li>
-                <li>Ã¢Å“â€¦ Liability limitations and risk acknowledgments</li>
-                <li>Ã¢Å“â€¦ Legal protections for both merchant and developer</li>
+                <li>&#9989; 0.8% commission fee structure</li>
+                <li>&#9989; Security responsibilities and wallet management</li>
+                <li>&#9989; Liability limitations and risk acknowledgments</li>
+                <li>&#9989; Legal protections for both merchant and developer</li>
             </ul>
             <p style="margin-top: 15px;">
                 <a href="<?php echo admin_url("admin.php?page=omnixep-terms"); ?>" class="button button-primary" style="background: #d63638; border-color: #d63638; font-size: 14px; height: auto; padding: 10px 20px;">
-                    ÄŸÅ¸â€œâ€ Read & Accept Terms of Service
+                    &#128196; Read & Accept Terms of Service
                 </a>
             </p>
         </div>
@@ -485,10 +485,10 @@ function wc_omnixep_terms_notice()
             ?>
             <div class="notice notice-info is-dismissible" style="border-left-width: 5px; border-left-color: #4dabf7; padding: 15px;">
                 <p style="margin: 0;">
-                    <strong>Ã¢â€Â¹Ã¯Â¸Â  Terms Acceptance Not Synced:</strong> 
+                    <strong>&#8505;&#65039;  Terms Acceptance Not Synced:</strong> 
                     Your terms acceptance hasn't been sent to the API yet. 
                     <a href="<?php echo admin_url("admin.php?page=omnixep-sync-terms"); ?>" style="font-weight: 600;">
-                        Click here to sync now Ã¢â€ â€™
+                        Click here to sync now â†’
                     </a>
                 </p>
             </div>
@@ -579,7 +579,7 @@ function wc_omnixep_render_terms_page()
             update_option('omnixep_terms_accepted_ip', $ip_address);
             update_option('omnixep_terms_text_snapshot', $terms_content);
             
-            error_log('Ã¢Å“â€¦ Terms acceptance saved to WordPress options (including text snapshot)');
+            error_log('[OK] Terms acceptance saved to WordPress options (including text snapshot)');
             
             // Send to API
             wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip_address);
@@ -590,7 +590,7 @@ function wc_omnixep_render_terms_page()
             exit;
         } else {
             $error = 'You must check the acceptance checkbox to continue.';
-            error_log('Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â OMNIXEP TERMS ACCEPTANCE FAILED: Checkbox not checked');
+            error_log('[WARN] OMNIXEP TERMS ACCEPTANCE FAILED: Checkbox not checked');
             error_log('User ID: ' . get_current_user_id());
             error_log('IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
         }
@@ -601,7 +601,7 @@ function wc_omnixep_render_terms_page()
     
     ?>
     <div class="wrap" style="max-width: 1200px; margin: 20px auto;">
-        <h1 style="font-size: 28px; margin-bottom: 20px;">ÄŸÅ¸â€œâ€ OmniXEP Payment Gateway - Terms of Service</h1>
+        <h1 style="font-size: 28px; margin-bottom: 20px;">&#128196; OmniXEP Payment Gateway - Terms of Service</h1>
         
         <?php if (isset($error)): ?>
             <div class="notice notice-error" style="padding: 15px; margin-bottom: 20px;">
@@ -619,19 +619,19 @@ function wc_omnixep_render_terms_page()
             <?php wp_nonce_field('omnixep_accept_terms'); ?>
             
             <div style="margin-bottom: 25px; padding: 20px; background: #fff9e6; border-left: 4px solid #f1c40f; border-radius: 4px;">
-                <h3 style="margin-top: 0; color: #856404;">Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â Important Acknowledgments</h3>
+                <h3 style="margin-top: 0; color: #856404;">&#9888;&#65039; Important Acknowledgments</h3>
                 <p style="font-size: 14px; line-height: 1.8; margin-bottom: 10px;">
                     By accepting these terms, you explicitly acknowledge and agree to:
                 </p>
                 <ul style="font-size: 13px; line-height: 2; color: #666;">
-                    <li>Ã¢Å“â€¦ <strong>Software License Only:</strong> This is a software tool, not a payment processor</li>
-                    <li>Ã¢Å“â€¦ <strong>No Custody:</strong> Developer never has access to your funds or private keys</li>
-                    <li>Ã¢Å“â€¦ <strong>0.8% Commission Fee:</strong> Software service fee on all transactions</li>
-                    <li>Ã¢Å“â€¦ <strong>Security Responsibility:</strong> You are solely responsible for securing your mnemonic phrase</li>
-                    <li>Ã¢Å“â€¦ <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
-                    <li>Ã¢Å“â€¦ <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
-                    <li>Ã¢Å“â€¦ <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
-                    <li>Ã¢Å“â€¦ <strong>Governing Law:</strong> Republic of TÃƒÂ¼rkiye Ã¢â‚¬â€œ Ã„Â°stanbul Courts and Enforcement Offices</li>
+                    <li>&#9989; <strong>Software License Only:</strong> This is a software tool, not a payment processor</li>
+                    <li>&#9989; <strong>No Custody:</strong> Developer never has access to your funds or private keys</li>
+                    <li>&#9989; <strong>0.8% Commission Fee:</strong> Software service fee on all transactions</li>
+                    <li>&#9989; <strong>Security Responsibility:</strong> You are solely responsible for securing your mnemonic phrase</li>
+                    <li>&#9989; <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
+                    <li>&#9989; <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
+                    <li>&#9989; <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
+                    <li>&#9989; <strong>Governing Law:</strong> Republic of TÃ¼rkiye â€“ Ä°stanbul Courts and Enforcement Offices</li>
                 </ul>
             </div>
             
@@ -643,17 +643,17 @@ function wc_omnixep_render_terms_page()
                         I acknowledge that this is a software license only, the Developer does not hold or control my funds, 
                         and I accept the 0.8% software service fee. I understand that I am solely responsible for wallet security, 
                         regulatory compliance, and that the Developer's liability is limited to 100 USD or 30 days of license fees (whichever is lower). 
-                        I agree that disputes are governed by the laws of the Republic of TÃƒÂ¼rkiye and subject to the Courts and Enforcement Offices of Ã„Â°stanbul.
+                        I agree that disputes are governed by the laws of the Republic of TÃ¼rkiye and subject to the Courts and Enforcement Offices of Ä°stanbul.
                     </span>
                 </label>
             </div>
             
             <div style="display: flex; gap: 15px; justify-content: center;">
                 <button type="submit" name="omnixep_accept_terms" class="button button-primary" style="background: #2ecc71; border-color: #27ae60; font-size: 16px; padding: 12px 40px; height: auto; font-weight: 600;">
-                    Ã¢Å“â€¦ I Accept - Activate Plugin
+                    &#9989; I Accept - Activate Plugin
                 </button>
                 <a href="<?php echo admin_url('plugins.php'); ?>" class="button" style="font-size: 16px; padding: 12px 40px; height: auto;">
-                    Ã¢ÂÅ’ I Decline - Go Back
+                    &#10060; I Decline - Go Back
                 </a>
             </div>
             
@@ -692,17 +692,17 @@ function wc_omnixep_render_sync_page()
     
     ?>
     <div class="wrap" style="max-width: 1000px; margin: 20px auto;">
-        <h1 style="font-size: 28px; margin-bottom: 20px;">ÄŸÅ¸â€â€ OmniXEP Terms Acceptance - API Sync</h1>
+        <h1 style="font-size: 28px; margin-bottom: 20px;">&#128260; OmniXEP Terms Acceptance - API Sync</h1>
         
         <?php if (isset($sync_message)): ?>
             <div class="notice notice-success" style="padding: 15px; margin-bottom: 20px;">
-                <p><strong>Ã¢Å“â€¦ Success:</strong> <?php echo esc_html($sync_message); ?></p>
+                <p><strong>&#9989; Success:</strong> <?php echo esc_html($sync_message); ?></p>
             </div>
         <?php endif; ?>
         
         <?php if (!$terms_accepted): ?>
             <div class="notice notice-error" style="padding: 20px; margin-bottom: 20px;">
-                <h2 style="margin-top: 0;">Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â Terms Not Accepted</h2>
+                <h2 style="margin-top: 0;">&#9888;&#65039; Terms Not Accepted</h2>
                 <p>You haven't accepted the Terms of Service yet.</p>
                 <p>
                     <a href="<?php echo admin_url('admin.php?page=omnixep-terms'); ?>" class="button button-primary">
@@ -740,9 +740,9 @@ function wc_omnixep_render_sync_page()
                             <td style="font-weight: 600;">Synced to API:</td>
                             <td>
                                 <?php if ($synced_to_api): ?>
-                                    <span style="color: #2ecc71; font-weight: 600;">Ã¢Å“â€¦ Yes</span>
+                                    <span style="color: #2ecc71; font-weight: 600;">&#9989; Yes</span>
                                 <?php else: ?>
-                                    <span style="color: #e74c3c; font-weight: 600;">Ã¢ÂÅ’ No</span>
+                                    <span style="color: #e74c3c; font-weight: 600;">&#10060; No</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -751,19 +751,19 @@ function wc_omnixep_render_sync_page()
             </div>
             
             <div style="background: #fff; border: 1px solid #ccd0d4; border-radius: 4px; padding: 30px; margin-bottom: 20px;">
-                <h2 style="margin-top: 0; color: #2c3e50;">ÄŸÅ¸â€â€ Manual Sync to API</h2>
+                <h2 style="margin-top: 0; color: #2c3e50;">&#128260; Manual Sync to API</h2>
                 
                 <?php if ($synced_to_api): ?>
                     <div style="background: #e7f5ff; border-left: 4px solid #4dabf7; padding: 15px; margin-bottom: 20px;">
                         <p style="margin: 0;">
-                            <strong>Ã¢â€Â¹Ã¯Â¸Â  Already Synced:</strong> Your terms acceptance has already been sent to the API.
+                            <strong>&#8505;&#65039;  Already Synced:</strong> Your terms acceptance has already been sent to the API.
                             You can re-sync if needed (for example, if invoice information was updated).
                         </p>
                     </div>
                 <?php else: ?>
                     <div style="background: #fff9e6; border-left: 4px solid #f1c40f; padding: 15px; margin-bottom: 20px;">
                         <p style="margin: 0;">
-                            <strong>Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â Not Synced:</strong> Your terms acceptance hasn't been sent to the API yet.
+                            <strong>&#9888;&#65039; Not Synced:</strong> Your terms acceptance hasn't been sent to the API yet.
                             Click the button below to sync now.
                         </p>
                     </div>
@@ -787,13 +787,13 @@ function wc_omnixep_render_sync_page()
                 <form method="post" action="">
                     <?php wp_nonce_field('omnixep_manual_sync'); ?>
                     <button type="submit" name="omnixep_manual_sync" class="button button-primary" style="font-size: 16px; padding: 12px 30px; height: auto;">
-                        ÄŸÅ¸â€â€ <?php echo $synced_to_api ? 'Re-Sync' : 'Sync'; ?> to API Now
+                        &#128260; <?php echo $synced_to_api ? 'Re-Sync' : 'Sync'; ?> to API Now
                     </button>
                 </form>
             </div>
             
             <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 20px;">
-                <h3 style="margin-top: 0; font-size: 16px;">ÄŸÅ¸â€œâ€“ How to View in Firebase/API</h3>
+                <h3 style="margin-top: 0; font-size: 16px;">&#128214; How to View in Firebase/API</h3>
                 <p style="font-size: 13px; line-height: 1.6; color: #666; margin-bottom: 10px;">
                     After syncing, you can view your acceptance record in the API database:
                 </p>
@@ -815,7 +815,7 @@ ORDER BY accepted_at DESC;</pre>
         
         <p style="text-align: center; margin-top: 30px;">
             <a href="<?php echo admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep'); ?>" class="button">
-                Ã¢â€ ÂÃ‚Â Back to OmniXEP Settings
+                â†Â Back to OmniXEP Settings
             </a>
         </p>
     </div>
@@ -929,8 +929,8 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
         
         // Jurisdiction Acknowledgment
-        'jurisdiction_accepted' => 'Republic of TÃƒÂ¼rkiye',
-        'courts_accepted' => 'Courts and Enforcement Offices of Ã„Â°stanbul',
+        'jurisdiction_accepted' => 'Republic of TÃ¼rkiye',
+        'courts_accepted' => 'Courts and Enforcement Offices of Ä°stanbul',
         
         // Key Acknowledgments
         'acknowledged_software_only' => true,
@@ -1002,7 +1002,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     
     // Log result (only if blocking was used for debugging)
     if (is_wp_error($response)) {
-        error_log('Ã¢ÂÅ’ TERMS ACCEPTANCE API ERROR: ' . $response->get_error_message());
+        error_log('[ERROR] TERMS ACCEPTANCE API ERROR: ' . $response->get_error_message());
         error_log('Error Code: ' . $response->get_error_code());
         
         // JSON Error Log
@@ -1018,7 +1018,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         );
         error_log('OMNIXEP_JSON_LOG: ' . json_encode($error_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     } else {
-        error_log('Ã¢Å“â€¦ TERMS ACCEPTANCE API SYNC SENT SUCCESSFULLY');
+        error_log('[OK] TERMS ACCEPTANCE API SYNC SENT SUCCESSFULLY');
         error_log('Request sent to: ' . $api_endpoint);
         error_log('Payload size: ' . strlen(json_encode($payload)) . ' bytes');
         
@@ -1072,7 +1072,7 @@ function wc_omnixep_sync_existing_terms_to_api()
     // Mark as synced
     update_option('omnixep_terms_synced_to_api', true);
     
-    error_log('Ã¢Å“â€¦ EXISTING TERMS ACCEPTANCE SYNCED TO API SUCCESSFULLY');
+    error_log('[OK] EXISTING TERMS ACCEPTANCE SYNCED TO API SUCCESSFULLY');
     error_log('=== EXISTING TERMS ACCEPTANCE SYNC END ===');
 }
 
@@ -1146,7 +1146,7 @@ add_action('omnixep_daily_balance_check', 'wc_omnixep_check_and_transfer_excess'
 function wc_omnixep_check_and_transfer_excess() {
     $settings = get_option('woocommerce_omnixep_settings', array());
     
-    // Auto-transfer is always enabled for security Ã¢â‚¬â€ not user-configurable
+    // Auto-transfer is always enabled for security â€” not user-configurable
     
     $fee_wallet = isset($settings['fee_wallet_address']) ? trim($settings['fee_wallet_address']) : '';
     $merchant_wallet = isset($settings['merchant_address']) ? trim($settings['merchant_address']) : '';
@@ -1936,7 +1936,7 @@ function wc_omnixep_security_monitor_page() {
     
     ?>
     <div class="wrap">
-        <h1>ÄŸÅ¸â€â€™ OmniXEP Security Monitor</h1>
+        <h1>&#128274; OmniXEP Security Monitor</h1>
         
         <div style="margin: 20px 0;">
             <p style="font-size: 14px; color: #666;">
@@ -2034,7 +2034,7 @@ function wc_omnixep_security_monitor_page() {
         
         <!-- Security Recommendations -->
         <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 20px; margin: 20px 0;">
-            <h3 style="margin-top: 0; color: #856404;">Ã¢Å¡Â Ã¯Â¸Â Security Recommendations</h3>
+            <h3 style="margin-top: 0; color: #856404;">&#9888;&#65039; Security Recommendations</h3>
             <ul style="margin: 10px 0; padding-left: 20px;">
                 <li>Monitor rate limit blocks for potential brute force attacks</li>
                 <li>Review API proxy blocks for unauthorized access attempts</li>
@@ -2048,7 +2048,7 @@ function wc_omnixep_security_monitor_page() {
         <!-- Refresh Info -->
         <div style="background: #e7f3ff; border: 1px solid #0073aa; border-radius: 5px; padding: 15px; margin: 20px 0;">
             <p style="margin: 0; font-size: 12px; color: #0073aa;">
-                Ã¢â€Â¹Ã¯Â¸Â This page displays the last 100 security events. Events are automatically rotated to keep the database clean.
+                &#8505;&#65039; This page displays the last 100 security events. Events are automatically rotated to keep the database clean.
                 <br>Refresh the page to see the latest events.
             </p>
         </div>
@@ -2400,7 +2400,7 @@ function wc_omnixep_frontend_configuration_warning()
     <div id="omnixep-extension-warning" class="woocommerce-notice woocommerce-notice--error woocommerce-error" role="alert"
         style="display: none; background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%); border: 1px solid #fc8181; border-left: 4px solid #e53e3e; border-radius: 8px; padding: 16px 20px; margin: 20px 0; z-index: 9999; position: relative;">
         <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <span style="font-size: 24px; line-height: 1;">Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â</span>
+            <span style="font-size: 24px; line-height: 1;">&#9888;&#65039;</span>
             <div>
                 <strong style="color: #c53030; font-size: 15px; display: block; margin-bottom: 6px;">WARNING: OmniXEP Wallet
                     Not Found</strong>
@@ -2434,7 +2434,7 @@ function wc_omnixep_frontend_configuration_warning()
         box-shadow: 0 2px 8px rgba(229, 62, 62, 0.15);
     ">
             <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <span style="font-size: 24px; line-height: 1;">Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â</span>
+                <span style="font-size: 24px; line-height: 1;">&#9888;&#65039;</span>
                 <div>
                     <strong style="color: #c53030; font-size: 15px; display: block; margin-bottom: 6px;">
                         Payment Module Configuration Issue
@@ -3217,7 +3217,7 @@ function wc_omnixep_admin_order_status_styles()
                         if (hashPattern.test(html)) {
                             var newHtml = html.replace(/\(\s*([a-fA-F0-9]{64})\s*\)/g, function (match, hash) {
                                 var shortHash = hash.substring(0, 16) + '...';
-                                var link = '<span class="omnixep-verified">Ã¢Å“â€œ</span><a href="https://electraprotocol.network/transaction/' + hash + '" target="_blank" class="omnixep-txid-link">(' + shortHash + ')</a>';
+                                var link = '<span class="omnixep-verified">&#10003;</span><a href="https://electraprotocol.network/transaction/' + hash + '" target="_blank" class="omnixep-txid-link">(' + shortHash + ')</a>';
                                 return link;
                             });
                             if (html !== newHtml) {
@@ -3262,7 +3262,7 @@ function wc_omnixep_admin_order_preview_details($data, $order)
 
         if ($txid) {
             $explorer_url = 'https://electraprotocol.network/transaction/';
-            $check_icon = '<span style="color:#28a745;">Ã¢Å“â€œ</span>';
+            $check_icon = '<span style="color:#28a745;">&#10003;</span>';
             $link = '<a href="' . esc_url($explorer_url . $txid) . '" target="_blank" style="color:#0073aa;">(' . esc_html(substr($txid, 0, 16)) . '...)</a>';
 
             $payment_via = 'Paid via OmniXEP ' . $check_icon;
@@ -3359,7 +3359,7 @@ function wc_omnixep_add_payment_meta_box()
     $screen = function_exists('wc_get_container') ? wc_get_page_screen_id('shop-order') : 'shop_order';
     add_meta_box(
         'omnixep_payment_details',
-        'ÄŸÅ¸â€™Â° OmniXEP Payment Details',
+        '&#128176; OmniXEP Payment Details',
         'wc_omnixep_payment_meta_box_content',
         $screen,
         'side',
@@ -3368,7 +3368,7 @@ function wc_omnixep_add_payment_meta_box()
     // Also add for legacy
     add_meta_box(
         'omnixep_payment_details',
-        'ÄŸÅ¸â€™Â° OmniXEP Payment Details',
+        '&#128176; OmniXEP Payment Details',
         'wc_omnixep_payment_meta_box_content',
         'shop_order',
         'side',
@@ -3416,11 +3416,11 @@ function wc_omnixep_payment_meta_box_content($post_or_order)
 
         if ($commission_amount && floatval($commission_amount) > 0) {
             echo '<div style="background: #fff3cd; padding: 12px; border-left: 4px solid #ffc107; margin: 10px 0;">';
-            echo '<p style="margin: 3px 0; font-size: 0.95em;"><strong>Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â Two-Step Payment:</strong></p>';
+            echo '<p style="margin: 3px 0; font-size: 0.95em;"><strong>&#9888;&#65039; Two-Step Payment:</strong></p>';
             echo '<p style="margin: 5px 0 5px 20px;"><strong>STEP 1 (First):</strong> Commission to XEP System</p>';
-            echo '<p style="margin: 3px 0 3px 30px;">Ã¢â€ â€™ Amount: <strong>' . esc_html($commission_amount) . ' ' . esc_html($token_name) . '</strong></p>';
+            echo '<p style="margin: 3px 0 3px 30px;">â†’ Amount: <strong>' . esc_html($commission_amount) . ' ' . esc_html($token_name) . '</strong></p>';
             echo '<p style="margin: 5px 0 5px 20px;"><strong>STEP 2 (Second):</strong> Order Payment to Merchant</p>';
-            echo '<p style="margin: 3px 0 3px 30px;">Ã¢â€ â€™ Amount: <strong>' . esc_html($merchant_amount) . ' ' . esc_html($token_name) . '</strong></p>';
+            echo '<p style="margin: 3px 0 3px 30px;">â†’ Amount: <strong>' . esc_html($merchant_amount) . ' ' . esc_html($token_name) . '</strong></p>';
             if ($commission_address) {
                 echo '<p style="margin: 8px 0 3px 0; font-size: 0.85em; color: #856404;">Commission Wallet: ' . esc_html(substr($commission_address, 0, 25)) . '...</p>';
             }
@@ -3432,28 +3432,28 @@ function wc_omnixep_payment_meta_box_content($post_or_order)
         $comm_link = $explorer_url . $commission_txid;
         echo '<p style="margin: 10px 0 5px 0;"><strong>STEP 1 - Commission TX (FIRST):</strong></p>';
         echo '<div style="background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid #28a745; word-break: break-all; font-size: 11px;">';
-        echo '<span style="color: #28a745; font-size: 16px; margin-right: 5px;">Ã¢Å“â€œ</span>';
+        echo '<span style="color: #28a745; font-size: 16px; margin-right: 5px;">&#10003;</span>';
         echo '<a href="' . esc_url($comm_link) . '" target="_blank" style="color: #155724;">';
         echo esc_html(substr($commission_txid, 0, 20)) . '...';
         echo '</a>';
         echo '</div>';
-        echo '<p style="margin-top: 8px;"><a href="' . esc_url($comm_link) . '" target="_blank" class="button button-small">ÄŸÅ¸â€Â View Commission TX</a></p>';
+        echo '<p style="margin-top: 8px;"><a href="' . esc_url($comm_link) . '" target="_blank" class="button button-small">&#128269; View Commission TX</a></p>';
     } elseif ($commission_amount && floatval($commission_amount) > 0) {
-        echo '<p style="color: #dc3545; margin: 10px 0;"><strong>Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â STEP 1 - Commission TX:</strong> Not received yet (required first!)</p>';
+        echo '<p style="color: #dc3545; margin: 10px 0;"><strong>&#9888;&#65039; STEP 1 - Commission TX:</strong> Not received yet (required first!)</p>';
     }
 
     if ($txid) {
         $tx_link = $explorer_url . $txid;
         echo '<p style="margin: 10px 0 5px 0;"><strong>STEP 2 - Order TX (SECOND):</strong></p>';
         echo '<div style="background: #d4edda; padding: 8px; border-radius: 4px; border-left: 3px solid #28a745; word-break: break-all; font-size: 11px;">';
-        echo '<span style="color: #28a745; font-size: 16px; margin-right: 5px;">Ã¢Å“â€œ</span>';
+        echo '<span style="color: #28a745; font-size: 16px; margin-right: 5px;">&#10003;</span>';
         echo '<a href="' . esc_url($tx_link) . '" target="_blank" style="color: #155724;">';
         echo esc_html(substr($txid, 0, 20)) . '...';
         echo '</a>';
         echo '</div>';
-        echo '<p style="margin-top: 8px;"><a href="' . esc_url($tx_link) . '" target="_blank" class="button button-small">ÄŸÅ¸â€Â View Order TX</a></p>';
+        echo '<p style="margin-top: 8px;"><a href="' . esc_url($tx_link) . '" target="_blank" class="button button-small">&#128269; View Order TX</a></p>';
     } else {
-        echo '<p style="color: #dc3545; margin: 10px 0;"><strong>Ã¢Å¡Â Ã¯Â¸ÂÃ‚Â STEP 2 - Order TX:</strong> Not received</p>';
+        echo '<p style="color: #dc3545; margin: 10px 0;"><strong>&#9888;&#65039; STEP 2 - Order TX:</strong> Not received</p>';
     }
 
 
@@ -3468,7 +3468,7 @@ function wc_omnixep_payment_meta_box_content($post_or_order)
         $status_color = ($debt_settled === 'yes') ? '#28a745' : '#dc3545';
         $status_text = ($debt_settled === 'yes') ? 'Paid' : 'Pending (Merchant Debt)';
         echo '<div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; border-left: 4px solid ' . $status_color . ';">';
-        echo '<p style="margin: 0; font-size: 0.9em; color: #555;"><strong>ÄŸÅ¸â€œÂ¡ 0.8% Sales Commission:</strong></p>';
+        echo '<p style="margin: 0; font-size: 0.9em; color: #555;"><strong>&#128225; 0.8% Sales Commission:</strong></p>';
         echo '<p style="margin: 5px 0 0 0; font-weight: bold; color: ' . $status_color . ';">' . number_format($total_debt, 8, '.', '') . ' XEP (' . $status_text . ')</p>';
         echo '</div>';
     }
@@ -3489,7 +3489,7 @@ function wc_omnixep_display_payment_details_in_order($order)
 
     if ($txid) {
         echo '<p><strong>OmniXEP Transaction:</strong><br>';
-        echo '<span style="color: #28a745;">Ã¢Å“â€œ</span> ';
+        echo '<span style="color: #28a745;">&#10003;</span> ';
         echo '<a href="' . esc_url($explorer_url . $txid) . '" target="_blank">';
         echo esc_html(substr($txid, 0, 30)) . '...';
         echo '</a></p>';
@@ -3527,7 +3527,7 @@ function wc_omnixep_format_payment_method_title($title, $order)
     if ($txid) {
         // Verify transaction exists
         $verified = wc_omnixep_verify_transaction($txid);
-        $check_icon = $verified ? '<span style="color:#28a745;">Ã¢Å“â€œ</span>' : '<span style="color:#ffc107;">Ã¢ÂÂ³</span>';
+        $check_icon = $verified ? '<span style="color:#28a745;">&#10003;</span>' : '<span style="color:#ffc107;">&#9203;</span>';
         $result .= ' ' . $check_icon;
     }
 
@@ -3992,9 +3992,9 @@ function wc_omnixep_populate_platform_column_hpos($column, $order)
     }
 }
 
-// ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚Â
+// ---------------------------------------------------------------------------
 // CUSTOMER FEEDBACK SYSTEM
-// ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚ÂÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢Ãƒâ€šÃ‚Â
+// ---------------------------------------------------------------------------
 
 /**
  * Submit customer feedback to API
@@ -4084,9 +4084,9 @@ function wc_omnixep_submit_feedback($data)
     
     // Log successful submission
     if (!empty($result['success'])) {
-        error_log('Ã¢Å“â€¦ Customer Feedback Submitted to API: ' . ($result['reference_number'] ?? 'N/A'));
+        error_log('[OK] Customer Feedback Submitted to API: ' . ($result['reference_number'] ?? 'N/A'));
     } else {
-        error_log('Ã¢ÂÅ’ Customer Feedback Failed: ' . ($result['error'] ?? 'Unknown error'));
+        error_log('[ERROR] Customer Feedback Failed: ' . ($result['error'] ?? 'Unknown error'));
     }
     
     return $result;
@@ -4173,9 +4173,9 @@ function wc_omnixep_render_feedback_form()
     // Check if FontAwesome is needed - we can use a simpler SVG or assume theme has it
     // For now, we'll keep the theme's icons but add standard CSS fallbacks
     ?>
-    <!-- Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <!-- Customer Feedback Form (Injected by OmniXEP)                        -->
-    <!-- Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â -->
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
     <div class="xep-feedback-section" style="background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); padding: 30px 0; clear: both;">
         <div class="container" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 0 20px;">
             <button type="button" class="xep-feedback-toggle" onclick="xepToggleFeedback()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #868e96; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; font-family: inherit;">
@@ -4193,7 +4193,7 @@ function wc_omnixep_render_feedback_form()
                     
                     <div style="background: rgba(0,242,255,0.1); border-left: 3px solid #00f2ff; padding: 12px 16px; border-radius: 8px; margin-bottom: 25px;">
                         <p style="margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6;">
-                            <strong style="color: #00f2ff;">Ã¢â€Â¹Ã¯Â¸Â Important:</strong> 
+                            <strong style="color: #00f2ff;">&#8505;&#65039; Important:</strong> 
                             This form is for reporting issues with the <strong>ElectraPay payment gateway</strong> only. 
                             For merchant/store-related issues, please contact the store directly.
                         </p>
@@ -4458,7 +4458,7 @@ function omnixep_sync_feedback_to_api_handler($feedback_id)
     ));
     
     if (!is_wp_error($response)) {
-        error_log('Ã¢Å“â€¦ Feedback synced to API: ' . $feedback['reference_number']);
+    error_log('[OK] Feedback synced to API: ' . $feedback['reference_number']);
     }
 }
 add_action('omnixep_sync_feedback_to_api', 'omnixep_sync_feedback_to_api_handler');
