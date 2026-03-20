@@ -11,7 +11,7 @@ class OmniXEP_GitHub_Plugin_Updater {
     const GITHUB_REPO_USER = 'PlanC90';
     const GITHUB_REPO_NAME = 'plugins';
     const CACHE_TRANSIENT = 'omnixep_github_plugin_release';
-    const CACHE_DURATION = DAY_IN_SECONDS; // 24 hours
+    const CACHE_DURATION = 21600; // 6 hours
 
     protected $plugin_file;
     protected $plugin_slug;
@@ -37,12 +37,20 @@ class OmniXEP_GitHub_Plugin_Updater {
     }
 
     /**
-     * Get latest release from GitHub (tag name + zipball_url). Cached 24h.
+     * Get latest release from GitHub (tag name + zipball_url). Cached.
      *
      * @param bool $force Bypass cache.
      * @return object|null { tag_name, zipball_url } or null.
      */
     public function get_latest_release($force = false) {
+        // FORCE refresh every time we are on the Plugins page or Updates page
+        if (!$force && is_admin() && function_exists('get_current_screen')) {
+            $screen = get_current_screen();
+            if ($screen && ($screen->id === 'plugins' || $screen->id === 'update-core')) {
+                $force = true;
+            }
+        }
+
         if (!$force) {
             $cached = get_transient(self::CACHE_TRANSIENT);
             if ($cached !== false && is_object($cached)) {
