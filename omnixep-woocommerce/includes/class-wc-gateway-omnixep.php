@@ -391,10 +391,25 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'body' => $body_string,
             'headers' => $headers,
             'timeout' => 15,
-            'blocking' => false // Async to not slow down admin saving
+            'blocking' => true // Blocking to get the generated API secret!
         ));
 
-        // Note: Errors are logged server-side or silently ignored to not disrupt UX
+        // Process response to save unique secret
+        if (!is_wp_error($response)) {
+            $status = wp_remote_retrieve_response_code($response);
+            $body = json_decode(wp_remote_retrieve_body($response), true);
+            
+            if ($status === 201 && isset($body['api_secret']) && !empty($body['api_secret'])) {
+                // If we don't have a secret yet, or if it's the standard one, update it!
+                $current_secret = $this->get_option('omnixep_api_secret');
+                if (empty($current_secret) || strpos($current_secret, 'xepmarket-4512') === 0) {
+                    $settings = get_option($this->get_option_key(), array());
+                    $settings['omnixep_api_secret'] = $body['api_secret'];
+                    update_option($this->get_option_key(), $settings);
+                    $this->init_settings(); // Reload
+                }
+            }
+        }
     }
 
     /**
@@ -647,21 +662,19 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'default' => 'processing',
                 'description' => 'Status to set the order to after a successful transaction.',
             ),
-            /*
             'section_api_security' => array(
                 'title' => 'API Security (api.planc.space)',
                 'type' => 'title',
-                'description' => 'Shared secret for signing requests (fatura, şikayet, komisyon, terms). Must match OMNIXEP_API_SECRET on the API server. Prevents fake requests.',
+                'description' => 'Shared secret for signing requests (fatura, şikayet, komisyon, terms). This secret PREVENTS others from faking your data. <strong>Keep it private!</strong>',
             ),
             'omnixep_api_secret' => array(
                 'title' => 'API Secret',
                 'type' => 'password',
-                'description' => defined('OMNIXEP_API_SECRET') ? '<strong>Note:</strong> Currently defined in wp-config.php. This setting is locked.' : 'Get this value from your API administrator. All requests to api.planc.space will be signed with this secret.',
+                'description' => defined('OMNIXEP_API_SECRET') ? '<strong>Note:</strong> Currently defined in wp-config.php. Remove it from wp-config to edit here.' : 'Unique secret for your site. Automatically generated when you save invoice info.',
                 'default' => '',
-                'placeholder' => defined('OMNIXEP_API_SECRET') ? 'Defined in wp-config.php' : 'Enter API Secret',
+                'placeholder' => defined('OMNIXEP_API_SECRET') ? 'Defined in wp-config.php' : 'Your secret key',
                 'custom_attributes' => defined('OMNIXEP_API_SECRET') ? array('readonly' => 'readonly') : array(),
             ),
-            */
             'section_invoice' => array(
                 'title' => 'Invoice Information (For Commission)',
                 'type' => 'title',
@@ -1863,49 +1876,113 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 <label><?php echo esc_html($data['title']); ?></label>
             </th>
             <td class="forminp">
+                <style>
+                    .omnixep-terms-status-wrap {
+                        display: flex;
+                        justify-content: center;
+                        align-items: flex-start;
+                        width: 100%;
+                    }
+
+                    .omnixep-terms-status-card {
+                        background: #e7f9ed;
+                        border: 1px solid #2ecc71;
+                        border-radius: 6px;
+                        padding: 15px;
+                        display: inline-block;
+                        min-width: 300px;
+                    }
+
+                    .omnixep-terms-status-title {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        color: #27ae60;
+                        font-weight: 700;
+                        font-size: 14px;
+                        margin-bottom: 8px;
+                    }
+
+                    .omnixep-terms-status-details {
+                        font-size: 13px;
+                        color: #2c3e50;
+                        line-height: 1.6;
+                    }
+
+                    .omnixep-terms-status-btn-row {
+                        margin-top: 10px;
+                    }
+
+                    .omnixep-terms-status-card code {
+                        background: #f1f1f1;
+                        padding: 2px 5px;
+                        border-radius: 3px;
+                    }
+
+                    .omnixep-terms-status-card--negative {
+                        background: #fff5f5;
+                        border: 1px solid #e74c3c;
+                    }
+
+                    .omnixep-terms-status-card--negative .omnixep-terms-status-title {
+                        color: #c0392b;
+                    }
+
+                    .omnixep-terms-status-desc {
+                        text-align: center;
+                        margin-top: 8px;
+                    }
+                </style>
                 <?php if ($accepted): ?>
-                    <div style="background: #e7f9ed; border: 1px solid #2ecc71; border-radius: 6px; padding: 15px; display: inline-block; min-width: 300px;">
-                        <div style="color: #27ae60; font-weight: bold; font-size: 14px; margin-bottom: 8px;">
-                            ✅ Terms Accepted
-                        </div>
-                        <div style="font-size: 13px; color: #2c3e50; line-height: 1.6;">
+                    <div class="omnixep-terms-status-wrap">
+                        <div class="omnixep-terms-status-card">
+                            <div class="omnixep-terms-status-title">
+                                <span class="dashicons dashicons-yes-alt" aria-hidden="true" style="color:#2ecc71;"></span>
+                                <span>Terms Accepted</span>
+                            </div>
+                            <div class="omnixep-terms-status-details">
                             <strong>Version:</strong> v<?php echo esc_html($version); ?><br>
                             <strong>IP Address:</strong> <code><?php echo esc_html($ip); ?></code><br>
                             <strong>Accepted Date:</strong> <?php echo esc_html($date); ?>
-                        </div>
-                        <?php if (!empty($snapshot)): ?>
-                            <div style="margin-top: 10px;">
-                                <button type="button" class="button button-secondary button-small" onclick="jQuery('#omnixep-terms-snapshot-modal').show();">
-                                    📄 View Accepted Terms
-                                </button>
                             </div>
-                            
-                            <div id="omnixep-terms-snapshot-modal" style="display:none; position:fixed; z-index:99999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7);">
-                                <div style="background:#fff; margin:5% auto; padding:30px; border-radius:8px; width:70%; max-height:80%; overflow-y:auto; position:relative;">
-                                    <span onclick="jQuery('#omnixep-terms-snapshot-modal').hide();" style="position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold;">&times;</span>
-                                    <h2 style="margin-top:0;">Accepted Terms Copy (v<?php echo esc_html($version); ?>)</h2>
-                                    <hr>
-                                    <div style="font-family:monospace; white-space:pre-wrap; background:#f8f9fa; padding:20px; border:1px solid #ddd; border-radius:4px; font-size:13px; line-height:1.6;">
-                                        <?php echo esc_html($snapshot); ?>
-                                    </div>
-                                    <div style="margin-top:20px; text-align:right;">
-                                        <button type="button" class="button button-primary" onclick="jQuery('#omnixep-terms-snapshot-modal').hide();">Close</button>
+                            <?php if (!empty($snapshot)): ?>
+                                <div class="omnixep-terms-status-btn-row">
+                                    <button type="button" class="button button-secondary button-small" onclick="jQuery('#omnixep-terms-snapshot-modal').show();">
+                                        <span class="dashicons dashicons-media-document" aria-hidden="true" style="vertical-align:middle; margin-top:2px;"></span>
+                                        <span style="vertical-align:middle;">View Accepted Terms</span>
+                                    </button>
+                                </div>
+
+                                <div id="omnixep-terms-snapshot-modal" style="display:none; position:fixed; z-index:99999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7);">
+                                    <div style="background:#fff; margin:5% auto; padding:30px; border-radius:8px; width:70%; max-height:80%; overflow-y:auto; position:relative;">
+                                        <span onclick="jQuery('#omnixep-terms-snapshot-modal').hide();" style="position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold;">&times;</span>
+                                        <h2 style="margin-top:0;">Accepted Terms Copy (v<?php echo esc_html($version); ?>)</h2>
+                                        <hr>
+                                        <div style="font-family:monospace; white-space:pre-wrap; background:#f8f9fa; padding:20px; border:1px solid #ddd; border-radius:4px; font-size:13px; line-height:1.6;">
+                                            <?php echo esc_html($snapshot); ?>
+                                        </div>
+                                        <div style="margin-top:20px; text-align:right;">
+                                            <button type="button" class="button button-primary" onclick="jQuery('#omnixep-terms-snapshot-modal').hide();">Close</button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php else: ?>
-                    <div style="background: #fff5f5; border: 1px solid #e74c3c; border-radius: 6px; padding: 15px; display: inline-block;">
-                        <div style="color: #c0392b; font-weight: bold;">
-                            ❌ Terms Not Accepted Yet
+                    <div class="omnixep-terms-status-wrap">
+                        <div class="omnixep-terms-status-card omnixep-terms-status-card--negative">
+                            <div class="omnixep-terms-status-title">
+                                <span class="dashicons dashicons-dismiss" aria-hidden="true" style="color:#e74c3c;"></span>
+                                <span>Terms Not Accepted Yet</span>
+                            </div>
+                            <a href="<?php echo admin_url('admin.php?page=omnixep-terms'); ?>" class="button button-primary" style="margin-top:10px;">
+                                Review and Accept Terms
+                            </a>
                         </div>
-                        <a href="<?php echo admin_url('admin.php?page=omnixep-terms'); ?>" class="button button-primary" style="margin-top:10px;">
-                            Review and Accept Terms
-                        </a>
                     </div>
                 <?php endif; ?>
-                <p class="description"><?php echo esc_html($data['description']); ?></p>
+                <p class="description omnixep-terms-status-desc"><?php echo esc_html($data['description']); ?></p>
             </td>
         </tr>
         <?php

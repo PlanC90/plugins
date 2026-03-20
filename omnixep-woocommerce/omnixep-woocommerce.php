@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.5.16
+ * Version: 2.5.15
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -683,7 +683,7 @@ function wc_omnixep_render_terms_page()
                     <li>&#9989; <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
                     <li>&#9989; <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
                     <li>&#9989; <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
-                    <li>&#9989; <strong>Governing Law:</strong> Republic of TÃƒÂ¼rkiye Ã¢â‚¬â€œ Ã„Â°stanbul Courts and Enforcement Offices</li>
+                    <li>âœ… <strong>Governing Law:</strong> Republic of T&uuml;rkiye â€“ &Idot;stanbul Courts and Enforcement Offices</li>
                 </ul>
             </div>
             
@@ -695,7 +695,7 @@ function wc_omnixep_render_terms_page()
                         I acknowledge that this is a software license only, the Developer does not hold or control my funds, 
                         and I accept the 0.8% software service fee. I understand that I am solely responsible for wallet security, 
                         regulatory compliance, and that the Developer's liability is limited to 100 USD or 30 days of license fees (whichever is lower). 
-                        I agree that disputes are governed by the laws of the Republic of TÃƒÂ¼rkiye and subject to the Courts and Enforcement Offices of Ã„Â°stanbul.
+                        I agree that disputes are governed by the laws of the Republic of T&uuml;rkiye and subject to the Courts and Enforcement Offices of &Idot;stanbul.
                     </span>
                 </label>
             </div>
