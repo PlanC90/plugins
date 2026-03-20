@@ -144,7 +144,7 @@ All disputes must be brought individually. Merchants waive participation in clas
 Acceptance records may include timestamp, IP address, plugin version, and agreement version.
 
 ### 40. GOVERNING LAW
-This Agreement is governed by the laws of the Republic of Türkiye. All disputes shall be resolved exclusively in the Courts of Istanbul.
+This Agreement is governed by the laws of the Republic of Türkiye. All disputes shall be resolved exclusively in the Courts of İstanbul.
 
 ### 41. TECHNICAL COMMISSION WALLET ARCHITECTURE (DETAILED)
 The Software may use a separate Fee Wallet for commission settlement. This wallet is generated or imported by the Merchant and remains solely under Merchant control; private keys are not accessible to the Developer. Commission settlement operates as follows: customer payments are sent directly to the Merchant Wallet; the Software calculates the commission amount only; commission payments are executed separately through the Fee Wallet. All commission transactions are initiated within the Merchant browser environment, signed locally on the client-side, and broadcast by the Merchant environment.
