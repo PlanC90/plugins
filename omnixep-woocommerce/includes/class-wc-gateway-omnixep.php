@@ -1879,7 +1879,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 <style>
                     .omnixep-terms-status-wrap {
                         display: flex;
-                        justify-content: center;
+                        justify-content: flex-start;
                         align-items: flex-start;
                         width: 100%;
                     }

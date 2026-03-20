@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.5.19
+ * Version: 2.5.20
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -607,8 +607,8 @@ function wc_omnixep_render_terms_page()
             // JSON Structured Log
             $json_log = array(
                 'event' => 'terms_acceptance',
-                'version' => '18.1',
-                'plugin_version' => '2.4.0',
+                'version' => '18.1 (Fixed V1)',
+                'plugin_version' => '2.5.17',
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'ip_address' => $ip_address,
                 'merchant_id' => md5(get_site_url()),
@@ -676,14 +676,14 @@ function wc_omnixep_render_terms_page()
                     By accepting these terms, you explicitly acknowledge and agree to:
                 </p>
                 <ul style="font-size: 13px; line-height: 2; color: #666;">
-                    <li>&#9989; <strong>Software License Only:</strong> This is a software tool, not a payment processor</li>
-                    <li>&#9989; <strong>No Custody:</strong> Developer never has access to your funds or private keys</li>
-                    <li>&#9989; <strong>0.8% Commission Fee:</strong> Software service fee on all transactions</li>
-                    <li>&#9989; <strong>Security Responsibility:</strong> You are solely responsible for securing your mnemonic phrase</li>
-                    <li>&#9989; <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
-                    <li>&#9989; <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
-                    <li>&#9989; <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
-                    <li>&#9989; <strong>Governing Law:</strong> Republic of T&uuml;rkiye &ndash; &Idot;stanbul Courts and Enforcement Offices</li>
+                    <li>[OK] <strong>Software License Only:</strong> This is a software tool, not a payment processor</li>
+                    <li>[OK] <strong>No Custody:</strong> Developer never has access to your funds or private keys</li>
+                    <li>[OK] <strong>0.8% Commission Fee:</strong> Software service fee on all transactions</li>
+                    <li>[OK] <strong>Security Responsibility:</strong> You are solely responsible for securing your mnemonic phrase</li>
+                    <li>[OK] <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
+                    <li>[OK] <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
+                    <li>[OK] <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
+                    <li>[OK] <strong>Legal Jurisdiction / Governing Law:</strong> Republic of T&uuml;rkiye &ndash; &Idot;stanbul Courts and Enforcement Offices</li>
                 </ul>
             </div>
             
@@ -691,7 +691,7 @@ function wc_omnixep_render_terms_page()
                 <label style="display: flex; align-items: flex-start; cursor: pointer; font-size: 15px; font-weight: 600;">
                     <input type="checkbox" name="accept_checkbox" value="1" required style="margin-right: 12px; margin-top: 4px; width: 20px; height: 20px;">
                     <span style="line-height: 1.6;">
-                        I have read, understood, and agree to be legally bound by the OmniXEP Terms of Service (v18.1). 
+                        I have read, understood, and agree to be legally bound by the OmniXEP Terms of Service (v18.1 Fixed V1). 
                         I acknowledge that this is a software license only, the Developer does not hold or control my funds, 
                         and I accept the 0.8% software service fee. I understand that I am solely responsible for wallet security, 
                         regulatory compliance, and that the Developer's liability is limited to 100 USD or 30 days of license fees (whichever is lower). 
