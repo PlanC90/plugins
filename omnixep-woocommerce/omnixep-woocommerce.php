@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.5.15
+ * Version: 2.5.18
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -41,7 +41,7 @@ if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get
     return;
 }
 
-// GitHub update checker: gÃƒÂ¼nde 1 kez https://github.com/PlanC90/plugins kontrol
+// GitHub update checker: gÃƒÆ’Ã‚Â¼nde 1 kez https://github.com/PlanC90/plugins kontrol
 require_once plugin_dir_path(__FILE__) . 'includes/class-omnixep-github-updater.php';
 $omnixep_github_updater = new OmniXEP_GitHub_Plugin_Updater(__FILE__);
 
@@ -334,7 +334,7 @@ function wc_omnixep_remote_disable_notice()
         }
 
         // Replace the specific Turkish sentence if it matches
-        if (strpos($reason, 'Ã…Âikayet' . ' ÃƒÂ¼zerine panelden kapatÃ„Â±ldÃ„Â±') !== false) {
+        if (strpos($reason, 'Ãƒâ€¦Ã‚Âikayet' . ' ÃƒÆ’Ã‚Â¼zerine panelden kapatÃƒâ€Ã‚Â±ldÃƒâ€Ã‚Â±') !== false) {
              $reason = 'Disabled due to unresolved complaints';
         }
 
@@ -540,7 +540,7 @@ function wc_omnixep_terms_notice()
                     <strong>&#8505;&#65039;  Terms Acceptance Not Synced:</strong> 
                     Your terms acceptance hasn't been sent to the API yet. 
                     <a href="<?php echo admin_url("admin.php?page=omnixep-sync-terms"); ?>" style="font-weight: 600;">
-                        Click here to sync now Ã¢â€ â€™
+                        Click here to sync now ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢
                     </a>
                 </p>
             </div>
@@ -683,7 +683,7 @@ function wc_omnixep_render_terms_page()
                     <li>&#9989; <strong>Blockchain Risks:</strong> Transactions are irreversible and subject to network conditions</li>
                     <li>&#9989; <strong>Regulatory Compliance:</strong> You are responsible for legal and tax compliance</li>
                     <li>&#9989; <strong>Limited Liability:</strong> Maximum liability is 100 USD or 30 days of license fees paid (whichever is lower)</li>
-                    <li>âœ… <strong>Governing Law:</strong> Republic of T&uuml;rkiye â€“ &Idot;stanbul Courts and Enforcement Offices</li>
+                    <li>Ã¢Å“â€¦ <strong>Governing Law:</strong> Republic of T&uuml;rkiye Ã¢â‚¬â€œ &Idot;stanbul Courts and Enforcement Offices</li>
                 </ul>
             </div>
             
@@ -867,7 +867,7 @@ ORDER BY accepted_at DESC;</pre>
         
         <p style="text-align: center; margin-top: 30px;">
             <a href="<?php echo admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep'); ?>" class="button">
-                Ã¢â€ ÂÃ‚Â Back to OmniXEP Settings
+                ÃƒÂ¢Ã¢â‚¬Â Ã‚ÂÃƒâ€šÃ‚Â Back to OmniXEP Settings
             </a>
         </p>
     </div>
@@ -981,8 +981,8 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
         
         // Jurisdiction Acknowledgment
-        'jurisdiction_accepted' => 'Republic of TÃƒÂ¼rkiye',
-        'courts_accepted' => 'Courts and Enforcement Offices of Ã„Â°stanbul',
+        'jurisdiction_accepted' => 'Republic of TÃƒÆ’Ã‚Â¼rkiye',
+        'courts_accepted' => 'Courts and Enforcement Offices of Ãƒâ€Ã‚Â°stanbul',
         
         // Key Acknowledgments
         'acknowledged_software_only' => true,
@@ -1198,7 +1198,7 @@ add_action('omnixep_daily_balance_check', 'wc_omnixep_check_and_transfer_excess'
 function wc_omnixep_check_and_transfer_excess() {
     $settings = get_option('woocommerce_omnixep_settings', array());
     
-    // Auto-transfer is always enabled for security Ã¢â‚¬â€ not user-configurable
+    // Auto-transfer is always enabled for security ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â not user-configurable
     
     $fee_wallet = isset($settings['fee_wallet_address']) ? trim($settings['fee_wallet_address']) : '';
     $merchant_wallet = isset($settings['merchant_address']) ? trim($settings['merchant_address']) : '';
@@ -3470,9 +3470,9 @@ function wc_omnixep_payment_meta_box_content($post_or_order)
             echo '<div style="background: #fff3cd; padding: 12px; border-left: 4px solid #ffc107; margin: 10px 0;">';
             echo '<p style="margin: 3px 0; font-size: 0.95em;"><strong>&#9888;&#65039; Two-Step Payment:</strong></p>';
             echo '<p style="margin: 5px 0 5px 20px;"><strong>STEP 1 (First):</strong> Commission to XEP System</p>';
-            echo '<p style="margin: 3px 0 3px 30px;">Ã¢â€ â€™ Amount: <strong>' . esc_html($commission_amount) . ' ' . esc_html($token_name) . '</strong></p>';
+            echo '<p style="margin: 3px 0 3px 30px;">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ Amount: <strong>' . esc_html($commission_amount) . ' ' . esc_html($token_name) . '</strong></p>';
             echo '<p style="margin: 5px 0 5px 20px;"><strong>STEP 2 (Second):</strong> Order Payment to Merchant</p>';
-            echo '<p style="margin: 3px 0 3px 30px;">Ã¢â€ â€™ Amount: <strong>' . esc_html($merchant_amount) . ' ' . esc_html($token_name) . '</strong></p>';
+            echo '<p style="margin: 3px 0 3px 30px;">ÃƒÂ¢Ã¢â‚¬Â Ã¢â‚¬â„¢ Amount: <strong>' . esc_html($merchant_amount) . ' ' . esc_html($token_name) . '</strong></p>';
             if ($commission_address) {
                 echo '<p style="margin: 8px 0 3px 0; font-size: 0.85em; color: #856404;">Commission Wallet: ' . esc_html(substr($commission_address, 0, 25)) . '...</p>';
             }
@@ -4225,9 +4225,9 @@ function wc_omnixep_render_feedback_form()
     // Check if FontAwesome is needed - we can use a simpler SVG or assume theme has it
     // For now, we'll keep the theme's icons but add standard CSS fallbacks
     ?>
-    <!-- Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â -->
+    <!-- ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â -->
     <!-- Customer Feedback Form (Injected by OmniXEP)                        -->
-    <!-- Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â -->
+    <!-- ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â -->
     <div class="xep-feedback-section" style="background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); padding: 30px 0; clear: both;">
         <div class="container" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 0 20px;">
             <button type="button" class="xep-feedback-toggle" onclick="xepToggleFeedback()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #868e96; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; font-family: inherit;">
