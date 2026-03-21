@@ -135,17 +135,32 @@ class OmniXEP_Security {
     
     /**
      * Get client IP address
+     * SECURITY: Only trusts proxy headers when OMNIXEP_TRUSTED_PROXY is configured
+     * to prevent IP spoofing via X-Forwarded-For header manipulation
      */
     public static function get_client_ip() {
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        
+        // Only trust proxy headers if the server is behind a known reverse proxy
+        // Set OMNIXEP_TRUSTED_PROXY in wp-config.php to your proxy's IP or 'cloudflare'
+        if (defined('OMNIXEP_TRUSTED_PROXY')) {
+            $trusted_proxy = constant('OMNIXEP_TRUSTED_PROXY');
+            if ($trusted_proxy !== '') {
+                // CloudFlare: use CF-Connecting-IP header
+                if ($trusted_proxy === 'cloudflare' && !empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+                    $ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+                }
+                // Generic proxy: use X-Forwarded-For only from trusted proxy IP
+                elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['REMOTE_ADDR'] === $trusted_proxy) {
+                    $forwarded = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+                    $ip = trim($forwarded[0]);
+                }
+            }
         }
         
-        return sanitize_text_field($ip);
+        // Validate IP format
+        $ip = filter_var($ip, FILTER_VALIDATE_IP);
+        return $ip ? sanitize_text_field($ip) : '0.0.0.0';
     }
     
     /**

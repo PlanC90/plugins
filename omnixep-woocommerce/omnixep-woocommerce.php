@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.5.21
+ * Version: 2.5.22
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -171,9 +171,11 @@ function wc_omnixep_get_api_secrets() {
         $secrets[] = trim($settings['omnixep_api_secret']);
     }
     
-    // 3. Standard Keys (Fallbacks)
-    $secrets[] = 'xepmarket-4512-9874-74132-1485';
-    $secrets[] = 'xepmarket-4512-9874-74132-149';
+    // SECURITY: No hardcoded fallback secrets â€” each merchant must configure their own unique secret.
+    // Hardcoded secrets are visible in source code and can be exploited by attackers.
+    if (empty($secrets)) {
+        error_log('OmniXEP SECURITY WARNING: No API secret configured. Please set OMNIXEP_API_SECRET in wp-config.php or dashboard settings.');
+    }
     
     return array_unique($secrets);
 }
@@ -248,13 +250,25 @@ function wc_omnixep_check_remote_status($force_refresh = false)
         'timeout' => 10
     ));
     
-    // If API call fails, allow plugin to work (fail-open for availability)
+    // SECURITY: Fail-last-known-good instead of fail-open
+    // If API call fails, use the last known status from persistent storage
+    // This prevents DDoS on API from re-enabling disabled stores
     if (is_wp_error($response)) {
         error_log('OmniXEP Remote Control: API check failed - ' . $response->get_error_message());
         
-        set_transient($cache_key, array('enabled' => true, 'reason' => ''), 60);
+        // Retrieve last known good status from persistent wp_options
+        $last_known = get_option('omnixep_last_known_remote_status', null);
         
-        return array('enabled' => true, 'reason' => '');
+        if ($last_known !== null && is_array($last_known)) {
+            // Use cached last known status (short TTL so we retry soon)
+            set_transient($cache_key, $last_known, 60);
+            return $last_known;
+        }
+        
+        // First-ever run with no prior status: allow plugin to work
+        $fallback = array('enabled' => true, 'reason' => 'API unreachable, no prior status available');
+        set_transient($cache_key, $fallback, 60);
+        return $fallback;
     }
     
     $body = wp_remote_retrieve_body($response);
@@ -272,6 +286,9 @@ function wc_omnixep_check_remote_status($force_refresh = false)
     // When disabled or warning active: short cache so store sees updates quickly after admin actions.
     $cache_ttl = (!$status['enabled'] || !empty($status['warning_message'])) ? 60 : 300;
     set_transient($cache_key, $status, $cache_ttl);
+    
+    // SECURITY: Persist last known good status for fail-last-known-good strategy
+    update_option('omnixep_last_known_remote_status', $status, false);
     
     // Log status check
     if (!$status['enabled']) {
@@ -1149,16 +1166,22 @@ add_action('plugins_loaded', 'wc_omnixep_init_gateway_class', 11);
 
 /**
  * SECURITY: Content Security Policy Headers
- * Prevents XSS attacks by restricting script sources
+ * Uses nonce-based CSP to prevent XSS attacks
  */
 add_action('send_headers', 'wc_omnixep_add_security_headers');
 function wc_omnixep_add_security_headers() {
-    // Apply security headers globally (not just admin)
+    // Generate a cryptographic nonce for this request
+    $csp_nonce = base64_encode(random_bytes(16));
     
-    // Content Security Policy - Allow necessary external resources
+    // Store nonce globally so themes/plugins can add it to inline scripts
+    if (!defined('OMNIXEP_CSP_NONCE')) {
+        define('OMNIXEP_CSP_NONCE', $csp_nonce);
+    }
+    
+    // Content Security Policy - Nonce-based (no unsafe-inline/unsafe-eval)
     $csp = "default-src 'self'; " .
-           "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.qrserver.com https://cdn.brevo.com https://cdn.by.wonderpush.com https://sibautomation.com; " .
-           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
+           "script-src 'self' 'nonce-{$csp_nonce}' https://api.qrserver.com https://cdn.brevo.com https://cdn.by.wonderpush.com https://sibautomation.com; " .
+           "style-src 'self' 'nonce-{$csp_nonce}' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " .
            "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; " .
            "img-src 'self' data: https: http:; " .
            "connect-src 'self' https://api.omnixep.com https://api.coingecko.com https://mexc.com https://dextrade.com https://in-automate.brevo.com; " .
@@ -1433,20 +1456,60 @@ function wc_omnixep_setup_2fa_ajax() {
         
         wp_send_json_success(array('message' => '2FA disabled successfully'));
     } elseif ($action_type === 'recovery_disable') {
-        // RECOVERY MODE: Disable 2FA without code verification
-        // This is for users who lost access to their authenticator app
-        // They will need to re-enter their mnemonic to reactivate the module
+        // RECOVERY MODE: Disable 2FA with PASSWORD verification
+        // SECURITY: Requires current WordPress password to prevent session hijack bypass
         
-        // Log the recovery action for security audit
+        $password = isset($_POST['password']) ? $_POST['password'] : '';
+        
+        if (empty($password)) {
+            wp_send_json_error('Password is required for recovery mode. Please enter your WordPress password.');
+            return;
+        }
+        
+        // SECURITY: Rate limit recovery attempts (max 3 per 15 minutes)
+        $rate_key = 'omnixep_2fa_recovery_' . $user_id;
+        $attempts = get_transient($rate_key);
+        if ($attempts && $attempts >= 3) {
+            error_log('OmniXEP SECURITY: 2FA recovery rate limit hit for user ' . $user_id);
+            wp_send_json_error('Too many recovery attempts. Please wait 15 minutes and try again.');
+            return;
+        }
+        set_transient($rate_key, ($attempts ? $attempts + 1 : 1), 900); // 15 minutes
+        
+        // Verify password
+        $user = get_user_by('id', $user_id);
+        if (!$user || !wp_check_password($password, $user->user_pass, $user_id)) {
+            error_log('OmniXEP SECURITY: Failed 2FA recovery password verification for user ' . $user_id);
+            wp_send_json_error('Invalid password. Please enter your correct WordPress password.');
+            return;
+        }
+        
+        // Password verified â€” proceed with recovery
         error_log('OmniXEP: 2FA RECOVERY MODE - Module reset for user ' . $user_id . ' at ' . current_time('mysql'));
-        error_log('OmniXEP: User will need to re-enter mnemonic to reactivate module');
+        error_log('OmniXEP: Password verified. User will need to re-enter mnemonic to reactivate module');
         
         // Disable 2FA
         OmniXEP_2FA::disable($user_id);
         
-        // Clear any pending verifications
+        // Clear any pending verifications and rate limits
         delete_transient('omnixep_2fa_verified_' . $user_id);
         delete_transient('omnixep_2fa_setup_' . $user_id);
+        delete_transient($rate_key);
+        
+        // SECURITY: Send email notification to admin about 2FA recovery
+        $admin_email = get_option('admin_email');
+        $site_name = get_bloginfo('name');
+        wp_mail(
+            $admin_email,
+            '[' . $site_name . '] OmniXEP 2FA Recovery Mode Activated',
+            sprintf(
+                "Warning: 2FA has been disabled via recovery mode.\n\nUser ID: %d\nUsername: %s\nTime: %s\nIP: %s\n\nIf you did not perform this action, please investigate immediately.",
+                $user_id,
+                $user->user_login,
+                current_time('mysql'),
+                OmniXEP_Security::get_client_ip()
+            )
+        );
         
         wp_send_json_success(array(
             'message' => 'Module reset successfully. Please re-enter your mnemonic to reactivate.',
