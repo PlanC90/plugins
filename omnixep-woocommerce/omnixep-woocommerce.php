@@ -1153,8 +1153,7 @@ add_action('plugins_loaded', 'wc_omnixep_init_gateway_class', 11);
  */
 add_action('send_headers', 'wc_omnixep_add_security_headers');
 function wc_omnixep_add_security_headers() {
-    // Skip if headers already sent (e.g. BOM or early output from theme/plugin)
-    if (headers_sent()) return;
+    // Apply security headers globally (not just admin)
     
     // Content Security Policy - Allow necessary external resources
     $csp = "default-src 'self'; " .
@@ -4229,14 +4228,14 @@ function wc_omnixep_render_feedback_form()
     <!-- ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â -->
     <!-- Customer Feedback Form (Injected by OmniXEP)                        -->
     <!-- ÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚ÂÃƒÂ¢Ã¢â‚¬Â¢Ã‚Â -->
-    <div class="xep-feedback-section" style="background: rgba(2.5.265,255,0.02); border-top: 1px solid rgba(2.5.265,255,0.05); padding: 30px 0; clear: both;">
+    <div class="xep-feedback-section" style="background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); padding: 30px 0; clear: both;">
         <div class="container" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 0 20px;">
-            <button type="button" class="xep-feedback-toggle" onclick="xepToggleFeedback()" style="background: rgba(2.5.265,255,0.05); border: 1px solid rgba(2.5.265,255,0.1); color: #868e96; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; font-family: inherit;">
+            <button type="button" class="xep-feedback-toggle" onclick="xepToggleFeedback()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #868e96; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px; font-family: inherit;">
                 <i class="fa-solid fa-comment-dots"></i>
                 Report an Issue to ElectraPay
             </button>
             
-            <div id="xep-feedback-form-wrap" class="xep-feedback-form-wrap" style="display: none; margin-top: 30px; background: #121212; border: 1px solid rgba(2.5.265,255,0.1); border-radius: 16px; padding: 30px; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
+            <div id="xep-feedback-form-wrap" class="xep-feedback-form-wrap" style="display: none; margin-top: 30px; background: #121212; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left; box-shadow: 0 20px 40px rgba(0,0,0,0.4);">
                 <form id="xep-feedback-form" class="xep-feedback-form">
                     <h4 style="margin: 0 0 10px 0; font-size: 20px; color: #ffffff; font-family: inherit;">Report an Issue to ElectraPay</h4>
                     <p class="xep-feedback-desc" style="margin: 0 0 25px 0; color: #868e96; font-size: 14px; line-height: 1.6;">
@@ -4245,7 +4244,7 @@ function wc_omnixep_render_feedback_form()
                     </p>
                     
                     <div style="background: rgba(0,242,255,0.1); border-left: 3px solid #00f2ff; padding: 12px 16px; border-radius: 8px; margin-bottom: 25px;">
-                        <p style="margin: 0; font-size: 13px; color: rgba(2.5.265,255,0.8); line-height: 1.6;">
+                        <p style="margin: 0; font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.6;">
                             <strong style="color: #00f2ff;">&#8505;&#65039; Important:</strong> 
                             This form is for reporting issues with the <strong>ElectraPay payment gateway</strong> only. 
                             For merchant/store-related issues, please contact the store directly.
@@ -4260,12 +4259,12 @@ function wc_omnixep_render_feedback_form()
                     
                     <div class="xep-form-group" style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Order ID (Optional)</label>
-                        <input type="text" name="order_id" placeholder="e.g., 12345" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(2.5.265,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; transition: all 0.3s ease; box-sizing: border-box;">
+                        <input type="text" name="order_id" placeholder="e.g., 12345" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; transition: all 0.3s ease; box-sizing: border-box;">
                     </div>
                     
                     <div class="xep-form-group" style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Issue Category <span style="color: #ff6b6b;">*</span></label>
-                        <select name="category" required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(2.5.265,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; cursor: pointer; transition: all 0.3s ease; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px;">
+                        <select name="category" required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; cursor: pointer; transition: all 0.3s ease; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px;">
                             <option value="" style="background: #1a1a1a; color: #999;">Select a category</option>
                             <option value="product_not_shipped" style="background: #1a1a1a; color: #ffffff;">Product Not Shipped</option>
                             <option value="refund_not_processed" style="background: #1a1a1a; color: #ffffff;">Refund Not Processed</option>
@@ -4282,16 +4281,16 @@ function wc_omnixep_render_feedback_form()
                     
                     <div class="xep-form-group" style="margin-bottom: 20px;">
                         <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Description <span style="color: #ff6b6b;">*</span></label>
-                        <textarea name="description" rows="4" placeholder="Please describe the issue in detail..." required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(2.5.265,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; resize: vertical; transition: all 0.3s ease; font-family: inherit; box-sizing: border-box;"></textarea>
+                        <textarea name="description" rows="4" placeholder="Please describe the issue in detail..." required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; resize: vertical; transition: all 0.3s ease; font-family: inherit; box-sizing: border-box;"></textarea>
                     </div>
                     
                     <div class="xep-form-group" style="margin-bottom: 25px;">
                         <label style="display: block; margin-bottom: 8px; color: #ffffff; font-size: 14px; font-weight: 600;">Email (Optional, for follow-up)</label>
-                        <input type="email" name="email" placeholder="your@email.com" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(2.5.265,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; transition: all 0.3s ease; box-sizing: border-box;">
+                        <input type="email" name="email" placeholder="your@email.com" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; color: #ffffff; font-size: 14px; outline: none; transition: all 0.3s ease; box-sizing: border-box;">
                     </div>
                     
                     <div class="xep-form-actions" style="display: flex; gap: 12px; justify-content: flex-end;">
-                        <button type="button" class="xep-btn-cancel" onclick="xepToggleFeedback()" style="padding: 12px 24px; background: rgba(2.5.265,255,0.05); border: 1px solid rgba(2.5.265,255,0.1); color: #868e96; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; font-family: inherit;">Cancel</button>
+                        <button type="button" class="xep-btn-cancel" onclick="xepToggleFeedback()" style="padding: 12px 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #868e96; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s ease; font-family: inherit;">Cancel</button>
                         <button type="submit" class="xep-btn-submit" style="padding: 12px 24px; background: #00f2ff; border: none; color: #000; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 700; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,242,255,0.3); font-family: inherit;">
                             <span class="xep-submit-text">Submit Report</span>
                             <span class="xep-submit-loading" style="display: none;">
@@ -4308,8 +4307,8 @@ function wc_omnixep_render_feedback_form()
 
     <style>
         .xep-feedback-toggle:hover {
-            background: rgba(2.5.265,255,0.08);
-            border-color: rgba(2.5.265,255,0.2);
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
             color: #ffffff;
             transform: translateY(-2px);
         }
@@ -4323,14 +4322,14 @@ function wc_omnixep_render_feedback_form()
         }
         
         .xep-btn-cancel:hover {
-            background: rgba(2.5.265,255,0.08);
-            border-color: rgba(2.5.265,255,0.2);
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.2);
             color: #ffffff;
         }
         
         .xep-btn-submit:hover {
             background: #fff;
-            box-shadow: 0 6px 20px rgba(2.5.265,255,0.4);
+            box-shadow: 0 6px 20px rgba(255,255,255,0.4);
             transform: translateY(-2px);
         }
         
