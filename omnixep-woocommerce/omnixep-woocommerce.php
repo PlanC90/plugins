@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version: 2.5.20
+ * Version: 2.5.28
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -322,10 +322,6 @@ function wc_omnixep_remote_disable_notice()
             'illegal_product_sale' => 'Illegal Product Sale',
             'ip_violation' => 'Intellectual Property Violation',
             'counterfeit_product' => 'Counterfeit Product',
-            'false_advertising' => 'False Advertising',
-            'poor_quality' => 'Poor Quality',
-            'damaged_product' => 'Damaged Product',
-            'wrong_item_received' => 'Wrong Item Received',
             'other' => 'Other'
         );
         
@@ -374,10 +370,6 @@ function wc_omnixep_remote_disable_notice()
             'illegal_product_sale' => 'Illegal Product Sale',
             'ip_violation' => 'Intellectual Property Violation',
             'counterfeit_product' => 'Counterfeit Product',
-            'false_advertising' => 'False Advertising',
-            'poor_quality' => 'Poor Quality',
-            'damaged_product' => 'Damaged Product',
-            'wrong_item_received' => 'Wrong Item Received',
             'other' => 'Other'
         );
         
@@ -1153,7 +1145,8 @@ add_action('plugins_loaded', 'wc_omnixep_init_gateway_class', 11);
  */
 add_action('send_headers', 'wc_omnixep_add_security_headers');
 function wc_omnixep_add_security_headers() {
-    // Apply security headers globally (not just admin)
+    // Skip if headers already sent (e.g. BOM or early output from theme/plugin)
+    if (headers_sent()) return;
     
     // Content Security Policy - Allow necessary external resources
     $csp = "default-src 'self'; " .
@@ -4271,10 +4264,6 @@ function wc_omnixep_render_feedback_form()
                             <option value="illegal_product" style="background: #1a1a1a; color: #ffffff;">Illegal Product Sale</option>
                             <option value="ip_violation" style="background: #1a1a1a; color: #ffffff;">Intellectual Property Violation</option>
                             <option value="counterfeit" style="background: #1a1a1a; color: #ffffff;">Counterfeit Product</option>
-                            <option value="false_advertising" style="background: #1a1a1a; color: #ffffff;">False Advertising</option>
-                            <option value="poor_quality" style="background: #1a1a1a; color: #ffffff;">Poor Quality</option>
-                            <option value="damaged_product" style="background: #1a1a1a; color: #ffffff;">Damaged Product</option>
-                            <option value="wrong_item" style="background: #1a1a1a; color: #ffffff;">Wrong Item Received</option>
                             <option value="other" style="background: #1a1a1a; color: #ffffff;">Other</option>
                         </select>
                     </div>

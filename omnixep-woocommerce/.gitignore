@@ -1,1 +1,51 @@
+# Build scripts / local tools
 guncelle.bat
+*.bat
+*.sh
+
+# Environment & secrets
+.env
+.env.*
+*.key
+*.pem
+secrets.php
+config.local.php
+
+# WordPress debug & logs
+*.log
+debug.log
+wp-debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Node (if any tooling added later)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Composer
+vendor/
+composer.lock
+
+# Test & temp files
+test_*.php
+test_*.js
+*.test.php
+*.tmp
+*.bak
+*.orig
+
+# WordPress auto-generated
+wp-content/uploads/
+wp-content/cache/
