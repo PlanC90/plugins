@@ -2123,9 +2123,22 @@ function wc_omnixep_admin_page_redirect()
 function wc_omnixep_admin_menu_redirect()
 {
     if (isset($_GET['page']) && $_GET['page'] === 'omnixep-payment-settings') {
+        $target = admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep');
+        
         if (!headers_sent()) {
-            wp_redirect(admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep'));
+            wp_redirect($target);
             exit;
+        } else {
+            // If headers are sent, we should still show the admin UI so the user isn't stuck
+            // Or use an immediate JS redirect with a visible link.
+            ?>
+            <div class="wrap">
+                <h1>Redirecting...</h1>
+                <p>You are being redirected to OmniXEP Payment settings. If the page doesn't refresh, <a href="<?php echo esc_url($target); ?>">click here</a>.</p>
+                <script type="text/javascript">window.location.href="<?php echo $target; ?>";</script>
+            </div>
+            <?php
+            // We DON'T exit here so WordPress can finish rendering the sidebar/layout if needed
         }
     }
 }
