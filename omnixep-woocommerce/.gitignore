@@ -49,3 +49,4 @@ test_*.js
 # WordPress auto-generated
 wp-content/uploads/
 wp-content/cache/
+guncelle.bat
