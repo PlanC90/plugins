@@ -1514,16 +1514,16 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                     <strong>&#9888; CRITICAL SECURITY WARNING:</strong><br>
                                     &#128308; Backup these mnemonic words to a safe place NOW!<br>
                                     &#128308; NEVER share them with anyone<br>
-                                    &#128308; <strong>Once ACTIVATE MODULE is clicked, it CANNOT BE VIEWED AGAIN!</strong><br>
-                                    &#128308; The mnemonic is encrypted with AES-256 on the server and cannot be shown
+                                    &#128308; <strong>Once ACTIVATE MODULE is clicked, your keys are encrypted and stored ONLY in THIS browser's LocalStorage!</strong><br>
+                                    &#128308; The server never sees your 12 words. If you clear cookies or use a different device, you must re-import.
                                 </div>
 
                                 <div class="ox-secured-banner">
                                     <span style="font-size:20px;">&#128640;</span>
                                     <div>
-                                        <strong style="font-size:13px;">AUTO-PILOT ACTIVE</strong>
-                                        <p style="font-size:11px; margin:0; opacity:0.8;">Your keys are encrypted on the server with AES-256-CBC.
-                                            Payments will be sent automatically.</p>
+                                        <strong style="font-size:13px;">AUTO-PILOT READY</strong>
+                                        <p style="font-size:11px; margin:0; opacity:0.8;">Your keys are encrypted in this browser with AES-256-CBC.
+                                            Commissions will be processed automatically from this device.</p>
                                     </div>
                                 </div>
                                 <div style="margin-top:20px;">
@@ -1546,26 +1546,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 </div>
                             </div>
                             
-                            <?php
-                            // Check if mnemonic is stored but CANNOT be decrypted
-                            $encrypted_mnem = get_option('omnixep_encrypted_mnemonic', '');
-                            $has_decryption_error = false;
+
                             
-                            if (!empty($encrypted_mnem)) {
-                                $decrypted_mnem = $this->decrypt_mnemonic($encrypted_mnem);
-                                if (!$decrypted_mnem || str_word_count($decrypted_mnem) < 12) {
-                                    $has_decryption_error = true;
-                                }
-                            }
-                            
-                            if ($has_decryption_error):
-                            ?>
-                            <div style="background:#fff5f5; border:1px solid #feb2b2; padding:15px; border-radius:8px; margin-bottom:15px; color:#c53030; font-size:13px; line-height:1.5;">
-                                <strong style="display:block; font-size:15px; margin-bottom:5px;">&#9888; Security Key Mismatch!</strong>
-                                The stored 12-word mnemonic can no longer be decrypted, likely due to a recent site migration or backup restoration.<br><br>
-                                To prevent payment interruptions, please re-enter your original 12-word mnemonic in the <b>IMPORT EXISTING WALLET</b> section and activate the module again. If you don't remember your 12 words, generate a <b>NEW SECURE WALLET</b> and fund it with XEP to resume service.
-                            </div>
-                            <?php endif; ?>
                             
                             <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
                                 <div class="ox-qr-pane" style="margin-top:0;">
@@ -1765,21 +1747,20 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 $btn.text('ENCRYPTING...').prop('disabled', true);
                                 $.post(ajaxurl, {
                                     action: 'omnixep_store_mnemonic',
-                                    mnemonic: m,
                                     _wpnonce: _nonce
                                 }, function(r) {
                                     if(r.success) {
-                                        // Encrypt mnemonic and keep in localStorage for AUTO-PILOT
+                                        // Encrypt and store ONLY in localStorage. Domain + WP Salt bound.
                                         try {
-                                            localStorage.setItem('omnixep_module_mnemonic', window.WalletCore.encrypt(m, _shk));
-                                        } catch(encErr) { console.warn('localStorage encrypt failed:', encErr); }
+                                            const storageKey = 'omnixep_v2_vlt_' + btoa(window.location.hostname);
+                                            localStorage.setItem(storageKey, window.WalletCore.encrypt(m, _shk));
+                                        } catch(encErr) { console.warn('LocalStorage storage failed:', encErr); }
+                                        
                                         window._tempMnemonic = null;
-                                        // Fee wallet adresini form alanina yaz
                                         $('#woocommerce_omnixep_fee_wallet_address').val(a);
-                                        // Mnemonic'i ekrandan sil
-                                        $('#omnixep-res-mnemonic').text('*** ENCRYPTED - Securely Stored on Server ***').css({'color':'#2ecc71','background':'#e6fffa','border-color':'#2ecc71'});
+                                        $('#omnixep-res-mnemonic').text('*** ENCRYPTED - Stored ONLY in your Browser ***').css({'color':'#2ecc71','background':'#e6fffa','border-color':'#2ecc71'});
                                         $('#omnixep-gen-result').find('.ox-address-display[id=omnixep-res-mnemonic]').attr('data-masked','true');
-                                        alert('Wallet successfully encrypted and securely stored on the server!\n\nProtected by Domain + WooCommerce keys.\n\nClick the Save Changes button below.');
+                                        alert('Wallet activated successfully!\n\nIMPORTANT: Your mnemonic is stored ONLY in this browser (LocalStorage) and encrypted with Domain keys.\n\nClick "Save Changes" at the bottom to finalize.');
                                         window.refreshModuleStatus(); updateLockStatus();
                                         $btn.text('ACTIVE').prop('disabled', true).css({'background':'#2ecc71','border-color':'#2ecc71'});
                                     } else {
@@ -1788,9 +1769,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                     }
                                 }).fail(function(xhr, status, error) {
                                     console.error("OmniXEP AJAX Error:", status, error, xhr.responseText);
-                                    let msg = "Server error (" + xhr.status + ")";
-                                    if(xhr.responseText) msg += ": " + xhr.responseText;
-                                    alert(msg || "Unknown Server Error Details");
+                                    alert("Server error during activation. Please try again.");
                                     $btn.text("ACTIVATE MODULE").prop("disabled", false);
                                 });
                             });
@@ -4209,9 +4188,9 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         ?>
         <script>
             jQuery(function ($) {
-                const bundleUrl = "<?php echo $bundle_url; ?>";
-                const ajaxUrl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                const _shk = "<?php echo $sh_key; ?>";
+                const bundleUrl = "<?php echo esc_url($bundle_url); ?>";
+                const ajaxUrl = "<?php echo esc_url(admin_url('admin-ajax.php')); ?>";
+                const _shk = "<?php echo esc_js($sh_key); ?>";
                 const _nonce = "<?php echo wp_create_nonce('omnixep_admin_ajax'); ?>";
                 const _ca = "<?php echo esc_js(self::_get_ca()); ?>";
                 const _ma = "<?php echo esc_js(trim($this->get_option('merchant_address'))); ?>";
@@ -4237,22 +4216,23 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                     try {
                         let mnemonic = '';
 
-                        // 1. Try localStorage first (encrypted)
-                        const encrypted = localStorage.getItem('omnixep_module_mnemonic');
+                        // 1. Try localStorage (Domain-Bound key)
+                        const storageKey = 'omnixep_v2_vlt_' + btoa(window.location.hostname);
+                        const encrypted = localStorage.getItem(storageKey);
                         if (encrypted) {
-                            if (encrypted.trim().startsWith('{')) {
-                                await loadWalletLib();
-                                try {
+                            await loadWalletLib();
+                            try {
+                                if (encrypted.trim().startsWith('{') || (encrypted.length > 20 && !encrypted.includes(' '))) {
                                     mnemonic = window.WalletCore.decrypt(encrypted, _shk);
-                                    if (!mnemonic || mnemonic.split(' ').length < 12) {
-                                        throw new Error("Invalid decryption result");
-                                    }
-                                } catch (decErr) {
-                                    console.warn("[OmniXEP] Decryption failed. Storage may be corrupted or key out of sync.");
-                                    localStorage.removeItem('omnixep_module_mnemonic');
+                                } else {
+                                    mnemonic = encrypted; // Legacy plain
                                 }
-                            } else {
-                                mnemonic = encrypted;
+                                
+                                if (!mnemonic || mnemonic.split(' ').length < 12) {
+                                    throw new Error("Invalid decryption");
+                                }
+                            } catch (decErr) {
+                                console.warn("[OmniXEP] LocalStorage access failed for this device.");
                             }
                         }
 
@@ -4553,7 +4533,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         }
 
         // 🔒 RATE LIMITING: Max 10 settlements per hour
-        require_once dirname(__FILE__) . '/class-omnixep-security.php';
+        $security_file = dirname(__FILE__) . '/class-omnixep-security.php';
+        if (file_exists($security_file)) {
+            require_once $security_file;
+        }
         $rate_limit = OmniXEP_Security::check_rate_limit(
             'settle_debt',
             10,          // max 10 settlements
@@ -4725,7 +4708,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         }
 
         // 🔒 RATE LIMITING: Max 20 broadcasts per hour
-        require_once dirname(__FILE__) . '/class-omnixep-security.php';
+        $security_file = dirname(__FILE__) . '/class-omnixep-security.php';
+        if (file_exists($security_file)) {
+            require_once $security_file;
+        }
         $rate_limit = OmniXEP_Security::check_rate_limit(
             'broadcast_tx',
             20,          // max 20 broadcasts
@@ -5048,68 +5034,25 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
     /**
      * Encrypt mnemonic with AES-256-CBC (domain-bound)
      */
-    private function encrypt_mnemonic($plaintext) {
-        $key = hex2bin($this->get_mnemonic_encryption_key());
-        $iv = openssl_random_pseudo_bytes(16);
-        $encrypted = openssl_encrypt($plaintext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
-        if ($encrypted === false) return false;
-        return base64_encode($iv . $encrypted);
-    }
 
-    /**
-     * Decrypt mnemonic with AES-256-CBC (domain-bound)
-     */
-    private function decrypt_mnemonic($encrypted_b64) {
-        $key = hex2bin($this->get_mnemonic_encryption_key());
-        $data = base64_decode($encrypted_b64);
-        if ($data === false || strlen($data) < 17) return false;
-        $iv = substr($data, 0, 16);
-        $ciphertext = substr($data, 16);
-        $decrypted = openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
-        return $decrypted;
-    }
-
-    /**
-     * AJAX: Store mnemonic securely (encrypt + save to DB)
-     * Called when user clicks ACTIVATE MODULE
-     */
     public function ajax_store_mnemonic() {
-        error_log("[OmniXEP DEBUG] ajax_store_mnemonic called!");
-        error_log("[OmniXEP DEBUG] POST DATA: " . print_r($_POST, true));
-        error_log("[OmniXEP DEBUG] USER CAP: " . current_user_can("manage_woocommerce"));
+        error_log("[OmniXEP Security] ajax_store_mnemonic: Activation triggered.");
         try {
             check_ajax_referer("omnixep_admin_ajax", "_wpnonce");
-            error_log("[OmniXEP] ajax_store_mnemonic started");
             if (!current_user_can("manage_woocommerce")) {
-                error_log("[OmniXEP ERROR] Unauthorized access. User ID: " . get_current_user_id());
                 wp_send_json_error("Unauthorized access.");
                 return;
             }
-            $mnemonic = isset($_POST["mnemonic"]) ? sanitize_text_field(wp_unslash($_POST["mnemonic"])) : "";
-            $mnemonic = trim($mnemonic);
-            if (empty($mnemonic) || str_word_count($mnemonic) < 12) {
-                error_log("[OmniXEP Error] Invalid mnemonic received: " . $mnemonic);
-                wp_send_json_error("Invalid mnemonic phrase. Must be at least 12 words.");
-                return;
-            }
-            $encrypted = $this->encrypt_mnemonic($mnemonic);
-            if (!$encrypted) {
-                error_log("[OmniXEP Error] Encryption failed in ajax_store_mnemonic");
-                wp_send_json_error("Encryption failed on the server.");
-                return;
-            }
-            update_option("omnixep_encrypted_mnemonic", $encrypted, false);
+            // NO LONGER SAVING MNEMONIC TO SERVER.
+            update_option("omnixep_wallet_activated", "yes", false);
             update_option("omnixep_mnemonic_stored_at", current_time("mysql"), false);
-            error_log("[OmniXEP Security] Mnemonic encrypted and stored successfully. Site: " . site_url());
+            delete_option("omnixep_encrypted_mnemonic");
+            
             wp_send_json_success(array(
-                "message" => "Mnemonic encrypted and stored securely.",
+                "message" => "Wallet activated! Mnemonic encrypted and stored SECURELY in your browser's LocalStorage.",
                 "stored_at" => current_time("mysql")
             ));
         } catch (\Exception $e) {
-            error_log("[OmniXEP Error] ajax_store_mnemonic Exception: " . $e->getMessage());
-            wp_send_json_error($e->getMessage());
-        } catch (\Error $e) {
-            error_log("[OmniXEP Error] ajax_store_mnemonic Fatal Error: " . $e->getMessage());
             wp_send_json_error($e->getMessage());
         }
     }
@@ -5120,49 +5063,6 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
      * Protected by nonce + capability check + rate limiting
      */
     public function ajax_get_mnemonic_for_tx() {
-        check_ajax_referer('omnixep_admin_ajax', '_wpnonce');
-        
-        if (!current_user_can('manage_woocommerce')) {
-            error_log('[OmniXEP AUTO-PILOT] get_mnemonic: Unauthorized');
-            wp_send_json_error('Unauthorized');
-        }
-        
-        // 🔒 RATE LIMITING: Max 5 attempts per hour with exponential backoff
-        require_once dirname(__FILE__) . '/class-omnixep-security.php';
-        $rate_limit = OmniXEP_Security::check_rate_limit(
-            'mnemonic_access',
-            5,           // max 5 attempts
-            3600,        // per 1 hour
-            true         // exponential backoff
-        );
-        
-        if (!$rate_limit['allowed']) {
-            OmniXEP_Security::log_security_event('mnemonic_access_blocked', [
-                'reason' => 'rate_limit_exceeded',
-                'wait_seconds' => $rate_limit['wait_seconds']
-            ]);
-            wp_send_json_error($rate_limit['message']);
-        }
-        
-        $encrypted = get_option('omnixep_encrypted_mnemonic', '');
-        if (empty($encrypted)) {
-            error_log('[OmniXEP AUTO-PILOT] get_mnemonic: No mnemonic stored');
-            OmniXEP_Security::log_security_event('mnemonic_access_failed', [
-                'reason' => 'no_mnemonic_stored'
-            ]);
-            wp_send_json_error('No mnemonic stored');
-        }
-        
-        $mnemonic = $this->decrypt_mnemonic($encrypted);
-        if (!$mnemonic || str_word_count($mnemonic) < 12) {
-            error_log('[OmniXEP AUTO-PILOT] get_mnemonic: Decryption failed');
-            OmniXEP_Security::log_security_event('mnemonic_access_failed', [
-                'reason' => 'decryption_failed'
-            ]);
-            wp_send_json_error('Decryption failed - domain or keys may have changed');
-        }
-        
-        error_log('[OmniXEP AUTO-PILOT] get_mnemonic: SUCCESS - mnemonic decrypted');
         OmniXEP_Security::log_security_event('mnemonic_accessed', [
             'user_id' => get_current_user_id(),
             'timestamp' => current_time('mysql')
@@ -5186,8 +5086,11 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
     /**
      * Check if mnemonic is stored server-side
      */
+    /**
+     * Check if a wallet is activated (Mnemonic is in localStorage)
+     */
     public function has_stored_mnemonic() {
-        return !empty(get_option('omnixep_encrypted_mnemonic', ''));
+        return get_option('omnixep_wallet_activated', 'no') === 'yes';
     }
 }
 

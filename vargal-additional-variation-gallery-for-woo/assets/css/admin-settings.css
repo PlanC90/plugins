@@ -1,0 +1,57 @@
+.wrap .vi-ui {
+  box-sizing: border-box;
+}
+.wrap .vi-ui * {
+  box-sizing: border-box;
+}
+.wrap .vi-ui .vargal-hidden {
+  display: none !important;
+}
+.wrap .vi-ui .vargal-basic-label {
+  font-weight: 400;
+}
+.wrap .vi-ui .vargal-general-settings-wrap {
+  align-items: center;
+}
+.wrap .vi-ui .vagal-loading-icon-preview {
+  position: relative;
+  z-index: 1;
+  background: #f5f2f2;
+  transition: 0.3s ease-in;
+}
+.wrap .vi-ui .vargal-thumbnail_pos-menu {
+  padding-top: 0;
+}
+.wrap .vi-ui .vargal-thumbnail_pos-tab {
+  margin-bottom: 0;
+}
+.wrap .vi-ui .vargal-thumbnail_pos {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.wrap .vi-ui .vargal-thumbnail_pos.vargal-thumbnail_pos-selected .vargal-thumbnail_pos-img, .wrap .vi-ui .vargal-thumbnail_pos:hover .vargal-thumbnail_pos-img {
+  border-color: #2886ce;
+}
+.wrap .vi-ui .vargal-thumbnail_pos .radio.checkbox input:checked ~ label:after {
+  left: 1px;
+  top: 2px;
+  background-color: #2886ce;
+}
+.wrap .vi-ui .vargal-thumbnail_pos .vargal-thumbnail_pos-img {
+  cursor: pointer;
+  padding: 3px 3px 0 3px;
+  border: 1px solid #d7d7d8;
+  border-radius: 3px;
+}
+.wrap .vi-ui .vargal-thumbnail_pos img {
+  max-width: 150px;
+}
+
+.vargal-migrate-wrap .vargal-button-scan-container {
+  text-align: right;
+}
+
+/*# sourceMappingURL=admin-settings.css.map */

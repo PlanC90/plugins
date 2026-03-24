@@ -1,0 +1,495 @@
+/*!
+ * # Semantic UI 2.5.0 - Input
+ * http://github.com/semantic-org/semantic-ui/
+ *
+ *
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ */
+
+
+/*******************************
+           Standard
+*******************************/
+
+
+/*--------------------
+        Inputs
+---------------------*/
+
+.vi-ui.input {
+  position: relative;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-flex;
+  color: rgba(0, 0, 0, 0.87);
+}
+.vi-ui.input > input {
+  margin: 0em;
+  max-width: 100%;
+  flex: 1 0 auto;
+  outline: none;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+  text-align: left;
+  line-height: 1.21428571em;
+  font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  padding: 0.67857143em 1em;
+  background: #FFFFFF;
+  border: 1px solid rgba(34, 36, 38, 0.15);
+  color: rgba(0, 0, 0, 0.87);
+  border-radius: 0.28571429rem;
+  transition: box-shadow 0.1s ease, border-color 0.1s ease;
+  box-shadow: none;
+}
+
+/*--------------------
+      Placeholder
+---------------------*/
+
+
+/* browsers require these rules separate */
+.vi-ui.input > input::-webkit-input-placeholder {
+  color: rgba(191, 191, 191, 0.87);
+}
+.vi-ui.input > input::-moz-placeholder {
+  color: rgba(191, 191, 191, 0.87);
+}
+.vi-ui.input > input:-ms-input-placeholder {
+  color: rgba(191, 191, 191, 0.87);
+}
+
+
+/*******************************
+            States
+*******************************/
+
+
+/*--------------------
+        Disabled
+---------------------*/
+
+.vi-ui.disabled.input,
+.vi-ui.input:not(.disabled) input[disabled] {
+  opacity: 0.45;
+}
+.vi-ui.disabled.input > input,
+.vi-ui.input:not(.disabled) input[disabled] {
+  pointer-events: none;
+}
+
+/*--------------------
+        Active
+---------------------*/
+
+.vi-ui.input > input:active,
+.vi-ui.input.down input {
+  border-color: rgba(0, 0, 0, 0.3);
+  background: #FAFAFA;
+  color: rgba(0, 0, 0, 0.87);
+  box-shadow: none;
+}
+
+/*--------------------
+       Loading
+---------------------*/
+
+.vi-ui.loading.loading.input > i.icon:before {
+  position: absolute;
+  content: '';
+  top: 50%;
+  left: 50%;
+  margin: -0.64285714em 0em 0em -0.64285714em;
+  width: 1.28571429em;
+  height: 1.28571429em;
+  border-radius: 500rem;
+  border: 0.2em solid rgba(0, 0, 0, 0.1);
+}
+.vi-ui.loading.loading.input > i.icon:after {
+  position: absolute;
+  content: '';
+  top: 50%;
+  left: 50%;
+  margin: -0.64285714em 0em 0em -0.64285714em;
+  width: 1.28571429em;
+  height: 1.28571429em;
+  -webkit-animation: button-spin 0.6s linear;
+          animation: button-spin 0.6s linear;
+  -webkit-animation-iteration-count: infinite;
+          animation-iteration-count: infinite;
+  border-radius: 500rem;
+  border-color: #767676 transparent transparent;
+  border-style: solid;
+  border-width: 0.2em;
+  box-shadow: 0px 0px 0px 1px transparent;
+}
+
+/*--------------------
+        Focus
+---------------------*/
+
+.vi-ui.input.focus > input,
+.vi-ui.input > input:focus {
+  border-color: #85B7D9;
+  background: #FFFFFF;
+  color: rgba(0, 0, 0, 0.8);
+  box-shadow: none;
+}
+.vi-ui.input.focus > input::-webkit-input-placeholder,
+.vi-ui.input > input:focus::-webkit-input-placeholder {
+  color: rgba(115, 115, 115, 0.87);
+}
+.vi-ui.input.focus > input::-moz-placeholder,
+.vi-ui.input > input:focus::-moz-placeholder {
+  color: rgba(115, 115, 115, 0.87);
+}
+.vi-ui.input.focus > input:-ms-input-placeholder,
+.vi-ui.input > input:focus:-ms-input-placeholder {
+  color: rgba(115, 115, 115, 0.87);
+}
+
+/*--------------------
+        Error
+---------------------*/
+
+.vi-ui.input.error > input {
+  background-color: #FFF6F6;
+  border-color: #E0B4B4;
+  color: #9F3A38;
+  box-shadow: none;
+}
+
+/* Error Placeholder */
+.vi-ui.input.error > input::-webkit-input-placeholder {
+  color: #e7bdbc;
+}
+.vi-ui.input.error > input::-moz-placeholder {
+  color: #e7bdbc;
+}
+.vi-ui.input.error > input:-ms-input-placeholder {
+  color: #e7bdbc !important;
+}
+
+/* Focused Error Placeholder */
+.vi-ui.input.error > input:focus::-webkit-input-placeholder {
+  color: #da9796;
+}
+.vi-ui.input.error > input:focus::-moz-placeholder {
+  color: #da9796;
+}
+.vi-ui.input.error > input:focus:-ms-input-placeholder {
+  color: #da9796 !important;
+}
+
+
+/*******************************
+           Variations
+*******************************/
+
+
+/*--------------------
+      Transparent
+---------------------*/
+
+.vi-ui.transparent.input > input {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  padding: 0em !important;
+  box-shadow: none !important;
+  border-radius: 0px !important;
+}
+
+/* Transparent Icon */
+.vi-ui.transparent.icon.input > i.icon {
+  width: 1.1em;
+}
+.vi-ui.transparent.icon.input > input {
+  padding-left: 0em !important;
+  padding-right: 2em !important;
+}
+.vi-ui.transparent[class*="left icon"].input > input {
+  padding-left: 2em !important;
+  padding-right: 0em !important;
+}
+
+/* Transparent Inverted */
+.vi-ui.transparent.inverted.input {
+  color: #FFFFFF;
+}
+.vi-ui.transparent.inverted.input > input {
+  color: inherit;
+}
+.vi-ui.transparent.inverted.input > input::-webkit-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.vi-ui.transparent.inverted.input > input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+.vi-ui.transparent.inverted.input > input:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/*--------------------
+         Icon
+---------------------*/
+
+.vi-ui.icon.input > i.icon {
+  cursor: default;
+  position: absolute;
+  line-height: 1;
+  text-align: center;
+  top: 0px;
+  right: 0px;
+  margin: 0em;
+  height: 100%;
+  width: 2.67142857em;
+  opacity: 0.5;
+  border-radius: 0em 0.28571429rem 0.28571429rem 0em;
+  transition: opacity 0.3s ease;
+}
+.vi-ui.icon.input > i.icon:not(.link) {
+  pointer-events: none;
+}
+.vi-ui.icon.input > input {
+  padding-right: 2.67142857em !important;
+}
+.vi-ui.icon.input > i.icon:before,
+.vi-ui.icon.input > i.icon:after {
+  left: 0;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  width: 100%;
+  margin-top: -0.5em;
+}
+.vi-ui.icon.input > i.link.icon {
+  cursor: pointer;
+}
+.vi-ui.icon.input > i.circular.icon {
+  top: 0.35em;
+  right: 0.5em;
+}
+
+/* Left Icon Input */
+.vi-ui[class*="left icon"].input > i.icon {
+  right: auto;
+  left: 1px;
+  border-radius: 0.28571429rem 0em 0em 0.28571429rem;
+}
+.vi-ui[class*="left icon"].input > i.circular.icon {
+  right: auto;
+  left: 0.5em;
+}
+.vi-ui[class*="left icon"].input > input {
+  padding-left: 2.67142857em !important;
+  padding-right: 1em !important;
+}
+
+/* Focus */
+.vi-ui.icon.input > input:focus ~ i.icon {
+  opacity: 1;
+}
+
+/*--------------------
+        Labeled
+---------------------*/
+
+
+/* Adjacent Label */
+.vi-ui.labeled.input > .label {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 1em;
+}
+.vi-ui.labeled.input > .label:not(.corner) {
+  padding-top: 0.78571429em;
+  padding-bottom: 0.78571429em;
+}
+
+/* Regular Label on Left */
+.vi-ui.labeled.input:not([class*="corner labeled"]) .label:first-child {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.vi-ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-left-color: transparent;
+}
+.vi-ui.labeled.input:not([class*="corner labeled"]) .label:first-child + input:focus {
+  border-left-color: #85B7D9;
+}
+
+/* Regular Label on Right */
+.vi-ui[class*="right labeled"].input > input {
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+  border-right-color: transparent !important;
+}
+.vi-ui[class*="right labeled"].input > input + .label {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+.vi-ui[class*="right labeled"].input > input:focus {
+  border-right-color: #85B7D9 !important;
+}
+
+/* Corner Label */
+.vi-ui.labeled.input .corner.label {
+  top: 1px;
+  right: 1px;
+  font-size: 0.64285714em;
+  border-radius: 0em 0.28571429rem 0em 0em;
+}
+
+/* Spacing with corner label */
+.vi-ui[class*="corner labeled"]:not([class*="left corner labeled"]).labeled.input > input {
+  padding-right: 2.5em !important;
+}
+.vi-ui[class*="corner labeled"].icon.input:not([class*="left corner labeled"]) > input {
+  padding-right: 3.25em !important;
+}
+.vi-ui[class*="corner labeled"].icon.input:not([class*="left corner labeled"]) > .icon {
+  margin-right: 1.25em;
+}
+
+/* Left Labeled */
+.vi-ui[class*="left corner labeled"].labeled.input > input {
+  padding-left: 2.5em !important;
+}
+.vi-ui[class*="left corner labeled"].icon.input > input {
+  padding-left: 3.25em !important;
+}
+.vi-ui[class*="left corner labeled"].icon.input > .icon {
+  margin-left: 1.25em;
+}
+
+/* Corner Label Position  */
+.vi-ui.input > .vi-ui.corner.label {
+  top: 1px;
+  right: 1px;
+}
+.vi-ui.input > .vi-ui.left.corner.label {
+  right: auto;
+  left: 1px;
+}
+
+/*--------------------
+        Action
+---------------------*/
+
+.vi-ui.action.input > .button,
+.vi-ui.action.input > .buttons {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.vi-ui.action.input > .button,
+.vi-ui.action.input > .buttons > .button {
+  padding-top: 0.78571429em;
+  padding-bottom: 0.78571429em;
+  margin: 0;
+}
+
+/* Button on Right */
+.vi-ui.action.input:not([class*="left action"]) > input {
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+  border-right-color: transparent !important;
+}
+.vi-ui.action.input:not([class*="left action"]) > .dropdown:not(:first-child),
+.vi-ui.action.input:not([class*="left action"]) > .button:not(:first-child),
+.vi-ui.action.input:not([class*="left action"]) > .buttons:not(:first-child) > .button {
+  border-radius: 0px;
+}
+.vi-ui.action.input:not([class*="left action"]) > .dropdown:last-child,
+.vi-ui.action.input:not([class*="left action"]) > .button:last-child,
+.vi-ui.action.input:not([class*="left action"]) > .buttons:last-child > .button {
+  border-radius: 0px 0.28571429rem 0.28571429rem 0px;
+}
+
+/* Input Focus */
+.vi-ui.action.input:not([class*="left action"]) > input:focus {
+  border-right-color: #85B7D9 !important;
+}
+
+/* Button on Left */
+.vi-ui[class*="left action"].input > input {
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  border-left-color: transparent !important;
+}
+.vi-ui[class*="left action"].input > .dropdown,
+.vi-ui[class*="left action"].input > .button,
+.vi-ui[class*="left action"].input > .buttons > .button {
+  border-radius: 0px;
+}
+.vi-ui[class*="left action"].input > .dropdown:first-child,
+.vi-ui[class*="left action"].input > .button:first-child,
+.vi-ui[class*="left action"].input > .buttons:first-child > .button {
+  border-radius: 0.28571429rem 0px 0px 0.28571429rem;
+}
+
+/* Input Focus */
+.vi-ui[class*="left action"].input > input:focus {
+  border-left-color: #85B7D9 !important;
+}
+
+/*--------------------
+       Inverted
+---------------------*/
+
+
+/* Standard */
+.vi-ui.inverted.input > input {
+  border: none;
+}
+
+/*--------------------
+        Fluid
+---------------------*/
+
+.vi-ui.fluid.input {
+  display: flex;
+}
+.vi-ui.fluid.input > input {
+  width: 0px !important;
+}
+
+/*--------------------
+        Size
+---------------------*/
+
+.vi-ui.mini.input {
+  font-size: 0.78571429em;
+}
+.vi-ui.small.input {
+  font-size: 0.92857143em;
+}
+.vi-ui.input {
+  font-size: 1em;
+}
+.vi-ui.large.input {
+  font-size: 1.14285714em;
+}
+.vi-ui.big.input {
+  font-size: 1.28571429em;
+}
+.vi-ui.huge.input {
+  font-size: 1.42857143em;
+}
+.vi-ui.massive.input {
+  font-size: 1.71428571em;
+}
+
+
+/*******************************
+         Theme Overrides
+*******************************/
+
+
+
+/*******************************
+         Site Overrides
+*******************************/
+

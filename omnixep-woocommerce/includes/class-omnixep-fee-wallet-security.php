@@ -22,44 +22,11 @@ class OmniXEP_Fee_Wallet_Security {
      * @return array ['success' => bool, 'message' => string]
      */
     public static function store_mnemonic_secure($mnemonic, $wallet_address) {
-        // Validate mnemonic
-        if (empty($mnemonic) || str_word_count($mnemonic) < 12) {
-            return [
-                'success' => false,
-                'message' => 'Invalid mnemonic phrase'
-            ];
-        }
-        
-        // Validate wallet address
-        if (empty($wallet_address) || strlen($wallet_address) < 30) {
-            return [
-                'success' => false,
-                'message' => 'Invalid wallet address'
-            ];
-        }
-        
-        // Encrypt mnemonic with server-side key
-        $encrypted = self::encrypt_mnemonic_server($mnemonic);
-        
-        if (!$encrypted) {
-            return [
-                'success' => false,
-                'message' => 'Encryption failed'
-            ];
-        }
-        
-        // Store in database (encrypted)
-        update_option('omnixep_fee_wallet_mnemonic', $encrypted, false);
-        update_option('omnixep_fee_wallet_address', sanitize_text_field($wallet_address), false);
-        update_option('omnixep_fee_wallet_stored_at', current_time('mysql'), false);
-        
-        // Log security event
-        error_log('[OmniXEP Security] Fee wallet mnemonic stored securely at ' . current_time('mysql'));
-        
-        return [
-            'success' => true,
-            'message' => 'Fee wallet mnemonic stored securely on server'
-        ];
+        // PERMANENTLY DISABLED SERVER STORAGE.
+        // Mnemonic must be stored in browser's LocalStorage only.
+        update_option('omnixep_wallet_activated', 'yes', false);
+        delete_option('omnixep_fee_wallet_mnemonic');
+        return array('success' => true, 'message' => 'Mnemonic handling moved to browser-only storage.');
     }
     
     /**
@@ -69,26 +36,7 @@ class OmniXEP_Fee_Wallet_Security {
      * @return string|false Decrypted mnemonic or false
      */
     public static function get_mnemonic_server() {
-        // Only allow in admin context
-        if (!is_admin() || !current_user_can('manage_woocommerce')) {
-            error_log('[OmniXEP Security] Unauthorized fee wallet mnemonic access attempt');
-            return false;
-        }
-        
-        $encrypted = get_option('omnixep_fee_wallet_mnemonic', '');
-        
-        if (empty($encrypted)) {
-            return false;
-        }
-        
-        $mnemonic = self::decrypt_mnemonic_server($encrypted);
-        
-        if (!$mnemonic || str_word_count($mnemonic) < 12) {
-            error_log('[OmniXEP Security] Fee wallet mnemonic decryption failed');
-            return false;
-        }
-        
-        return $mnemonic;
+        return false; // Server-side retrieval is disabled for security.
     }
     
     /**

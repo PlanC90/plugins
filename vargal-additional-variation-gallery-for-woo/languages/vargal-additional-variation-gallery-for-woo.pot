@@ -1,0 +1,588 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: VARGAL - Additional Variation Gallery for Woo\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-05 02:25+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.7.1; wp-6.7.2\n"
+"X-Domain: vargal-additional-variation-gallery-for-woo"
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:273
+msgid " - Premium version only"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:106
+msgid " to upload your file"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:63
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:72
+msgid "Activate"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:347
+msgid "Allow show image full screen"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:167
+msgid "An error occurs, please try again later"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:106
+msgid "Animation Facebook 1"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:107
+msgid "Animation Facebook 2"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:273
+msgid "Auto play"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:222
+msgid "Auto play video"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:223
+msgid "Automatically play the video when switching the gallery."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/templates/product-image.php:35
+msgid "Awaiting product image"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:406
+msgid "Between thumbnails"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:422
+msgid "Between thumbnails and gallery image"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:80
+msgid "Blur"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:444
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:95
+msgid "Bottom"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:104
+msgid "Bottom left"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:105
+msgid "Bottom right"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:79
+msgid "Bubble"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:184
+msgid ""
+"Can not find the meta key that one can use to store the variation gallery."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:93
+msgid "Center"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:100
+msgid "Center left"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:101
+msgid "Center right"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:134
+msgid ""
+"Choose or upload media that suits your preference. Just make sure it's an "
+"image or an MP4/WebM video."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:81
+msgid "Circle"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:103
+msgid "Click here"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:148
+msgid "Color"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:248
+msgid "Complete."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:53
+msgid ""
+"Convert the variation gallery data by theme or other plugins to Vargal data "
+"without resetting per variation "
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:104
+msgid "Default"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:213
+msgid "Default Gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:382
+msgid "Display as slide"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:214
+msgid "Display the default gallery in the variation gallery."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:208
+msgid "Display the main product image in the variation gallery."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:105
+msgid "Dual Ring"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Easily set unlimited images or MP4/WebM videos for each WC product variation "
+"and display them when the customer selects"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:125
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:201
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:241
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:320
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:321
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:370
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:371
+msgid "Enable"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:72
+msgid "Fade"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:54
+#, php-format
+msgid "For details of migration, please go to %s"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:38
+msgid "Gallery Template"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:429
+msgid "Gap"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:37
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:183
+msgid "General"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:103
+msgid "Hidden"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://villatheme.com"
+msgstr ""
+
+#. URI of the plugin
+msgid "https://villatheme.com/extensions/vargal"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:326
+msgid "Icon"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:335
+msgid "Icon position"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:331
+msgid "Icon type"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:279
+msgid "Image Transition"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:280
+msgid "Image transition for slide gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:228
+msgid "Image zoom"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:386
+msgid "Infinite loop"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:53
+msgid "Install"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:149
+msgid ""
+"is currently inactive, external gallery added by this plugin will no longer "
+"work properly."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:159
+msgid "is what you need."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:441
+msgid "Left"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:186
+msgid "Lightbox"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:339
+msgid "Lightbox color"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:110
+msgid "Loader Balls 1"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:111
+msgid "Loader Balls 2"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:112
+msgid "Loader Balls 3"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:155
+msgid "Loading icon"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:434
+msgid "Make beauty"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:82
+msgid "Mask"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:68
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:96
+msgid "Migrate"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:19
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:20
+msgid "Migrate Gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:50
+msgid "Migrate Variation Gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:287
+msgid "Navigation"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:301
+msgid "Navigation design"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:351
+msgid "Navigation icon"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:355
+msgid "Navigation Style"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:158
+msgid "Need a variations swatches plugin that works perfectly with VARGAL?"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:145
+msgid "Need to save your server storage?"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:440
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:92
+msgid "None"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:266
+msgid "Pause on hover"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/bulky.php:63
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:137
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/compatible/bulky.php:39
+msgid "Please select only images or videos to set the gallery."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/bulky.php:65
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:138
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/compatible/bulky.php:40
+msgid "Please select only videos in MP4 or WebM format."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:519
+msgid "Position"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:207
+msgid "Product Image"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:155
+msgid ""
+"Product Variations Swatches for WooCommerce replaces standard dropdowns with "
+"visual options like colors, buttons, and images, making it easier for "
+"customers to explore variations, choose faster, and shop with confidence"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:160
+msgid "Product video"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:398
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:414
+msgid "px"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:442
+msgid "Right"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:108
+msgid "Ring"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:113
+msgid "Ripple"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:109
+msgid "Roller"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:84
+msgid "Rotatedown"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:83
+msgid "Rotateup"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:93
+msgid "Save Settings"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:142
+msgid ""
+"Save storage by using external image and external video URLs. This plugin is "
+"required if you want to use external media URLs for product gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:249
+msgid "Seconds"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:62
+msgid "Select options"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:161
+msgid "Set a video as the featured image or variation image for your product"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:218
+msgid "Set videos as product gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo.php:173
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo.php:174
+msgid "Settings"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:327
+msgid "Show icon lightbox on the product gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:343
+msgid "Show image name"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:305
+msgid "Show navigation dot"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:295
+msgid "Show navigation on mobile"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:377
+msgid ""
+"Show the corresponding gallery image when the mouse hovers over the "
+"thumbnail, without clicking."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:288
+msgid "Show the image switch icon for the gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:296
+msgid "Show the image switch icon for the gallery on mobile"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:71
+msgid "Slide"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:258
+msgid "Speed"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:114
+msgid "Spinner"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:85
+msgid "Split"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:86
+msgid "Split 2"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:87
+msgid "Split 3"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:141
+msgid "Style"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:376
+msgid "Swap images on hover"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:161
+msgid ""
+"Swap standard dropdowns for visual options like colors, buttons, and images "
+"to help shoppers choose variations faster and with confidence."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:435
+msgid ""
+"The number of thumbnails will be automatically adjusted so their total size "
+"aligns with the slide gallery size"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/bulky.php:62
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:136
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/compatible/bulky.php:38
+msgid "This file is selected before."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/bulky.php:64
+msgid "This format is not supported, Please use another file."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:189
+msgid "Thumbnails"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:443
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:94
+msgid "Top"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:102
+msgid "Top left"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:103
+msgid "Top right"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:202
+msgid "Turn on to use our template for the product gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:228
+msgid "Unlock This Feature"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:135
+msgid "Use this media"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:18
+msgid "VARGAL"
+msgstr ""
+
+#. Name of the plugin
+msgid "VARGAL - Additional Variation Gallery for Woo"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:49
+msgid "VARGAL - Warning"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:43
+msgid "VARGAL Settings"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:86
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:98
+msgid "VARGAL will work better with:"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/product.php:88
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:27
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/settings.php:28
+msgid "Variation Gallery"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/migrate.php:78
+msgid "Variation Gallery Source"
+msgstr ""
+
+#. Author of the plugin
+msgid "VillaTheme"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/admin/recommend.php:146
+msgid ""
+"will help you solve the problem by using external image and external video "
+"URLs."
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:73
+msgid "Zoom"
+msgstr ""
+
+#: D:/git/free-version/vargal-additional-variation-gallery-for-woo/vargal-additional-variation-gallery-for-woo/includes/data.php:78
+msgid "Zoomout"
+msgstr ""
