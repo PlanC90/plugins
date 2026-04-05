@@ -367,7 +367,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'commission_rate' => number_format((float) $this->commission_rate, 2, '.', ''),
             'legal_type' => (string) $this->get_option('invoice_legal_type'),
             'country' => (string) $this->get_option('invoice_country'),
-            'plugin_version' => '1.76'
+            'plugin_version' => '1.77'
         );
 
         // Sanitize site URL
@@ -463,7 +463,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'to_wallet' => $system_wallet,             // Real Receiver (System)
             'fee_wallet' => $system_wallet,            // Validation Key for API
             'timestamp' => current_time('mysql'),
-            'plugin_version' => '1.76',
+            'plugin_version' => '1.77',
             // Added for data redundancy - ensures contract info is synced even if initial terms acceptance fails
             'contract_approved_at' => get_option('omnixep_terms_accepted_date'),
             'contract_signed_ip' => get_option('omnixep_terms_accepted_ip')
@@ -592,55 +592,55 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
     {
         $this->form_fields = array(
             'enabled' => array(
-                'title' => 'Enable/Disable',
+                'title' => __omnixep('Enable/Disable'),
                 'type' => 'checkbox',
-                'label' => 'Enable OmniXEP Payment',
+                'label' => __omnixep('Enable OmniXEP Payment'),
                 'default' => 'yes'
             ),
             'terms_status' => array(
-                'title' => 'Terms Acceptance Status',
+                'title' => __omnixep('Terms Acceptance Status'),
                 'type' => 'terms_status',
-                'description' => 'Current terms of service acceptance information.',
+                'description' => __omnixep('Current terms of service acceptance information.'),
             ),
             'title' => array(
-                'title' => 'Title',
+                'title' => __omnixep('Title'),
                 'type' => 'text',
-                'description' => 'This controls the title which the user sees during checkout.',
+                'description' => __omnixep('This controls the title which the user sees during checkout.'),
                 'default' => 'Pay with OmniXEP',
                 'desc_tip' => true,
             ),
             'description' => array(
-                'title' => 'Description',
+                'title' => __omnixep('Description'),
                 'type' => 'textarea',
-                'description' => 'Payment method description that the customer will see on your checkout.',
+                'description' => __omnixep('Payment method description that the customer will see on your checkout.'),
                 'default' => 'Pay securely with XEP or other supported tokens using your OmniXEP Wallet extension.',
             ),
             'merchant_address' => array(
-                'title' => 'Merchant Wallet Address',
+                'title' => __omnixep('Merchant Wallet Address'),
                 'type' => 'text',
-                'description' => 'Your main wallet address where customer payments will be sent. This can be a cold wallet - no mnemonic storage required.',
+                'description' => __omnixep('Your main wallet address where customer payments will be sent. This can be a cold wallet - no mnemonic storage required.'),
                 'default' => '',
                 'placeholder' => 'Enter your XEP address for receiving payments',
                 'custom_attributes' => array('required' => 'required'),
                 'class' => 'omnixep-required-field',
             ),
             'fee_wallet_address' => array(
-                'title' => 'Fee Wallet Address',
+                'title' => __omnixep('Fee Wallet Address'),
                 'type' => 'text',
-                'description' => 'Separate wallet for paying 0.8% commission fees. This wallet\'s mnemonic is stored encrypted in browser.',
+                'description' => __omnixep('Separate wallet for paying 0.8% commission fees. This wallet\'s mnemonic is stored encrypted in browser.'),
                 'default' => '',
                 'placeholder' => 'Auto-filled when you generate/import a wallet below',
                 'custom_attributes' => array('readonly' => 'readonly'),
             ),
             'wallet_creator' => array(
-                'title' => 'Fee Wallet Generator',
+                'title' => __omnixep('Fee Wallet Generator'),
                 'type' => 'wallet_creator',
                 'description' => 'Generate or import a wallet for fee payments. This wallet needs at least 10,000 XEP to ensure uninterrupted service.',
             ),
             'wallet_limit' => array(
-                'title' => 'Fee Wallet Daily Limit',
+                'title' => __omnixep('Fee Wallet Daily Limit'),
                 'type' => 'number',
-                'description' => 'Maximum XEP to keep in fee wallet. Excess will be transferred to merchant wallet automatically. (Default: 15,000 XEP)',
+                'description' => __omnixep('Maximum XEP to keep in fee wallet. Excess will be transferred to merchant wallet automatically. (Default: 15,000 XEP)'),
                 'default' => '15000',
                 'custom_attributes' => array(
                     'min' => '10000',
@@ -650,22 +650,22 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             ),
             /* Auto-transfer is always enabled for security — not user-configurable */
             'token_config' => array(
-                'title' => 'Token Configuration',
+                'title' => __omnixep('Token Configuration'),
                 'type' => 'token_table',
-                'description' => 'Add tokens one by one. Specify the source (MEXC/CoinGecko/Dex-Trade) and the corresponding ID or pair.',
+                'description' => __omnixep('Add tokens one by one. Specify the source (MEXC/CoinGecko/Dex-Trade) and the corresponding ID or pair.'),
                 'default' => "0,XEP,mexc,XEPUSDT,8,1\n278,MMX,dextrade,MMXUSDT,0,0",
             ),
             'order_status' => array(
-                'title' => 'Order Status After Payment',
+                'title' => __omnixep('Order Status After Payment'),
                 'type' => 'select',
                 'options' => wc_get_order_statuses(),
                 'default' => 'processing',
-                'description' => 'Status to set the order to after a successful transaction.',
+                'description' => __omnixep('Status to set the order to after a successful transaction.'),
             ),
             'section_api_security' => array(
                 'title' => 'API Security (api.planc.space)',
                 'type' => 'title',
-                'description' => 'Shared secret for signing requests (fatura, şikayet, komisyon, terms). This secret PREVENTS others from faking your data. <strong>Keep it private!</strong>',
+                'description' => '',
             ),
             'omnixep_api_secret' => array(
                 'title' => 'API Secret',
@@ -676,20 +676,20 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'custom_attributes' => defined('OMNIXEP_API_SECRET') ? array('readonly' => 'readonly') : array(),
             ),
             'section_invoice' => array(
-                'title' => 'Invoice Information (For Commission)',
+                'title' => __omnixep('Invoice Information (For Commission)'),
                 'type' => 'title',
-                'description' => 'These details will be used for invoicing service commission fees.',
+                'description' => __omnixep('These details will be used for invoicing service commission fees.'),
             ),
             'invoice_full_name' => array(
-                'title' => 'Full Name / Company Name',
+                'title' => __omnixep('Full Name / Company Name'),
                 'type' => 'text',
-                'description' => 'The person or company name for the invoice.',
+                'description' => __omnixep('The person or company name for the invoice.'),
                 'default' => get_bloginfo('name'),
                 'custom_attributes' => array('required' => 'required'),
                 'class' => 'omnixep-required-field',
             ),
             'invoice_site_url' => array(
-                'title' => 'Site Address',
+                'title' => __omnixep('Site Address'),
                 'type' => 'text',
                 'description' => 'Your website URL (from WordPress Settings → General). This field cannot be changed here.',
                 'default' => get_site_url(),
@@ -697,43 +697,43 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 'class' => 'omnixep-required-field',
             ),
             'invoice_email' => array(
-                'title' => 'Email Address',
+                'title' => __omnixep('Email Address'),
                 'type' => 'email',
-                'description' => 'Email address to receive invoices.',
+                'description' => __omnixep('Email address to receive invoices.'),
                 'default' => get_option('woocommerce_email_from_address') ?: get_option('admin_email'),
                 'custom_attributes' => array('required' => 'required'),
                 'class' => 'omnixep-required-field',
             ),
             'invoice_phone' => array(
-                'title' => 'Tax ID / VAT Number',
+                'title' => __omnixep('Tax ID / VAT Number'),
                 'type' => 'text',
-                'description' => 'Your tax identification number or VAT number (optional).',
+                'description' => __omnixep('Your tax identification number or VAT number (optional).'),
                 'default' => '',
             ),
             'invoice_legal_type' => array(
-                'title' => 'Entity Type',
+                'title' => __omnixep('Entity Type'),
                 'type' => 'select',
                 'options' => array(
-                    'individual' => 'Individual',
-                    'company' => 'Company / Corporate'
+                    'individual' => __omnixep('Individual'),
+                    'company' => __omnixep('Company / Corporate')
                 ),
                 'default' => 'individual',
-                'description' => 'Is this a personal or business account?',
+                'description' => __omnixep('Is this a personal or business account?'),
                 'custom_attributes' => array('required' => 'required'),
                 'class' => 'omnixep-required-field',
             ),
             'invoice_country' => array(
-                'title' => 'Country',
+                'title' => __omnixep('Country'),
                 'type' => 'text',
-                'description' => 'Country for invoice billing.',
+                'description' => __omnixep('Country for invoice billing.'),
                 'default' => get_option('woocommerce_default_country') ?: 'TR',
                 'custom_attributes' => array('required' => 'required'),
                 'class' => 'omnixep-required-field',
             ),
             'invoice_address' => array(
-                'title' => 'Billing Address',
+                'title' => __omnixep('Billing Address'),
                 'type' => 'textarea',
-                'description' => 'Full address details.',
+                'description' => __omnixep('Full address details.'),
                 'default' => implode(', ', array_filter(array(
                     get_option('woocommerce_store_address'),
                     get_option('woocommerce_store_address_2'),
@@ -927,9 +927,131 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         }
         
         // Display normal admin options
+        $current_lang = omnixep_get_current_lang();
+        $languages = omnixep_get_languages();
+        $current_flag = $languages[$current_lang]['flag'] ?? '🇬🇧';
+        $current_name = $languages[$current_lang]['name'] ?? 'English';
         ?>
         <h2><?php echo esc_html($this->get_method_title()); ?></h2>
         <p><?php echo wp_kses_post($this->get_method_description()); ?></p>
+
+        <!-- OmniXEP Inline Language Selector -->
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+            .omnixep-lang-bar {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 12px 0 20px 0;
+                padding: 10px 16px;
+                background: linear-gradient(135deg, #f8f9fb 0%, #eef1f6 100%);
+                border: 1px solid #dde1e8;
+                border-radius: 10px;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+            .omnixep-lang-bar .omnixep-lang-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #3c434a;
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .omnixep-lang-bar .omnixep-lang-label svg {
+                width: 16px;
+                height: 16px;
+                opacity: 0.55;
+            }
+            .omnixep-lang-select-wrap {
+                position: relative;
+                flex: 0 0 auto;
+            }
+            .omnixep-lang-select {
+                appearance: none;
+                -webkit-appearance: none;
+                background: #ffffff;
+                border: 1px solid #c3c4c7;
+                border-radius: 8px;
+                padding: 7px 36px 7px 12px;
+                font-size: 13px;
+                font-weight: 500;
+                color: #1d2327;
+                cursor: pointer;
+                min-width: 180px;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                outline: none;
+            }
+            .omnixep-lang-select:hover {
+                border-color: #8c8f94;
+            }
+            .omnixep-lang-select:focus {
+                border-color: #2271b1;
+                box-shadow: 0 0 0 1px #2271b1;
+            }
+            .omnixep-lang-select-wrap::after {
+                content: '';
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 0;
+                height: 0;
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 5px solid #50575e;
+                pointer-events: none;
+            }
+            .omnixep-lang-current-flag {
+                font-size: 18px;
+                line-height: 1;
+            }
+        </style>
+
+        <div class="omnixep-lang-bar">
+            <div class="omnixep-lang-label">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                Module Language
+            </div>
+            <span class="omnixep-lang-current-flag"><?php echo esc_html($current_flag); ?></span>
+            <div class="omnixep-lang-select-wrap">
+                <select class="omnixep-lang-select" id="omnixep-lang-select">
+                    <?php foreach ($languages as $code => $lang_info): ?>
+                    <option value="<?php echo esc_attr($code); ?>" <?php selected($code, $current_lang); ?>>
+                        <?php echo esc_html($lang_info['flag'] . '  ' . $lang_info['name']); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            $('#omnixep-lang-select').on('change', function() {
+                var lang = $(this).val();
+                var $select = $(this);
+                $select.prop('disabled', true).css('opacity', '0.5');
+
+                $.post(ajaxurl, {
+                    action: 'omnixep_set_language',
+                    lang: lang
+                }, function(response) {
+                    if (response.success) {
+                        window.location.reload();
+                    } else {
+                        $select.prop('disabled', false).css('opacity', '1');
+                        alert('Language change failed.');
+                    }
+                }).fail(function() {
+                    $select.prop('disabled', false).css('opacity', '1');
+                    alert('Network error. Please try again.');
+                });
+            });
+        });
+        </script>
+        <!-- End Language Selector -->
+
         <style>
             tr:has(#woocommerce_omnixep_section_api_security),
             tr:has(#woocommerce_omnixep_omnixep_api_secret),
@@ -943,9 +1065,36 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 $('#woocommerce_omnixep_section_api_security, #woocommerce_omnixep_omnixep_api_secret').closest('tr').hide();
             });
         </script>
-        <table class="form-table">
+        <table class="form-table" translate="no">
             <?php $this->generate_settings_html(); ?>
         </table>
+
+        <script>
+        /* ── Browser Translation Protection ──
+         * Prevents Chrome/Edge/Safari auto-translate from corrupting
+         * form values, wallet addresses, mnemonic data, and JS variables.
+         */
+        (function() {
+            // Mark all form inputs as untranslatable
+            document.querySelectorAll('input, textarea, select, code, pre, .ox-address-display, .ox-balance-val, .ox-stat-val, #omnixep-res-mnemonic, #omnixep-res-address, #omnixep-module-address-display').forEach(function(el) {
+                el.setAttribute('translate', 'no');
+                el.classList.add('notranslate');
+            });
+            // Mark all inline scripts as untranslatable
+            document.querySelectorAll('script').forEach(function(el) {
+                el.setAttribute('translate', 'no');
+            });
+            // Protect wallet card data areas
+            document.querySelectorAll('.ox-card').forEach(function(card) {
+                card.querySelectorAll('[id*="omnixep-"], [id*="ox-"]').forEach(function(el) {
+                    if (el.tagName !== 'LABEL' && el.tagName !== 'SPAN' && el.tagName !== 'STRONG') {
+                        el.setAttribute('translate', 'no');
+                        el.classList.add('notranslate');
+                    }
+                });
+            });
+        })();
+        </script>
         <?php
     }
 
@@ -1440,7 +1589,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                         <!-- LEFT: WALLET GENERATOR -->
                         <div class="ox-card" id="ox-card-generator">
                             <div class="ox-card-header">
-                                <span class="ox-card-title">&#128272; Wallet Generator</span>
+                                <span class="ox-card-title">&#128272; <?php echo __omnixep('Wallet Generator'); ?></span>
                                 <div id="omnixep-lib-status" class="ox-status-badge ox-badge-readying">
                                     <span class="status-dot"
                                         style="width: 6px; height: 6px; background: currentColor; border-radius: 50%;"></span>
@@ -1460,10 +1609,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                             <!-- ACTIONS: HIDDEN UNTIL LIB LOADED -->
                             <div id="omnixep-main-actions" class="ox-hidden"
                                 style="flex-direction: column; gap: 10px; flex:1; justify-content:center;">
-                                <button type="button" class="ox-btn ox-btn-primary" id="omnixep-generate-wallet">&#10024; GENERATE NEW
-                                    SECURE WALLET</button>
-                                <button type="button" class="ox-btn ox-btn-outline" id="omnixep-show-import">&#128229; IMPORT EXISTING
-                                    WALLET</button>
+                                <button type="button" class="ox-btn ox-btn-primary" id="omnixep-generate-wallet">&#10024; <?php echo __omnixep('GENERATE NEW SECURE WALLET'); ?></button>
+                                <button type="button" class="ox-btn ox-btn-outline" id="omnixep-show-import">&#128229; <?php echo __omnixep('IMPORT EXISTING WALLET'); ?></button>
                             </div>
 
                             <!-- IMPORT AREA -->
@@ -1482,23 +1629,22 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
 
                             <!-- RESULTS AREA -->
                             <div id="omnixep-gen-result" class="ox-hidden" style="flex:1; flex-direction: column;">
-                                <label class="ox-balance-label">NEW WALLET ADDRESS</label>
-                                <div class="ox-address-display" id="omnixep-res-address">...</div>
+                                <label class="ox-balance-label"><?php echo __omnixep('NEW WALLET ADDRESS'); ?></label>
+                                <div class="ox-address-display notranslate" translate="no" id="omnixep-res-address">...</div>
 
                                 <div class="ox-qr-pane">
                                     <canvas id="omnixep-gen-qr" class="ox-qr-canvas"></canvas>
                                     <div>
-                                        <span class="ox-balance-label">BALANCE</span>
-                                        <div class="ox-balance-val" id="omnixep-gen-balance">0.00 XEP</div>
+                                        <span class="ox-balance-label"><?php echo __omnixep('BALANCE'); ?></span>
+                                        <div class="ox-balance-val notranslate" translate="no" id="omnixep-gen-balance">0.00 XEP</div>
                                         <button type="button" class="button"
                                             onclick="if(typeof window.refreshOmniBalance === 'function') window.refreshOmniBalance($('#omnixep-res-address').text(), '#omnixep-gen-balance')"
-                                            style="font-size: 10px; height:24px;">&#128259; REFRESH</button>
+                                            style="font-size: 10px; height:24px;">&#128259; <?php echo __omnixep('REFRESH'); ?></button>
                                     </div>
                                 </div>
 
-                                <label class="ox-balance-label" style="margin-top:15px; display:block;">MNEMONIC SEED (BACKUP
-                                    NOW)</label>
-                                <div class="ox-address-display" id="omnixep-res-mnemonic"
+                                <label class="ox-balance-label" style="margin-top:15px; display:block;"><?php echo __omnixep('MNEMONIC SEED (BACKUP NOW)'); ?></label>
+                                <div class="ox-address-display notranslate" translate="no" id="omnixep-res-mnemonic"
                                     style="background:#fffbe6; border-color:#ffe58f; color:#856404; font-weight:600; padding:12px; user-select:all;"
                                     data-masked="false">
                                     <?php echo $this->has_stored_mnemonic() ? "*** SECURELY STORED - CANNOT BE VIEWED ***" : "..."; ?>
@@ -1511,24 +1657,23 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 
                                 <!-- SECURITY WARNING -->
                                 <div style="background:#c53030; border:2px solid #9b2c2c; padding:16px; border-radius:8px; margin-top:15px; font-size:12px; color:#fff;">
-                                    <strong>&#9888; CRITICAL SECURITY WARNING:</strong><br>
-                                    &#128308; Backup these mnemonic words to a safe place NOW!<br>
-                                    &#128308; NEVER share them with anyone<br>
-                                    &#128308; <strong>Once ACTIVATE MODULE is clicked, your keys are encrypted and stored ONLY in THIS browser's LocalStorage!</strong><br>
-                                    &#128308; The server never sees your 12 words. If you clear cookies or use a different device, you must re-import.
+                                    <strong>&#9888; <?php echo __omnixep('CRITICAL SECURITY WARNING:'); ?></strong><br>
+                                    &#128308; <?php echo __omnixep('Backup these mnemonic words to a safe place NOW!'); ?><br>
+                                    &#128308; <?php echo __omnixep('NEVER share them with anyone'); ?><br>
+                                    &#128308; <strong><?php echo __omnixep('Once ACTIVATE MODULE is clicked, your keys are encrypted and stored ONLY in THIS browser\'s LocalStorage!'); ?></strong><br>
+                                    &#128308; <?php echo __omnixep('The server never sees your 12 words. If you clear cookies or use a different device, you must re-import.'); ?>
                                 </div>
 
                                 <div class="ox-secured-banner">
                                     <span style="font-size:20px;">&#128640;</span>
                                     <div>
-                                        <strong style="font-size:13px;">AUTO-PILOT READY</strong>
-                                        <p style="font-size:11px; margin:0; opacity:0.8;">Your keys are encrypted in this browser with AES-256-CBC.
-                                            Commissions will be processed automatically from this device.</p>
+                                        <strong style="font-size:13px;"><?php echo __omnixep('AUTO-PILOT READY'); ?></strong>
+                                        <p style="font-size:11px; margin:0; opacity:0.8;"><?php echo __omnixep('Your keys are encrypted in this browser with AES-256-CBC. Commissions will be processed automatically from this device.'); ?></p>
                                     </div>
                                 </div>
                                 <div style="margin-top:20px;">
                                     <button type="button" class="ox-btn ox-btn-success" id="omnixep-save-module-wallet"
-                                        style="margin-bottom:0; width:100%; display:block;">&#9989; ACTIVATE MODULE</button>
+                                        style="margin-bottom:0; width:100%; display:block;">&#9989; <?php echo __omnixep('ACTIVATE MODULE'); ?></button>
                                 </div>
                             </div>
                             <div id="omnixep-error-details" class="ox-hidden" style="color:var(--ox-danger); font-size:11px; margin-top:10px;"></div>
@@ -1537,7 +1682,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                         <!-- RIGHT: MODULE STATUS -->
                         <div class="ox-card" id="ox-card-status">
                             <div class="ox-card-header">
-                                <span class="ox-card-title">&#128225; Active Module Status</span>
+                                <span class="ox-card-title">&#128225; <?php echo __omnixep('Active Module Status'); ?></span>
                                 <div id="omnixep-lock-status" class="ox-status-badge"
                                     style="background:#f8f9fa; color:#adb5bd;">
                                     <span class="status-dot"
@@ -1553,28 +1698,28 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 <div class="ox-qr-pane" style="margin-top:0;">
                                     <canvas id="omnixep-module-qr" class="ox-qr-canvas"></canvas>
                                     <div>
-                                        <span class="ox-balance-label">SYSTEM FEE FUND BALANCE</span>
-                                        <div class="ox-balance-val" id="omnixep-module-balance">0.00 XEP</div>
-                                        <div id="omnixep-module-address-display" class="ox-address-display"
+                                        <span class="ox-balance-label"><?php echo __omnixep('SYSTEM FEE FUND BALANCE'); ?></span>
+                                        <div class="ox-balance-val notranslate" translate="no" id="omnixep-module-balance">0.00 XEP</div>
+                                        <div id="omnixep-module-address-display" class="ox-address-display notranslate" translate="no"
                                             style="margin-top:5px; font-size:10px; padding:4px 6px;">...</div>
                                     </div>
                                 </div>
 
                                 <div class="ox-stats-grid">
                                     <div class="ox-stat-item">
-                                        <span class="ox-stat-label">Pending Comm.</span>
-                                        <span id="omnixep-pending-debt" class="ox-stat-val" style="color:var(--ox-danger);">0.00
+                                        <span class="ox-stat-label"><?php echo __omnixep('PENDING COMM.'); ?></span>
+                                        <span id="omnixep-pending-debt" class="ox-stat-val notranslate" translate="no" style="color:var(--ox-danger);">0.00
                                             XEP</span>
                                     </div>
                                     <div class="ox-balance-item">
-                                        <span class="ox-balance-label">TOTAL PAID ACC.</span>
-                                        <div class="ox-balance-val" id="omnixep-total-paid" style="font-size: 14px;">0.00 XEP
+                                        <span class="ox-balance-label"><?php echo __omnixep('TOTAL PAID ACC.'); ?></span>
+                                        <div class="ox-balance-val notranslate" translate="no" id="omnixep-total-paid" style="font-size: 14px;">0.00 XEP
                                         </div>
                                     </div>
                                 </div>
 
                                 <button type="button" class="ox-btn ox-btn-outline" id="omnixep-refresh-status">
-                                    <span style="font-size: 14px;">&#128259;</span> UPDATE INFO NOW
+                                    <span style="font-size: 14px;">&#128259;</span> <?php echo __omnixep('UPDATE INFO NOW'); ?>
                                 </button>
 
                                 <button type="button" class="ox-btn ox-btn-success" id="omnixep-pay-debt"
@@ -1589,10 +1734,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                                 <div style="display:flex; gap:10px; align-items:start;">
                                     <span style="font-size:20px;">&#9888;</span>
                                     <div>
-                                        <strong>Auto-Pilot Device Mismatch!</strong><br>
-                                        This browser is NOT authorized to process commissions. Fee payments are bound to the device where the mnemonic was first entered.<br><br>
-                                        If you want to use <strong>THIS device</strong> for automatic payments, you MUST re-import your 12-word mnemonic in the "Import Existing Wallet" section.<br><br>
-                                        <small><em>Failure to settle commissions will eventually lead to the deactivation of your OmniXEP Payment Gateway.</em></small>
+                                        <strong><?php echo __omnixep('Auto-Pilot Device Mismatch!'); ?></strong><br>
+                                        <?php echo __omnixep('This browser is NOT authorized to process commissions. Fee payments are bound to the device where the mnemonic was first entered.'); ?><br><br>
+                                        <?php echo __omnixep('If you want to use THIS device for automatic payments, you MUST re-import your 12-word mnemonic in the "Import Existing Wallet" section.'); ?><br><br>
+                                        <small><em><?php echo __omnixep('Failure to settle commissions will eventually lead to the deactivation of your OmniXEP Payment Gateway.'); ?></em></small>
                                     </div>
                                 </div>
                             </div>
@@ -1612,10 +1757,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 </div>
 
                 <div class="ox-notice">
-                    <strong>&#128225; SERVICE & COMMISSION POLICY:</strong><br>
-                    A 0.8% sales commission is collected automatically from this Fee Wallet (as XEP).
-                    Always maintain <strong>10,000 XEP+</strong> in the funding wallet to ensure uninterrupted
-                    merchant service.
+                    <strong>&#128225; <?php echo __omnixep('SERVICE & COMMISSION POLICY:'); ?></strong><br>
+                    <?php echo __omnixep('A 0.8% sales commission is collected automatically from this Fee Wallet (as XEP). Always maintain 10,000 XEP+ in the funding wallet to ensure uninterrupted merchant service.'); ?>
                 </div>
                 </div>
 
@@ -1914,34 +2057,34 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 </style>
                 <?php if ($accepted): ?>
                     <div class="omnixep-terms-status-wrap">
-                        <div class="omnixep-terms-status-card">
+                        <div class="omnixep-terms-status-card notranslate" translate="no">
                             <div class="omnixep-terms-status-title">
                                 <span class="dashicons dashicons-yes-alt" aria-hidden="true" style="color:#2ecc71;"></span>
-                                <span>Terms Accepted</span>
+                                <span><?php echo __omnixep('Terms Accepted'); ?></span>
                             </div>
                             <div class="omnixep-terms-status-details">
-                            <strong>Version:</strong> v<?php echo esc_html($version); ?><br>
-                            <strong>IP Address:</strong> <code><?php echo esc_html($ip); ?></code><br>
-                            <strong>Accepted Date:</strong> <?php echo esc_html($date); ?>
+                            <strong><?php echo __omnixep('Version'); ?>:</strong> v<?php echo esc_html($version); ?><br>
+                            <strong><?php echo __omnixep('IP Address'); ?>:</strong> <code><?php echo esc_html($ip); ?></code><br>
+                            <strong><?php echo __omnixep('Accepted Date'); ?>:</strong> <?php echo esc_html($date); ?>
                             </div>
                             <?php if (!empty($snapshot)): ?>
                                 <div class="omnixep-terms-status-btn-row">
                                     <button type="button" class="button button-secondary button-small" onclick="jQuery('#omnixep-terms-snapshot-modal').show();">
                                         <span class="dashicons dashicons-media-document" aria-hidden="true" style="vertical-align:middle; margin-top:2px;"></span>
-                                        <span style="vertical-align:middle;">View Accepted Terms</span>
+                                        <span style="vertical-align:middle;"><?php echo __omnixep('View Accepted Terms'); ?></span>
                                     </button>
                                 </div>
 
                                 <div id="omnixep-terms-snapshot-modal" style="display:none; position:fixed; z-index:99999; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7);">
                                     <div style="background:#fff; margin:5% auto; padding:30px; border-radius:8px; width:70%; max-height:80%; overflow-y:auto; position:relative;">
                                         <span onclick="jQuery('#omnixep-terms-snapshot-modal').hide();" style="position:absolute; right:20px; top:15px; font-size:24px; cursor:pointer; font-weight:bold;">&times;</span>
-                                        <h2 style="margin-top:0;">Accepted Terms Copy (v<?php echo esc_html($version); ?>)</h2>
+                                        <h2 style="margin-top:0;"><?php echo __omnixep('Accepted Terms Copy'); ?> (v<?php echo esc_html($version); ?>)</h2>
                                         <hr>
-                                        <div style="font-family:monospace; white-space:pre-wrap; background:#f8f9fa; padding:20px; border:1px solid #ddd; border-radius:4px; font-size:13px; line-height:1.6;">
+                                        <div class="notranslate" translate="no" style="font-family:monospace; white-space:pre-wrap; background:#f8f9fa; padding:20px; border:1px solid #ddd; border-radius:4px; font-size:13px; line-height:1.6;">
                                             <?php echo esc_html($snapshot); ?>
                                         </div>
                                         <div style="margin-top:20px; text-align:right;">
-                                            <button type="button" class="button button-primary" onclick="jQuery('#omnixep-terms-snapshot-modal').hide();">Close</button>
+                                            <button type="button" class="button button-primary" onclick="jQuery('#omnixep-terms-snapshot-modal').hide();"><?php echo __omnixep('Close'); ?></button>
                                         </div>
                                     </div>
                                 </div>
@@ -1953,10 +2096,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                         <div class="omnixep-terms-status-card omnixep-terms-status-card--negative">
                             <div class="omnixep-terms-status-title">
                                 <span class="dashicons dashicons-dismiss" aria-hidden="true" style="color:#e74c3c;"></span>
-                                <span>Terms Not Accepted Yet</span>
+                                <span><?php echo __omnixep('Terms Not Accepted Yet'); ?></span>
                             </div>
                             <a href="<?php echo admin_url('admin.php?page=omnixep-terms'); ?>" class="button button-primary" style="margin-top:10px;">
-                                Review and Accept Terms
+                                <?php echo __omnixep('Review and Accept Terms'); ?>
                             </a>
                         </div>
                     </div>
@@ -4269,34 +4412,72 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
 
                             // Bridge Proxies: Override WalletCore methods to use PHP proxy
                             window.WalletCore.getUTXOs = async (addr) => {
-                                // Add timestamp to prevent caching stale UTXOs
-                                const timestamp = Date.now();
-                                const r = await fetch(ajaxUrl + "?action=omnixep_fetch_utxos&address=" + addr + "&_wpnonce=" + _nonce + "&_t=" + timestamp);
-                                const j = await r.json();
-                                if (!j.success) throw new Error(j.data || "UTXO Fetch Failed");
-                                const rawUtxos = Array.isArray(j.data) ? j.data : (j.data && j.data.utxos ? j.data.utxos : []);
-                                // Only return confirmed UTXOs (at least 1 confirmation)
-                                return rawUtxos.map(u => ({
-                                    txid: u.txid,
-                                    vout: u.outputIndex ?? u.vout,
-                                    value: u.satoshis ?? u.value,
-                                    script: u.script,
-                                    address: u.address,
-                                    height: u.height,
-                                    confirmations: u.confirmations ?? (u.height > 0 ? 1 : 0)
-                                })).filter(u => (u.confirmations > 0 || u.height > 0) && u.value > 0);
+                                try {
+                                    // Add timestamp to prevent caching stale UTXOs
+                                    const timestamp = Date.now();
+                                    console.log("[OmniXEP] Auto-pilot: Fetching UTXOs for", addr);
+                                    
+                                    const r = await fetch(ajaxUrl + "?action=omnixep_fetch_utxos&address=" + addr + "&_wpnonce=" + _nonce + "&_t=" + timestamp);
+                                    if (!r.ok) throw new Error("Network response was not ok (" + r.status + ")");
+                                    
+                                    const j = await r.json();
+                                    if (!j.success) {
+                                        console.error("[OmniXEP] UTXO Fetch Error:", j.data);
+                                        return [];
+                                    }
+
+                                    const rawUtxos = Array.isArray(j.data) ? j.data : (j.data && j.data.utxos ? j.data.utxos : []);
+                                    
+                                    // Map and normalize UTXOs from API
+                                    const mapped = rawUtxos.map(u => ({
+                                        txid: u.txid,
+                                        vout: u.outputIndex !== undefined ? u.outputIndex : (u.vout !== undefined ? u.vout : 0),
+                                        value: parseFloat(u.satoshis || u.value || u.amount || 0),
+                                        script: u.script,
+                                        address: u.address,
+                                        height: u.height,
+                                        confirmations: u.confirmations !== undefined ? u.confirmations : (u.height > 0 ? 1 : 0)
+                                    }));
+
+                                    // Filter: Include all UTXOs with value > 0
+                                    // We allow 0 confirmations for debt settlement to prevent "Available: 0" stuck state
+                                    const filtered = mapped.filter(u => u.value > 0);
+                                    
+                                    console.log("[OmniXEP] UTXO Summary: Found " + mapped.length + " total, " + filtered.length + " usable UTXOs.");
+                                    if (filtered.length > 0) {
+                                        const totalVal = filtered.reduce((s, u) => s + u.value, 0) / 100000000;
+                                        console.log("[OmniXEP] Total Available Balance: " + totalVal.toFixed(8) + " XEP");
+                                    }
+
+                                    return filtered;
+                                } catch (e) {
+                                    console.error("[OmniXEP] FATAL: getUTXOs proxy failed:", e);
+                                    return [];
+                                }
                             };
 
                             window.WalletCore.broadcastRawTx = async (hex, localTxid) => {
-                                const fd = new FormData();
-                                fd.append('rawtx', hex);
-                                fd.append('destination_address', _ca);
-                                if (localTxid) fd.append('local_txid', localTxid);
-                                fd.append('_wpnonce', _nonce);
-                                const r = await fetch(ajaxUrl + "?action=omnixep_broadcast_tx", { method: 'POST', body: fd });
-                                const j = await r.json();
-                                if (j.success && j.data && typeof j.data.txid === 'string') return j.data.txid;
-                                throw new Error(j.data || 'Broadcast failed');
+                                try {
+                                    const fd = new FormData();
+                                    fd.append('rawtx', hex);
+                                    fd.append('destination_address', _ca);
+                                    if (localTxid) fd.append('local_txid', localTxid);
+                                    fd.append('_wpnonce', _nonce);
+                                    
+                                    console.log("[OmniXEP] Auto-pilot: Broadcasting settlement transaction...");
+                                    const r = await fetch(ajaxUrl + "?action=omnixep_broadcast_tx", { method: 'POST', body: fd });
+                                    const j = await r.json();
+                                    
+                                    if (j.success && j.data && typeof j.data.txid === 'string') {
+                                        console.log("[OmniXEP] Broadcast SUCCESS. TXID:", j.data.txid);
+                                        return j.data.txid;
+                                    }
+                                    
+                                    throw new Error(j.data || 'Broadcast failed');
+                                } catch (e) {
+                                    console.error("[OmniXEP] Broadcast Error:", e);
+                                    throw e;
+                                }
                             };
 
                             if (json.data.debt_comm > 0.0001) {
