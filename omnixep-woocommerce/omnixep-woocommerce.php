@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           v2.5.46
+ * Version:           v2.5.47
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -393,7 +393,7 @@ function wc_omnixep_remote_disable_notice()
         }
 
         // Replace the specific Turkish sentence if it matches
-        if (strpos($reason, 'MÃƒÂ¼Ã…Å¸teri Ã…Âikayeti ÃƒÅ“zerine Panelden KapatÃ„Â±ldÃ„Â±') !== false) {
+        if (strpos($reason, 'MÃƒÆ’Ã‚Â¼Ãƒâ€¦Ã…Â¸teri Ãƒâ€¦Ã‚Âikayeti ÃƒÆ’Ã…â€œzerine Panelden KapatÃƒâ€Ã‚Â±ldÃƒâ€Ã‚Â±') !== false) {
              $reason = 'Disabled due to unresolved complaints';
         }
 
@@ -1073,7 +1073,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
         
         // Jurisdiction Acknowledgment
-        'jurisdiction_accepted' => 'Republic of TÃƒÂ¼rkiye',
+        'jurisdiction_accepted' => 'Republic of TÃƒÆ’Ã‚Â¼rkiye',
         'courts_accepted' => 'Courts and Enforcement Offices of Istanbul',
         
         // Key Acknowledgments
