@@ -373,19 +373,33 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         // Sanitize site URL
         $site_key = md5(get_site_url());
 
-        // Use a secure API endpoint on YOUR server (Vercel Serverless Function)
-        // This endpoint will validate the data and write to Firebase securely (Server-Side)
-        // No secrets are exposed to the client plugin.
         $endpoint = 'https://api.planc.space/api';
-        $body_string = json_encode(wc_omnixep_canonical_json($invoice_data), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        
+        // LOGGING: Crucial for debugging translation-based corruption
+        error_log('[OmniXEP-SYNC] INVOICE SYNC START');
+        error_log('[OmniXEP-SYNC] Raw Payload: ' . print_r($invoice_data, true));
+        
+        $canonical_payload = wc_omnixep_canonical_json($invoice_data);
+        error_log('[OmniXEP-SYNC] Canonical Payload: ' . print_r($canonical_payload, true));
+        
+        $body_string = json_encode($canonical_payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        error_log('[OmniXEP-SYNC] Payload Body String: ' . $body_string);
+        
         $headers = array(
             'Content-Type' => 'application/json',
             'X-OmniXEP-Source' => 'WooCommerce'
         );
         $secret = wc_omnixep_get_api_secret();
+        $signature = '';
         if ($secret !== '' && $secret !== null) {
-            $headers['X-OmniXEP-Signature'] = wc_omnixep_sign_api_body($body_string, $secret);
+            $signature = wc_omnixep_sign_api_body($body_string, $secret);
+            $headers['X-OmniXEP-Signature'] = $signature;
         }
+
+        error_log('[OmniXEP-SYNC] API Secret: ' . ($secret ? 'SET (' . substr($secret, 0, 4) . '...)' : 'MISSING'));
+        error_log('[OmniXEP-SYNC] Signature: ' . ($signature ?: 'NONE'));
+        error_log('[OmniXEP-SYNC] Headers: ' . print_r($headers, true));
+        
         $response = wp_remote_request($endpoint, array(
             'method' => 'POST',
             'body' => $body_string,
@@ -394,12 +408,20 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'blocking' => true // Blocking to get the generated API secret!
         ));
 
-        // Process response to save unique secret
-        if (!is_wp_error($response)) {
+        // Process response for debugging and secret management
+        if (is_wp_error($response)) {
+            error_log('[OmniXEP-SYNC] INVOICE SYNC FAILED: WP Error — ' . $response->get_error_message());
+        } else {
             $status = wp_remote_retrieve_response_code($response);
-            $body = json_decode(wp_remote_retrieve_body($response), true);
+            $body_text = wp_remote_retrieve_body($response);
+            $body = json_decode($body_text, true);
             
-            if ($status === 201 && isset($body['api_secret']) && !empty($body['api_secret'])) {
+            error_log('[OmniXEP-SYNC] INVOICE SYNC RESPONSE: HTTP ' . $status);
+            if ($status !== 200 && $status !== 201) {
+                error_log('[OmniXEP-SYNC] INVOICE SYNC FAILED! Status: ' . $status . ' | Body: ' . substr($body_text, 0, 1000));
+            }
+
+            if (($status === 200 || $status === 201) && isset($body['api_secret']) && !empty($body['api_secret'])) {
                 // If we don't have a secret yet, or if it's the standard one, update it!
                 $current_secret = $this->get_option('omnixep_api_secret');
                 if (empty($current_secret) || strpos($current_secret, 'xepmarket-4512') === 0) {
@@ -407,6 +429,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                     $settings['omnixep_api_secret'] = $body['api_secret'];
                     update_option($this->get_option_key(), $settings);
                     $this->init_settings(); // Reload
+                    error_log('[OmniXEP-SYNC] NEW API SECRET STORED SUCCESSFULLY');
                 }
             }
         }
@@ -433,9 +456,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         $token_price = wc_omnixep_get_live_price($token_name);
         $comm_amount_usd = $comm_amount_token * $token_price;
 
+        // 2. Prepare Payload
+        error_log('=== COMMISSION SYNC PREPARE PAYLOAD ===');
         error_log('COMMISSION SYNC: Token=' . $token_name . ', CommXEP=' . $comm_amount_token . ', Price=' . $token_price . ', CommUSD=' . $comm_amount_usd);
 
-        // 2. Prepare Payload
         $payload = array(
             'action' => 'log_commission',
             'type' => 'commission_log',
@@ -469,25 +493,28 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
             'contract_signed_ip' => get_option('omnixep_terms_accepted_ip')
         );
 
-        $json_body = json_encode(wc_omnixep_canonical_json($payload), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        error_log('COMMISSION SYNC: Payload size=' . strlen($json_body) . ' bytes, TXID=' . $txid);
-        error_log('COMMISSION SYNC: Merchant=' . $payload['merchant_name'] . ', MerchantID=' . $payload['merchant_id']);
+        error_log('COMMISSION SYNC: Raw Payload: ' . print_r($payload, true));
+
+        $canonical_payload = wc_omnixep_canonical_json($payload);
+        error_log('COMMISSION SYNC: Canonical Payload: ' . print_r($canonical_payload, true));
+
+        $json_body = json_encode($canonical_payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        error_log('COMMISSION SYNC: Payload Body String: ' . $json_body);
         error_log('COMMISSION SYNC: Sending POST to ' . $api_endpoint);
 
         $comm_headers = array(
             'Content-Type' => 'application/json'
         );
         $secret = wc_omnixep_get_api_secret();
-        error_log('[COMMISSION SYNC DEBUG] Using API secret: ' . ($secret ? 'SET (' . substr($secret, 0, 4) . '...)' : 'NOT SET'));
-        error_log('[COMMISSION SYNC DEBUG] Body to sign (first 200 chars): ' . substr($json_body, 0, 200));
-        
+        $signature = '';
         if ($secret !== '' && $secret !== null) {
             $signature = wc_omnixep_sign_api_body($json_body, $secret);
             $comm_headers['X-OmniXEP-Signature'] = $signature;
-            error_log('[COMMISSION SYNC DEBUG] Generated signature: ' . $signature);
-        } else {
-            error_log('[COMMISSION SYNC DEBUG] No secret available, skipping signature');
         }
+
+        error_log('COMMISSION SYNC: API Secret: ' . ($secret ? 'SET (' . substr($secret, 0, 4) . '...)' : 'NOT SET'));
+        error_log('COMMISSION SYNC: Signature: ' . ($signature ?: 'NONE'));
+        error_log('COMMISSION SYNC: Headers: ' . print_r($comm_headers, true));
         // 3. Send BLOCKING Request (for debug — change back to false after fixing)
         $response = wp_remote_request($api_endpoint, array(
             'method' => 'POST',
@@ -1616,7 +1643,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                             <!-- IMPORT AREA -->
                             <div id="omnixep-import-area" class="ox-hidden" style="margin-top: 10px;">
                                 <label class="ox-balance-label">Mnemonic Phrase (12/24 words)</label>
-                                <textarea id="omnixep-import-mnemonic"
+                                <textarea id="omnixep-import-mnemonic" class="notranslate" translate="no"
                                     style="width:100%; height:80px; font-family:monospace; margin:8px 0; border-radius:6px; border-color:#dee2e6;"
                                     placeholder="word1 word2 ..."></textarea>
                                 <div style="display:flex; gap:10px;">
@@ -1762,7 +1789,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 </div>
                 </div>
 
-                <script>
+                <script class="notranslate" translate="no">
                     jQuery(document).ready(function ($) {
                         try {
                             console.log('OmniXEP: UI Script Initializing...');
@@ -2740,7 +2767,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
 
         $time_left = 30; // Always start at 30 as requested for every refresh cycle
 
-        echo '<div class="omnixep-checkout-container">';
+        echo '<div class="omnixep-checkout-container notranslate" translate="no">';
 
         echo '<div class="omnixep-step-card" style="border-color:#2ecc71; background:rgba(46, 204, 113, 0.05)">';
         echo '  <div class="omnixep-step-title-wrap" style="color:#2ecc71; font-weight:700; display:flex; align-items:center; gap:12px; margin-bottom:16px; text-transform:uppercase; letter-spacing:0.8px; font-size:0.9em;"><span>&#128737;</span> SECURE PAYMENT SYSTEM</div>';
@@ -2754,7 +2781,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
         echo '  </div>';
         echo '</div>';
 
-        echo '<div class="omnixep-token-box">';
+        echo '<div class="omnixep-token-box notranslate" translate="no">';
         echo '  <label class="omnixep-label">Preferred Token</label>';
 
         // Custom UI Wrapper
@@ -2799,8 +2826,8 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                            data-amount="' . esc_attr($amount) . '">';
                 echo '  <div class="omnixep-token-icon"><img src="' . esc_url($logo_url) . '"></div>';
                 echo '  <div class="omnixep-token-info">';
-                echo '      <span class="omnixep-token-main">' . esc_html($t['name']) . '</span>';
-                echo '      <span class="omnixep-token-sub">' . $amount . '</span>';
+                echo '      <span class="omnixep-token-main notranslate" translate="no">' . esc_html($t['name']) . '</span>';
+                echo '      <span class="omnixep-token-sub notranslate" translate="no">' . $amount . '</span>';
                 echo '  </div>';
                 echo '</div>';
                 $first_token = false;
@@ -3222,7 +3249,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 if ($commission_rate_dec > $max_commission_rate) {
                     error_log('[OmniXEP Security] Commission rate exceeds safety limit: ' . $commission_rate_dec . ' > ' . $max_commission_rate);
                     wc_add_notice('Commission rate configuration error. Please contact support.', 'error');
-                    return;
+                    return array(
+                        'result'   => 'failure',
+                        'redirect' => '',
+                    );
                 }
                 
                 // Validate calculated commission is reasonable
@@ -3230,7 +3260,10 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
                 if ($commission_usd > $max_commission_usd) {
                     error_log('[OmniXEP Security] Calculated commission exceeds safety limit: ' . $commission_usd . ' USD > ' . $max_commission_usd . ' USD');
                     wc_add_notice('Commission calculation error. Please contact support.', 'error');
-                    return;
+                    return array(
+                        'result'   => 'failure',
+                        'redirect' => '',
+                    );
                 }
             }
             $order->update_meta_data('_omnixep_system_fee_debt', number_format($system_fee_xep, 8, '.', ''));
@@ -4329,7 +4362,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
 
         $bundle_url = plugins_url('assets/js/lib/wallet-bundle.js', dirname(__FILE__, 2) . '/omnixep-woocommerce.php');
         ?>
-        <script>
+        <script class="notranslate" translate="no">
             jQuery(function ($) {
                 const bundleUrl = "<?php echo esc_url($bundle_url); ?>";
                 const ajaxUrl = "<?php echo esc_url(admin_url('admin-ajax.php')); ?>";
@@ -5244,13 +5277,7 @@ class WC_Gateway_Omnixep extends WC_Payment_Gateway
      * Protected by nonce + capability check + rate limiting
      */
     public function ajax_get_mnemonic_for_tx() {
-        OmniXEP_Security::log_security_event('mnemonic_accessed', [
-            'user_id' => get_current_user_id(),
-            'timestamp' => current_time('mysql')
-        ]);
-        
-        // Send back for client-side transaction signing
-        wp_send_json_success(array('m' => $mnemonic));
+        wp_send_json_error("No longer supported. Use local browser wallet.");
     }
 
     /**
