@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.60
+ * Version:           2.5.61
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -1217,10 +1217,6 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
             error_log('OMNIXEP_JSON_LOG: ' . json_encode($success_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
     }
-    
-    $log_data .= "--- END SYNC TEST ---\n\n";
-    die($log_data);
-    file_put_contents($debug_file, $log_data, FILE_APPEND);
     
     error_log('=== TERMS ACCEPTANCE API SYNC END ===');
     
@@ -4282,9 +4278,7 @@ function wc_omnixep_submit_feedback($data)
     
     $log_data .= "HTTP STATUS: " . $status_code . "\n";
     $log_data .= "RESPONSE BODY: " . $response_body . "\n";
-    $log_data .= "--- END FEEDBACK TEST ---\n\n";
-    die($log_data);
-    file_put_contents($debug_file, $log_data, FILE_APPEND);
+
     
     if ($status_code >= 200 && $status_code < 300) {
         return array('success' => true);
