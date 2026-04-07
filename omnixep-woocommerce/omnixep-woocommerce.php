@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.62
+ * Version:           2.5.63
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -4334,11 +4334,7 @@ function wc_omnixep_submit_feedback($data)
     $log_data .= "HTTP STATUS: " . $status_code . "\n";
     $log_data .= "RESPONSE BODY: " . $response_body . "\n";
 
-    
-    if ($status_code >= 200 && $status_code < 300) {
-        return array('success' => true);
-    }
-    
+    // Do not return early here! We must decode the JSON to get the reference_number from the FAPI response.
     $result = json_decode($response_body, true);
     
     // Handle non-200 responses
