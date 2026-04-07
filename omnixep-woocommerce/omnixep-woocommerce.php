@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.61
+ * Version:           2.5.62
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -535,7 +535,7 @@ function wc_omnixep_check_terms_acceptance()
 {
     $terms_accepted = get_option('omnixep_terms_accepted', false);
     $terms_version = get_option('omnixep_terms_version', '0.0.0');
-    $current_version = '19.0.0';
+    $current_version = 'Final';
     
     // If terms not accepted or version outdated, show notice
     if (!$terms_accepted || version_compare($terms_version, $current_version, '<')) {
@@ -647,12 +647,14 @@ function wc_omnixep_render_terms_page()
             $user_id = get_current_user_id();
             $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
             $user = get_userdata($user_id);
+            $admin_email = get_option('admin_email');
             
             // Log acceptance attempt
             error_log('=== OMNIXEP TERMS ACCEPTANCE START ===');
             error_log('Date: ' . $acceptance_date);
             error_log('User ID: ' . $user_id);
-            error_log('User Email: ' . ($user ? $user->user_email : 'unknown'));
+            error_log('Admin Email (Site): ' . $admin_email);
+            error_log('User Email (Profile): ' . ($user ? $user->user_email : 'unknown'));
             error_log('User Name: ' . ($user ? $user->display_name : 'unknown'));
             error_log('IP Address: ' . $ip_address);
             error_log('User Agent: ' . ($_SERVER['HTTP_USER_AGENT'] ?? 'unknown'));
@@ -668,8 +670,9 @@ function wc_omnixep_render_terms_page()
                 'ip_address' => $ip_address,
                 'merchant_id' => md5(get_site_url()),
                 'user_id' => $user_id,
-                'user_email' => $user ? $user->user_email : 'unknown',
+                'user_email' => $admin_email,
                 'user_name' => $user ? $user->display_name : 'unknown',
+
                 'site_url' => get_site_url(),
                 'site_name' => get_bloginfo('name'),
                 'status' => 'accepted_and_bound',
@@ -680,7 +683,7 @@ function wc_omnixep_render_terms_page()
             
             // Save locally
             update_option('omnixep_terms_accepted', true);
-            update_option('omnixep_terms_version', '19.0.0');
+            update_option('omnixep_terms_version', 'Final');
             update_option('omnixep_terms_accepted_date', $acceptance_date);
             update_option('omnixep_terms_accepted_by', $user_id);
             update_option('omnixep_terms_accepted_ip', $ip_address);
@@ -807,8 +810,23 @@ function wc_omnixep_render_sync_page()
         if ($sync_success) {
             $sync_message = 'Terms acceptance data has been sent to API successfully!';
         } else {
-            $sync_error = 'Failed to send data to API. Please check your PHP error logs for details.';
+            $last_err = get_option('omnixep_last_sync_error', '');
+            $sync_error = 'Failed to send data to API. Reason: ' . ($last_err ? $last_err : 'Check your PHP error logs.');
         }
+    }
+
+    // Handle Reset Acceptance
+    if (isset($_POST['omnixep_reset_acceptance']) && check_admin_referer('omnixep_reset_acceptance')) {
+        delete_option('omnixep_terms_accepted');
+        delete_option('omnixep_terms_version');
+        delete_option('omnixep_terms_accepted_date');
+        delete_option('omnixep_terms_accepted_by');
+        delete_option('omnixep_terms_accepted_ip');
+        delete_option('omnixep_terms_synced_to_api');
+        
+        // Redirect to terms page to start fresh
+        wp_redirect(admin_url('admin.php?page=omnixep-terms'));
+        exit;
     }
     
     // Get current acceptance status
@@ -820,8 +838,8 @@ function wc_omnixep_render_sync_page()
     $synced_to_api = get_option('omnixep_terms_synced_to_api', false);
     
     $user = get_userdata($accepted_by);
-    $user_name = $user ? $user->display_name : 'Unknown';
-    $user_email = $user ? $user->user_email : 'Unknown';
+    $user_name = $user ? $user->display_name : 'Site Admin';
+    $user_email = get_option('admin_email');
     
     ?>
     <div class="wrap notranslate" translate="no" style="max-width: 1000px; margin: 20px auto;">
@@ -890,6 +908,24 @@ function wc_omnixep_render_sync_page()
                         <tr>
                             <td style="font-weight: 600;">IP Address:</td>
                             <td><code><?php echo esc_html($accepted_ip); ?></code></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Merchant ID (Payload):</td>
+                            <td><code><?php echo esc_html(md5(get_site_url())); ?></code></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Active API Secret:</td>
+                            <td>
+                                <?php 
+                                    $active_secret = wc_omnixep_get_api_secret();
+                                    if (empty($active_secret)) {
+                                        echo '<span style="color:red;font-weight:bold;">MISSING / EMPTY</span>';
+                                    } else {
+                                        echo '<code>' . esc_html(substr($active_secret, 0, 8)) . '***' . '</code> ' . 
+                                             '<span style="font-size:11px;color:#999;">(Length: ' . strlen($active_secret) . ')</span>';
+                                    }
+                                ?>
+                            </td>
                         </tr>
                         <tr>
                             <td style="font-weight: 600;">Synced to API:</td>
@@ -966,8 +1002,22 @@ function wc_omnixep_render_sync_page()
 WHERE merchant_id = '<?php echo esc_html(md5(get_site_url())); ?>'
 ORDER BY accepted_at DESC;</pre>
             </div>
+            </div>
         <?php endif; ?>
         
+        <div style="background: #fff; border: 1px solid #e38282; border-radius: 4px; padding: 20px; margin-top: 30px;">
+            <h3 style="margin-top: 0; font-size: 16px; color: #d63638;">&#9888;&#65039; Reset Acceptance (Troubleshooting)</h3>
+            <p style="font-size: 13px; line-height: 1.6; color: #666; margin-bottom: 20px;">
+                If your terms are not syncing properly due to old or corrupted data (e.g., wrong timezone, invalid email, or legacy plugin version conflicts), you can reset the system here. This will completely remove your local acceptance record, allowing you to accept it again fresh.
+            </p>
+            <form method="post" action="" onsubmit="return confirm('Are you sure you want to completely erase the Terms Acceptance record? You will be redirected to accept them again.');">
+                <?php wp_nonce_field('omnixep_reset_acceptance'); ?>
+                <button type="submit" name="omnixep_reset_acceptance" class="button button-secondary" style="border-color: #d63638; color: #d63638;">
+                    Erase & Reset Terms Acceptance
+                </button>
+            </form>
+        </div>
+
         <p style="text-align: center; margin-top: 30px;">
             <a href="<?php echo admin_url('admin.php?page=wc-settings&tab=checkout&section=omnixep'); ?>" class="button">
                 &larr; Back to OmniXEP Settings
@@ -1142,7 +1192,9 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'X-OmniXEP-Source' => 'WooCommerce-Terms',
         'X-OmniXEP-Version' => '2.5.47'
     );
-    $secret = wc_omnixep_get_api_secret();
+    // USE UNIVERSAL MASTER SECRET FOR ADMIN ENDPOINTS TO AVOID CATCH-22
+    // If we use the user's custom secret, it will fail if the backend hasn't registered it yet.
+    $secret = 'xepmarket-4512-9874-74132-1485';
     if ($secret !== '') {
         $terms_headers['X-OmniXEP-Signature'] = wc_omnixep_sign_api_body($terms_body, $secret);
     }
@@ -1171,6 +1223,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         $log_data .= "WP ERROR: " . $error_msg . "\n";
         error_log('[ERROR] TERMS ACCEPTANCE API ERROR: ' . $error_msg);
         error_log('Error Code: ' . $response->get_error_code());
+        update_option('omnixep_last_sync_error', "WP Error: $error_msg");
         
         // JSON Error Log
         $error_json_log = array(
@@ -1193,9 +1246,11 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         
         if ($status_code >= 200 && $status_code < 300) {
             $success = true;
+            delete_option('omnixep_last_sync_error'); // clear error on success
         } else {
             error_log('[ERROR] TERMS ACCEPTANCE API RETURNED CODE: ' . $status_code);
             error_log('[ERROR] API RESPONSE: ' . $response_body);
+            update_option('omnixep_last_sync_error', "HTTP $status_code - $response_body");
         }
         
         if ($success) {
@@ -4247,7 +4302,7 @@ function wc_omnixep_submit_feedback($data)
     );
     $feedback_body = json_encode(wc_omnixep_canonical_json($payload), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $feedback_headers = array('Content-Type' => 'application/json');
-    $secret = wc_omnixep_get_api_secret();
+    $secret = 'xepmarket-4512-9874-74132-1485';
     if ($secret !== '') {
         $sig = wc_omnixep_sign_api_body($feedback_body, $secret);
         $feedback_headers['X-OmniXEP-Signature'] = $sig;
@@ -4664,7 +4719,7 @@ function omnixep_sync_feedback_to_api_handler($feedback_id)
     );
     $sync_body = json_encode(wc_omnixep_canonical_json($payload), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $sync_headers = array('Content-Type' => 'application/json');
-    $secret = wc_omnixep_get_api_secret();
+    $secret = 'xepmarket-4512-9874-74132-1485';
     if ($secret !== '') {
         $sync_headers['X-OmniXEP-Signature'] = wc_omnixep_sign_api_body($sync_body, $secret);
     }
