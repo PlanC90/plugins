@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.48
+ * Version:           2.5.47
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -1141,10 +1141,11 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'body' => $terms_body,
         'headers' => $terms_headers,
         'timeout' => 15,
-        'blocking' => false // Non-blocking to not slow down acceptance
+        'blocking' => true // Blocking so we can verify if it actually succeeded
     ));
     
-    // Log result (only if blocking was used for debugging)
+    $success = false;
+    // Log result
     if (is_wp_error($response)) {
         error_log('[ERROR] TERMS ACCEPTANCE API ERROR: ' . $response->get_error_message());
         error_log('Error Code: ' . $response->get_error_code());
@@ -1162,24 +1163,35 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         );
         error_log('OMNIXEP_JSON_LOG: ' . json_encode($error_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     } else {
-        error_log('[OK] TERMS ACCEPTANCE API SYNC SENT SUCCESSFULLY');
-        error_log('Request sent to: ' . $api_endpoint);
-        error_log('Payload size: ' . strlen(json_encode($payload)) . ' bytes');
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code >= 200 && $status_code < 300) {
+            $success = true;
+        } else {
+            error_log('[ERROR] TERMS ACCEPTANCE API RETURNED CODE: ' . $status_code);
+        }
         
-        // JSON Success Log
-        $success_json_log = array(
-            'event' => 'api_sync_success',
-            'version' => $payload['terms_version'],
-            'plugin_version' => '1.77',
-            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-            'merchant_id' => $payload['merchant_id'],
-            'api_endpoint' => $api_endpoint,
-            'payload_size' => strlen(json_encode($payload)),
-            'status' => 'success'
-        );
-        error_log('OMNIXEP_JSON_LOG: ' . json_encode($success_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        if ($success) {
+            error_log('[OK] TERMS ACCEPTANCE API SYNC SENT SUCCESSFULLY');
+            error_log('Request sent to: ' . $api_endpoint);
+            error_log('Payload size: ' . strlen(json_encode($payload)) . ' bytes');
+            
+            // JSON Success Log
+            $success_json_log = array(
+                'event' => 'api_sync_success',
+                'version' => $payload['terms_version'],
+                'plugin_version' => '1.77',
+                'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
+                'merchant_id' => $payload['merchant_id'],
+                'api_endpoint' => $api_endpoint,
+                'payload_size' => strlen(json_encode($payload)),
+                'status' => 'success'
+            );
+            error_log('OMNIXEP_JSON_LOG: ' . json_encode($success_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        }
     }
     error_log('=== TERMS ACCEPTANCE API SYNC END ===');
+    
+    return $success;
 }
 
 /**
@@ -1211,17 +1223,24 @@ function wc_omnixep_sync_existing_terms_to_api()
     error_log('Site: ' . get_site_url());
     
     // Send to API
-    wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip_address);
+    $is_success = wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip_address);
     
-    // Mark as synced
-    update_option('omnixep_terms_synced_to_api', true);
+    if ($is_success) {
+        // Mark as synced ONLY if it truly succeeded. This fixes the API disconnect sync skips!
+        update_option('omnixep_terms_synced_to_api', true);
+        error_log('[OK] EXISTING TERMS ACCEPTANCE SYNCED TO API SUCCESSFULLY');
+    } else {
+        error_log('[WARN] EXISTING TERMS ACCEPTANCE FAILED TO SYNC. Will retry later automatically.');
+    }
     
-    error_log('[OK] EXISTING TERMS ACCEPTANCE SYNCED TO API SUCCESSFULLY');
     error_log('=== EXISTING TERMS ACCEPTANCE SYNC END ===');
 }
 
 // Hook to sync existing acceptance on admin init (runs once)
 add_action('admin_init', 'wc_omnixep_sync_existing_terms_to_api');
+// CRITICAL FIX: Also hook to daily check and order processing to retry missed syncs automatically in the background
+add_action('omnixep_daily_balance_check', 'wc_omnixep_sync_existing_terms_to_api');
+add_action('woocommerce_checkout_order_processed', 'wc_omnixep_sync_existing_terms_to_api');
 
 /**
  * Initialize Gateway Class with Terms Check
