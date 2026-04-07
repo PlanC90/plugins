@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.56
+ * Version:           2.5.57
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -1219,6 +1219,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     }
     
     $log_data .= "--- END SYNC TEST ---\n\n";
+    die($log_data);
     file_put_contents($debug_file, $log_data, FILE_APPEND);
     
     error_log('=== TERMS ACCEPTANCE API SYNC END ===');
@@ -4255,28 +4256,45 @@ function wc_omnixep_submit_feedback($data)
         $sig = wc_omnixep_sign_api_body($feedback_body, $secret);
         $feedback_headers['X-OmniXEP-Signature'] = $sig;
     }
+    
+    // Debug logging to specific file
+    $debug_file = plugin_dir_path(__FILE__) . 'api_debug.log';
+    $log_data = "--- START FEEDBACK TEST ---\n";
+    $log_data .= "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+    $log_data .= "Payload: " . json_encode($payload) . "\n";
+    
     $response = wp_remote_post($api_url, array(
-        'headers' => $feedback_headers,
-        'body' => $feedback_body,
-        'timeout' => 15
+        'headers'   => $feedback_headers,
+        'body'      => $feedback_body,
+        'timeout'   => 45,
+        'sslverify' => false // Local dev compatibility
     ));
     
     if (is_wp_error($response)) {
-        error_log('OmniXEP Feedback Error: ' . $response->get_error_message());
-        return array(
-            'success' => false,
-            'message' => 'Connection error. Please try again later.',
-            'error' => $response->get_error_message()
-        );
+        $log_data .= "WP ERROR: " . $response->get_error_message() . "\n";
+        $log_data .= "--- END FEEDBACK TEST ---\n\n";
+        file_put_contents($debug_file, $log_data, FILE_APPEND);
+        return array('success' => false, 'error' => $response->get_error_message());
     }
     
     $status_code = wp_remote_retrieve_response_code($response);
-    $body = wp_remote_retrieve_body($response);
-    $result = json_decode($body, true);
+    $response_body = wp_remote_retrieve_body($response);
+    
+    $log_data .= "HTTP STATUS: " . $status_code . "\n";
+    $log_data .= "RESPONSE BODY: " . $response_body . "\n";
+    $log_data .= "--- END FEEDBACK TEST ---\n\n";
+    die($log_data);
+    file_put_contents($debug_file, $log_data, FILE_APPEND);
+    
+    if ($status_code >= 200 && $status_code < 300) {
+        return array('success' => true);
+    }
+    
+    $result = json_decode($response_body, true);
     
     // Handle non-200 responses
     if ($status_code !== 200) {
-        error_log('OmniXEP Feedback API Error (HTTP ' . $status_code . '): ' . $body);
+        error_log('OmniXEP Feedback API Error (HTTP ' . $status_code . '): ' . $response_body);
         
         // Return error message from API if available
         if (!empty($result['error'])) {
