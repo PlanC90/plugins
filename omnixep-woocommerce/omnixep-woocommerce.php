@@ -393,7 +393,7 @@ function wc_omnixep_remote_disable_notice()
         }
 
         // Replace the specific Turkish sentence if it matches
-        if (strpos($reason, 'MÃƒÆ’Ã‚Â¼Ãƒâ€¦Ã…Â¸teri Ãƒâ€¦Ã‚Âikayeti ÃƒÆ’Ã…â€œzerine Panelden KapatÃƒâ€Ã‚Â±ldÃƒâ€Ã‚Â±') !== false) {
+        if (strpos($reason, 'MÃƒÂ¼Ã…Å¸teri Ã…Âikayeti ÃƒÅ“zerine Panelden KapatÃ„Â±ldÃ„Â±') !== false) {
              $reason = 'Disabled due to unresolved complaints';
         }
 
@@ -1073,7 +1073,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
         
         // Jurisdiction Acknowledgment
-        'jurisdiction_accepted' => 'Republic of TÃƒÆ’Ã‚Â¼rkiye',
+        'jurisdiction_accepted' => 'Republic of TÃƒÂ¼rkiye',
         'courts_accepted' => 'Courts and Enforcement Offices of Istanbul',
         
         // Key Acknowledgments
