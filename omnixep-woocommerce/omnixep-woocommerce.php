@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.53
+ * Version:           2.5.47
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -298,7 +298,7 @@ function wc_omnixep_check_remote_status($force_refresh = false)
     $headers = array(
         'Content-Type' => 'application/json',
         'X-OmniXEP-Source' => 'WooCommerce-Plugin',
-        'X-OmniXEP-Version' => '1.77'
+        'X-OmniXEP-Version' => '2.5.47'
     );
     $secret = wc_omnixep_get_api_secret();
     if ($secret !== '') {
@@ -348,7 +348,7 @@ function wc_omnixep_check_remote_status($force_refresh = false)
         // JSON Log
         $json_log = array(
             'event' => 'remote_disable_detected',
-            'plugin_version' => '1.77',
+            'plugin_version' => '2.5.47',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $merchant_id,
             'site_url' => get_site_url(),
@@ -496,7 +496,7 @@ function wc_omnixep_deactivate()
     // JSON Deactivation Log
     $deactivation_json_log = array(
         'event' => 'plugin_deactivation',
-        'plugin_version' => '1.77',
+        'plugin_version' => '2.5.47',
         'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
         'site_url' => get_site_url(),
         'site_name' => get_bloginfo('name'),
@@ -663,7 +663,7 @@ function wc_omnixep_render_terms_page()
             $json_log = array(
                 'event' => 'terms_acceptance',
                 'version' => 'Final',
-                'plugin_version' => '1.77',
+                'plugin_version' => '2.5.47',
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'ip_address' => $ip_address,
                 'merchant_id' => md5(get_site_url()),
@@ -802,8 +802,13 @@ function wc_omnixep_render_sync_page()
     if (isset($_POST['omnixep_manual_sync']) && check_admin_referer('omnixep_manual_sync')) {
         // Force re-sync
         delete_option('omnixep_terms_synced_to_api');
-        wc_omnixep_sync_existing_terms_to_api();
-        $sync_message = 'Terms acceptance data has been sent to API successfully!';
+        $sync_success = wc_omnixep_sync_existing_terms_to_api();
+        
+        if ($sync_success) {
+            $sync_message = 'Terms acceptance data has been sent to API successfully!';
+        } else {
+            $sync_error = 'Failed to send data to API. Please check your PHP error logs for details.';
+        }
     }
     
     // Get current acceptance status
@@ -841,6 +846,12 @@ function wc_omnixep_render_sync_page()
         <?php if (isset($sync_message)): ?>
             <div class="notice notice-success" style="padding: 15px; margin-bottom: 20px;">
                 <p><strong>&#9989; Success:</strong> <?php echo esc_html($sync_message); ?></p>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($sync_error)): ?>
+            <div class="notice notice-error" style="padding: 15px; margin-bottom: 20px;">
+                <p><strong>&#10060; Error:</strong> <?php echo esc_html($sync_error); ?></p>
             </div>
         <?php endif; ?>
         
@@ -1066,14 +1077,14 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
         'fee_wallet_address' => isset($settings['fee_wallet_address']) ? trim($settings['fee_wallet_address']) : '',
         
         // Technical Information
-        'plugin_version' => '1.77',
+        'plugin_version' => '2.5.47',
         'wordpress_version' => get_bloginfo('version'),
         'woocommerce_version' => defined('WC_VERSION') ? WC_VERSION : 'unknown',
         'php_version' => PHP_VERSION,
         'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
         
         // Jurisdiction Acknowledgment
-        'jurisdiction_accepted' => 'Republic of TÃƒÂ¼rkiye',
+        'jurisdiction_accepted' => 'Republic of Türkiye',
         'courts_accepted' => 'Courts and Enforcement Offices of Istanbul',
         
         // Key Acknowledgments
@@ -1111,7 +1122,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     $api_json_log = array(
         'event' => 'api_sync_attempt',
         'version' => $payload['terms_version'],
-        'plugin_version' => '1.77',
+        'plugin_version' => '2.5.47',
         'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
         'merchant_id' => $payload['merchant_id'],
         'merchant_name' => $payload['merchant_legal_name'],
@@ -1129,7 +1140,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     $terms_headers = array(
         'Content-Type' => 'application/json',
         'X-OmniXEP-Source' => 'WooCommerce-Terms',
-        'X-OmniXEP-Version' => '2.5.31'
+        'X-OmniXEP-Version' => '2.5.47'
     );
     $secret = wc_omnixep_get_api_secret();
     if ($secret !== '') {
@@ -1145,29 +1156,35 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     ));
     
     $success = false;
+    $response_body = '';
+    
     // Log result
     if (is_wp_error($response)) {
-        error_log('[ERROR] TERMS ACCEPTANCE API ERROR: ' . $response->get_error_message());
+        $error_msg = $response->get_error_message();
+        error_log('[ERROR] TERMS ACCEPTANCE API ERROR: ' . $error_msg);
         error_log('Error Code: ' . $response->get_error_code());
         
         // JSON Error Log
         $error_json_log = array(
             'event' => 'api_sync_error',
             'version' => $payload['terms_version'],
-            'plugin_version' => '1.77',
+            'plugin_version' => '2.5.47',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'merchant_id' => $payload['merchant_id'],
-            'error_message' => $response->get_error_message(),
+            'error_message' => $error_msg,
             'error_code' => $response->get_error_code(),
             'status' => 'failed'
         );
         error_log('OMNIXEP_JSON_LOG: ' . json_encode($error_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     } else {
         $status_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        
         if ($status_code >= 200 && $status_code < 300) {
             $success = true;
         } else {
             error_log('[ERROR] TERMS ACCEPTANCE API RETURNED CODE: ' . $status_code);
+            error_log('[ERROR] API RESPONSE: ' . $response_body);
         }
         
         if ($success) {
@@ -1179,7 +1196,7 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
             $success_json_log = array(
                 'event' => 'api_sync_success',
                 'version' => $payload['terms_version'],
-                'plugin_version' => '1.77',
+                'plugin_version' => '2.5.47',
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'merchant_id' => $payload['merchant_id'],
                 'api_endpoint' => $api_endpoint,
@@ -1199,14 +1216,14 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
  */
 function wc_omnixep_sync_existing_terms_to_api()
 {
-    // Check if already synced
-    if (get_option('omnixep_terms_synced_to_api', false)) {
-        return; // Already synced
-    }
-    
     // Check if terms were accepted
     if (!get_option('omnixep_terms_accepted', false)) {
-        return; // Not accepted yet
+        return false; // Not accepted yet
+    }
+
+    // Check if already synced
+    if (get_option('omnixep_terms_synced_to_api', false)) {
+        return true; // Already synced
     }
     
     // Get existing acceptance data
@@ -1234,6 +1251,8 @@ function wc_omnixep_sync_existing_terms_to_api()
     }
     
     error_log('=== EXISTING TERMS ACCEPTANCE SYNC END ===');
+    
+    return $is_success;
 }
 
 // Hook to sync existing acceptance on admin init (runs once)
