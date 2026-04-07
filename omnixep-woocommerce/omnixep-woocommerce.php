@@ -3,7 +3,7 @@
  * Plugin Name: OmniXEP WooCommerce Payment Gateway
  * Plugin URI: https://www.electraprotocol.com/omnixep/
  * Description: Accept XEP and Tokens via OmniXEP Wallet.
- * Version:           2.5.47
+ * Version:           2.5.55
  * Author: XEPMARKET
  * Author URI: https://xepmarket.com
  * Text Domain: omnixep-woocommerce
@@ -1146,21 +1146,29 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     if ($secret !== '') {
         $terms_headers['X-OmniXEP-Signature'] = wc_omnixep_sign_api_body($terms_body, $secret);
     }
+    
+    // Debug logging to specific file
+    $debug_file = plugin_dir_path(__FILE__) . 'api_debug.log';
+    $log_data = "--- START SYNC TEST ---\n";
+    $log_data .= "Timestamp: " . date('Y-m-d H:i:s') . "\n";
+    $log_data .= "Endpoint: " . $api_endpoint . "\n";
+    $log_data .= "Payload: " . json_encode($payload) . "\n";
+    
     // Send to API (non-blocking)
-    $response = wp_remote_request($api_endpoint, array(
-        'method' => 'POST',
-        'body' => $terms_body,
-        'headers' => $terms_headers,
-        'timeout' => 15,
-        'blocking' => true // Blocking so we can verify if it actually succeeded
+    $response = wp_remote_post($api_endpoint, array(
+        'method'    => 'POST',
+        'body'      => $terms_body,
+        'headers'   => $terms_headers,
+        'timeout'   => 45,
+        'sslverify' => false // Local dev compatibility
     ));
     
     $success = false;
     $response_body = '';
     
-    // Log result
     if (is_wp_error($response)) {
         $error_msg = $response->get_error_message();
+        $log_data .= "WP ERROR: " . $error_msg . "\n";
         error_log('[ERROR] TERMS ACCEPTANCE API ERROR: ' . $error_msg);
         error_log('Error Code: ' . $response->get_error_code());
         
@@ -1179,6 +1187,9 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
     } else {
         $status_code = wp_remote_retrieve_response_code($response);
         $response_body = wp_remote_retrieve_body($response);
+        
+        $log_data .= "HTTP STATUS: " . $status_code . "\n";
+        $log_data .= "RESPONSE BODY: " . $response_body . "\n";
         
         if ($status_code >= 200 && $status_code < 300) {
             $success = true;
@@ -1206,6 +1217,10 @@ function wc_omnixep_send_terms_acceptance_to_api($acceptance_date, $user_id, $ip
             error_log('OMNIXEP_JSON_LOG: ' . json_encode($success_json_log, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
     }
+    
+    $log_data .= "--- END SYNC TEST ---\n\n";
+    file_put_contents($debug_file, $log_data, FILE_APPEND);
+    
     error_log('=== TERMS ACCEPTANCE API SYNC END ===');
     
     return $success;
